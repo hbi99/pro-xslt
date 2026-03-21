@@ -1,0 +1,41 @@
+{
+  "name": "pro-xslt",
+  "version": "0.0.1",
+  "description": "Browser-based XSLT processor library (pure JavaScript)",
+  "type": "module",
+  "main": "dist/pro-xslt.umd.js",
+  "module": "dist/pro-xslt.esm.js",
+  "browser": "dist/pro-xslt.umd.js",
+  "exports": {
+    ".": {
+      "import": "./dist/pro-xslt.esm.js",
+      "require": "./dist/pro-xslt.umd.js",
+      "default": "./dist/pro-xslt.esm.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "build:watch": "rollup -c rollup.config.js --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "xslt",
+    "browser",
+    "xml"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "rollup": "^4.28.1",
+    "vitest": "^3.0.5"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "tailwindcss": "^4.2.2"
+  }
+}
