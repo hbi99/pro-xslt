@@ -7,7 +7,7 @@ import {
 	expandXPathVariables,
 	formatNumber,
 	generateId,
-	stripXPathStringLiteral,
+	parseXsltFunctionCall,
 } from "./utils.js";
 
 function bindXslVariable(context, el, vars) {
@@ -125,76 +125,6 @@ export function xsltElements(context, xslNode, fragment, vars) {
 	return fragment;
 }
 
-/**
- * Parses a single top-level function call: `name(arg1, arg2, ...)`.
- * Respects nested parentheses and string literals (including `''` escapes).
- * Returns null if the input is not exactly one call (trailing text, unbalanced, etc.).
- *
- * @returns {{ name: string, args: string[], raw: string } | null}
- */
-export function parseXsltFunctionCall(input) {
-	let s = input.trim();
-	let m = /^([A-Za-z_][\w.\-:]*)\s*\(/u.exec(s);
-	if (!m) return null;
-	let name = m[1];
-	let i = m.index + m[0].length;
-	let args = [];
-	let argStart = i;
-	let depth = 1;
-	let inQuote = false;
-	let quoteChar = "";
-	let len = s.length;
-	while (i < len) {
-		let c = s[i];
-		if (!inQuote) {
-			if (c === "'" || c === '"') {
-				inQuote = true;
-				quoteChar = c;
-				i++;
-				continue;
-			}
-			if (c === "(") {
-				depth++;
-				i++;
-				continue;
-			}
-			if (c === ")") {
-				depth--;
-				if (depth === 0) {
-					let arg = s.slice(argStart, i).trim();
-					if (arg.length > 0) args.push(arg);
-					i++;
-					if (i < len && s.slice(i).trim().length > 0) return null;
-					return { name, args, raw: s };
-				}
-				i++;
-				continue;
-			}
-			if (c === "," && depth === 1) {
-				args.push(s.slice(argStart, i).trim());
-				argStart = i + 1;
-				i++;
-				continue;
-			}
-			i++;
-		} else {
-			if (c === quoteChar) {
-				if (quoteChar === "'" && s[i + 1] === "'") {
-					i += 2;
-					continue;
-				}
-				if (quoteChar === '"' && s[i + 1] === '"') {
-					i += 2;
-					continue;
-				}
-				inQuote = false;
-			}
-			i++;
-		}
-	}
-	return null;
-}
-
 function dispatchParsedXsltFunction(context, parsed) {
 	let n = parsed.name.toLowerCase();
 	let raw = parsed.raw;
@@ -276,43 +206,3 @@ export function xsltFunctions(context, value, vars) {
 	}
 	return result;
 }
-
-// export function coreFunctions(context, value) {
-// 	let result;
-// 	switch (true) {
-// 		case value.startsWith("boolean"): break;
-// 		case value.startsWith("ceiling"): break;
-// 		case value.startsWith("concat"):
-// 			result = value.slice(7, -1).split(",").map(p => {
-// 				p = p.trim();
-// 				if (p.startsWith("'") && p.endsWith("'")) p = p.slice(1,-1);
-// 				return p;
-// 			}).join("");
-// 			break;
-// 		case value.startsWith("contains"): break;
-// 		case value.startsWith("count"): break;
-// 		case value.startsWith("false"): break;
-// 		case value.startsWith("floor"): break;
-// 		case value.startsWith("id"): break;
-// 		case value.startsWith("lang"): break;
-// 		case value.startsWith("last"): break;
-// 		case value.startsWith("local-name"): break;
-// 		case value.startsWith("name"): break;
-// 		case value.startsWith("namespace-uri"): break;
-// 		case value.startsWith("normalize-space"): break;
-// 		case value.startsWith("not"): break;
-// 		case value.startsWith("number"): break;
-// 		case value.startsWith("position"): break;
-// 		case value.startsWith("round"): break;
-// 		case value.startsWith("starts-with"): break;
-// 		case value.startsWith("string"): break;
-// 		case value.startsWith("string-length"): break;
-// 		case value.startsWith("substring"): break;
-// 		case value.startsWith("substring-after"): break;
-// 		case value.startsWith("substring-before"): break;
-// 		case value.startsWith("sum"): break;
-// 		case value.startsWith("translate"): break;
-// 		case value.startsWith("true"): break;
-// 	}
-// 	return result;
-// }

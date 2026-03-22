@@ -193,6 +193,76 @@ export function stripXPathStringLiteral(arg) {
 }
 
 /**
+ * Parses a single top-level function call: `name(arg1, arg2, ...)`.
+ * Respects nested parentheses and string literals (including `''` escapes).
+ * Returns null if the input is not exactly one call (trailing text, unbalanced, etc.).
+ *
+ * @returns {{ name: string, args: string[], raw: string } | null}
+ */
+export function parseXsltFunctionCall(input) {
+	let s = input.trim();
+	let m = /^([A-Za-z_][\w.\-:]*)\s*\(/u.exec(s);
+	if (!m) return null;
+	let name = m[1];
+	let i = m.index + m[0].length;
+	let args = [];
+	let argStart = i;
+	let depth = 1;
+	let inQuote = false;
+	let quoteChar = "";
+	let len = s.length;
+	while (i < len) {
+		let c = s[i];
+		if (!inQuote) {
+			if (c === "'" || c === '"') {
+				inQuote = true;
+				quoteChar = c;
+				i++;
+				continue;
+			}
+			if (c === "(") {
+				depth++;
+				i++;
+				continue;
+			}
+			if (c === ")") {
+				depth--;
+				if (depth === 0) {
+					let arg = s.slice(argStart, i).trim();
+					if (arg.length > 0) args.push(arg);
+					i++;
+					if (i < len && s.slice(i).trim().length > 0) return null;
+					return { name, args, raw: s };
+				}
+				i++;
+				continue;
+			}
+			if (c === "," && depth === 1) {
+				args.push(s.slice(argStart, i).trim());
+				argStart = i + 1;
+				i++;
+				continue;
+			}
+			i++;
+		} else {
+			if (c === quoteChar) {
+				if (quoteChar === "'" && s[i + 1] === "'") {
+					i += 2;
+					continue;
+				}
+				if (quoteChar === '"' && s[i + 1] === '"') {
+					i += 2;
+					continue;
+				}
+				inQuote = false;
+			}
+			i++;
+		}
+	}
+	return null;
+}
+
+/**
  * Parse `format-number(expr, 'pattern' [, qname])` from a select string.
  * @returns {{ numberExpr: string, pattern: string } | null}
  */
