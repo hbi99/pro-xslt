@@ -1,4 +1,11 @@
-import { evaluate, generateId, formatNumber } from "./utils.js";
+import {
+	evaluate,
+	evaluateNumber,
+	evaluateString,
+	formatNumber,
+	generateId,
+	stripXPathStringLiteral,
+} from "./utils.js";
 
 export function xmlNodes(context, xslNode) {
 	let fragment = document.createDocumentFragment();
@@ -77,17 +84,126 @@ export function xsltElements(context, xslNode, fragment) {
 	return fragment;
 }
 
-export function xsltFunctions(context, value) {
-	// create parser for xslt functions, for example inputs like:
-	// format-number(1234.5, '#,##0.00')
-	// string-length('hello')
-	// substring('hello', 1, 3)
-	// substring-before('hello', 'world')
-	// concat('hello', 'world')
-	// position()
+/**
+ * Parses a single top-level function call: `name(arg1, arg2, ...)`.
+ * Respects nested parentheses and string literals (including `''` escapes).
+ * Returns null if the input is not exactly one call (trailing text, unbalanced, etc.).
+ *
+ * @returns {{ name: string, args: string[], raw: string } | null}
+ */
+export function parseXsltFunctionCall(input) {
+	let s = input.trim();
+	let m = /^([A-Za-z_][\w.\-:]*)\s*\(/u.exec(s);
+	if (!m) return null;
+	let name = m[1];
+	let i = m.index + m[0].length;
+	let args = [];
+	let argStart = i;
+	let depth = 1;
+	let inQuote = false;
+	let quoteChar = "";
+	let len = s.length;
+	while (i < len) {
+		let c = s[i];
+		if (!inQuote) {
+			if (c === "'" || c === '"') {
+				inQuote = true;
+				quoteChar = c;
+				i++;
+				continue;
+			}
+			if (c === "(") {
+				depth++;
+				i++;
+				continue;
+			}
+			if (c === ")") {
+				depth--;
+				if (depth === 0) {
+					let arg = s.slice(argStart, i).trim();
+					if (arg.length > 0) args.push(arg);
+					i++;
+					if (i < len && s.slice(i).trim().length > 0) return null;
+					return { name, args, raw: s };
+				}
+				i++;
+				continue;
+			}
+			if (c === "," && depth === 1) {
+				args.push(s.slice(argStart, i).trim());
+				argStart = i + 1;
+				i++;
+				continue;
+			}
+			i++;
+		} else {
+			if (c === quoteChar) {
+				if (quoteChar === "'" && s[i + 1] === "'") {
+					i += 2;
+					continue;
+				}
+				if (quoteChar === '"' && s[i + 1] === '"') {
+					i += 2;
+					continue;
+				}
+				inQuote = false;
+			}
+			i++;
+		}
+	}
+	return null;
 }
 
-export function xsltFunctions_OLD(context, value) {
+function concatFromParsedArgs(context, args) {
+	return args
+		.map((a) => {
+			let lit = stripXPathStringLiteral(a);
+			if (lit !== null) return lit;
+			return evaluateString(context, a);
+		})
+		.join("");
+}
+
+function dispatchParsedXsltFunction(context, parsed) {
+	let n = parsed.name.toLowerCase();
+	let raw = parsed.raw;
+	switch (n) {
+		case "format-number":
+			return formatNumber(raw, context);
+		case "generate-id":
+			return generateId(context);
+		case "concat":
+			return concatFromParsedArgs(context, parsed.args);
+		case "position":
+		case "last":
+		case "count":
+		case "number":
+		case "round":
+		case "floor":
+		case "ceiling":
+		case "sum":
+		case "string-length": {
+			let num = evaluateNumber(context, raw);
+			return num !== undefined && !Number.isNaN(num) ? String(num) : evaluateString(context, raw);
+		}
+		case "string":
+		case "normalize-space":
+		case "substring":
+		case "substring-before":
+		case "substring-after":
+		case "translate":
+			return evaluateString(context, raw);
+		default: {
+			let num = evaluateNumber(context, raw);
+			if (num !== undefined && !Number.isNaN(num)) return String(num);
+			return evaluateString(context, raw);
+		}
+	}
+}
+
+export function xsltFunctions(context, value) {
+	let parsed = parseXsltFunctionCall(value);
+	if (parsed) return dispatchParsedXsltFunction(context, parsed);
 	let result;
 	switch (true) {
 		case value.startsWith("current"): break;
@@ -104,9 +220,10 @@ export function xsltFunctions_OLD(context, value) {
 		case value.startsWith("system-property"): break;
 		case value.startsWith("unparsed-entity-uri"): break;
 		default:
-			result = evaluate(context, value)
-					|| coreFunctions(context, value)
-					|| context.selectSingleNode(value).textContent;
+			result =
+				evaluate(context, value) ??
+				coreFunctions(context, value) ??
+				context.selectSingleNode(value).textContent;
 	}
 	return result;
 }

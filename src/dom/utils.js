@@ -18,10 +18,35 @@ export function selectSingleNode(xpath, xnode) {
 	return (xI.length > 0)? xI[0] : null ;
 };
 
+function resolverFor(contextNode) {
+	const doc =
+		contextNode.nodeType === Node.DOCUMENT_NODE
+			? contextNode
+			: contextNode.ownerDocument;
+	return doc.createNSResolver(doc.documentElement);
+}
+
+function evaluateWithType(xnode, xpath, resultType) {
+	const doc =
+		xnode.nodeType === Node.DOCUMENT_NODE ? xnode : xnode.ownerDocument;
+	return doc.evaluate(xpath, xnode, resolverFor(xnode), resultType, null);
+}
+
 export function evaluate(xnode, xpath) {
-	let ns = document.createNSResolver(document.documentElement);
-	let r = document.evaluate(xpath, xnode, ns, XPathResult.NUMBER_TYPE, null);
-	if (!!r.numberValue) return r.numberValue;
+	const r = evaluateWithType(xnode, xpath, XPathResult.NUMBER_TYPE);
+	const n = r.numberValue;
+	return Number.isNaN(n) ? undefined : n;
+}
+
+export function evaluateString(xnode, xpath) {
+	const r = evaluateWithType(xnode, xpath, XPathResult.STRING_TYPE);
+	return r.stringValue;
+}
+
+export function evaluateNumber(xnode, xpath) {
+	const r = evaluateWithType(xnode, xpath, XPathResult.NUMBER_TYPE);
+	const n = r.numberValue;
+	return Number.isNaN(n) ? undefined : n;
 }
 
 export function nodePosition(node) {
@@ -50,5 +75,19 @@ export function generateId(context) {
 }
 
 export function formatNumber(value, context) {
-	return `1,234.5`;
+	// implement xslt format-number function
+}
+
+/**
+ * If `arg` is a single- or double-quoted XPath string literal, returns the decoded value; otherwise null.
+ */
+export function stripXPathStringLiteral(arg) {
+	let t = arg.trim();
+	if (t.length >= 2 && t.startsWith("'") && t.endsWith("'")) {
+		return t.slice(1, -1).replace(/''/g, "'");
+	}
+	if (t.length >= 2 && t.startsWith('"') && t.endsWith('"')) {
+		return t.slice(1, -1).replace(/""/g, '"');
+	}
+	return null;
 }
