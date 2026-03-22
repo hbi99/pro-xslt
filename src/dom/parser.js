@@ -110,7 +110,11 @@ export function xsltElements(context, xslNode, fragment, vars) {
 					processXslChildNodes(node, xslNode.childNodes, fragment, scope);
 				});
 			break;
-		case "xsl:text": break;
+		case "xsl:text":
+			fragment.appendChild(
+				document.createTextNode(xslNode.textContent)
+			);
+			break;
 		case "xsl:transform": break;
 		case "xsl:value-of":
 			value = xslNode.getAttribute("select").trim();
