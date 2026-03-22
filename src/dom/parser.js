@@ -10,6 +10,8 @@ import {
 	parseXsltFunctionCall,
 } from "./utils.js";
 
+const XSL_NS = "http://www.w3.org/1999/XSL/Transform";
+
 function bindXslVariable(context, el, vars) {
 	let name = el.getAttribute("name");
 	if (!name) return;
@@ -125,6 +127,19 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			break;
 		case "xsl:when": break;
 		case "xsl:with-param": break;
+		default: {
+			if (xslNode.namespaceURI === XSL_NS) break;
+			let outEl = xslNode.namespaceURI
+				? document.createElementNS(xslNode.namespaceURI, xslNode.nodeName)
+				: document.createElement(xslNode.localName);
+			Array.from(xslNode.attributes || []).forEach((attr) => {
+				if (attr.name === "xmlns" || attr.name.startsWith("xmlns:")) return;
+				outEl.setAttribute(attr.name, attr.value);
+			});
+			processXslChildNodes(context, xslNode.childNodes, outEl, v);
+			fragment.appendChild(outEl);
+			break;
+		}
 	}
 	return fragment;
 }

@@ -23,7 +23,10 @@ describe('HTML Output Tests', () => {
     let proXslt = new ProXslt();
     proXslt.importStylesheet(xslDoc);
     let fragment = proXslt.transformToFragment(xmlDoc, document);
-    
-    expect(fragment.textContent.trim()).toBe(`<b>Hello</b> <u>World</u>`);
+
+    let span = document.createElement('span');
+    span.appendChild(fragment);
+
+    expect(span.innerHTML.trim()).toBe(`<b>Hello</b> <u>World</u>`);
   });
 });

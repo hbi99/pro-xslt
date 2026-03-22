@@ -168,7 +168,8 @@
 		let xmlEditor, xsltEditor, htmlEditor;
 
 		const defaultXml = `<page>
-	<message>Hello World</message>
+	<word>Hello</word>
+    <word>World</word>
 </page>`;
 
 // <xsl:output method="html" omit-xml-declaration="yes"/>
@@ -176,9 +177,11 @@
 // <xsl:template match="text()" />
 
 		const defaultXslt = `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-	<xsl:template match="//message">
-            <xsl:value-of select="format-number(7753.1, '#,##0.00')"/>
-	</xsl:template>
+	<xsl:template match="//page">
+        <b><xsl:value-of select="word[1]" /></b>
+        <xsl:text> </xsl:text>
+        <u><xsl:value-of select="word[2]" /></u>
+    </xsl:template>
 </xsl:stylesheet>`;
 
 		// Initialize Monaco Editor
@@ -244,9 +247,11 @@
 			processor.importStylesheet(xsltDoc);
 
 			let fragment = processor.transformToFragment(xmlDoc, document);
+            let span = document.createElement('span');
+            span.appendChild(fragment);
 			
-			htmlEditor.setValue(fragment.textContent);
-			preview.innerHTML = fragment.textContent;
+			htmlEditor.setValue(span.innerHTML);
+			preview.innerHTML = span.innerHTML;
 		}
 
 		setTimeout(transformXslt, 500);
