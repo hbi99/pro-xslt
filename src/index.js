@@ -3,12 +3,8 @@ import { selectNodes, selectSingleNode } from './dom/utils.js';
 // extending the XML object
 Document.prototype.selectNodes = selectNodes;
 Document.prototype.selectSingleNode = selectSingleNode;
-Element.prototype.selectNodes = function(xpath) {
-	return this.ownerDocument.selectNodes(xpath, this);
-};
-Element.prototype.selectSingleNode = function(xpath) {
-	return this.ownerDocument.selectSingleNode(xpath, this);
-};
+Element.prototype.selectNodes = function(xpath) { return this.ownerDocument.selectNodes(xpath, this) }
+Element.prototype.selectSingleNode = function(xpath) { return this.ownerDocument.selectSingleNode(xpath, this) }
 
 /**
  * @class

@@ -31,11 +31,8 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "jsdom": "^29.0.1",
     "rollup": "^4.28.1",
     "vitest": "^3.0.5"
-  },
-  "dependencies": {
-    "@tailwindcss/vite": "^4.2.2",
-    "tailwindcss": "^4.2.2"
   }
 }
