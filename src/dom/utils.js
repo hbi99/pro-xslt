@@ -49,6 +49,11 @@ export function evaluateNumber(xnode, xpath) {
 	return Number.isNaN(n) ? undefined : n;
 }
 
+export function evaluateBoolean(xnode, xpath) {
+	let r = evaluateWithType(xnode, xpath, XPathResult.BOOLEAN_TYPE);
+	return r.booleanValue;
+}
+
 export function nodePosition(node) {
 	let n = node,
 		i = 0;

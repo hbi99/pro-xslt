@@ -1,6 +1,7 @@
 import {
 	concatFromParsedArgs,
 	evaluate,
+	evaluateBoolean,
 	evaluateNumber,
 	evaluateString,
 	expandXPathVariables,
@@ -79,7 +80,15 @@ export function xsltElements(context, xslNode, fragment, vars) {
 		case "xsl:element": break;
 		case "xsl:fallback": break;
 		case "xsl:for-each": break;
-		case "xsl:if": break;
+		case "xsl:if": {
+			let test = xslNode.getAttribute("test");
+			if (test == null || String(test).trim() === "") break;
+			let expandedTest = expandXPathVariables(String(test).trim(), v);
+			if (evaluateBoolean(context, expandedTest)) {
+				processXslChildNodes(context, xslNode.childNodes, fragment, v);
+			}
+			break;
+		}
 		case "xsl:import": break;
 		case "xsl:include": break;
 		case "xsl:key": break;
@@ -246,10 +255,24 @@ export function xsltFunctions(context, value, vars) {
 		case expanded.startsWith("key"): break;
 		case expanded.startsWith("system-property"): break;
 		case expanded.startsWith("unparsed-entity-uri"): break;
-		default:
-			result =
-				evaluate(context, expanded) ??
-				context.selectSingleNode(expanded)?.textContent;
+		default: {
+			let num = evaluate(context, expanded);
+			if (num !== undefined && !Number.isNaN(num)) {
+				result = String(num);
+				break;
+			}
+			try {
+				let sn = context.selectSingleNode(expanded);
+				if (sn != null) {
+					result = sn.textContent;
+					break;
+				}
+			} catch (_) {
+				/* not a location path (e.g. string literal `'yes'`) */
+			}
+			result = evaluateString(context, expanded);
+			break;
+		}
 	}
 	return result;
 }
