@@ -19,7 +19,7 @@ export function selectSingleNode(xpath, xnode) {
 };
 
 function resolverFor(contextNode) {
-	const doc =
+	let doc =
 		contextNode.nodeType === Node.DOCUMENT_NODE
 			? contextNode
 			: contextNode.ownerDocument;
@@ -27,25 +27,25 @@ function resolverFor(contextNode) {
 }
 
 function evaluateWithType(xnode, xpath, resultType) {
-	const doc =
+	let doc =
 		xnode.nodeType === Node.DOCUMENT_NODE ? xnode : xnode.ownerDocument;
 	return doc.evaluate(xpath, xnode, resolverFor(xnode), resultType, null);
 }
 
 export function evaluate(xnode, xpath) {
-	const r = evaluateWithType(xnode, xpath, XPathResult.NUMBER_TYPE);
-	const n = r.numberValue;
+	let r = evaluateWithType(xnode, xpath, XPathResult.NUMBER_TYPE);
+	let n = r.numberValue;
 	return Number.isNaN(n) ? undefined : n;
 }
 
 export function evaluateString(xnode, xpath) {
-	const r = evaluateWithType(xnode, xpath, XPathResult.STRING_TYPE);
+	let r = evaluateWithType(xnode, xpath, XPathResult.STRING_TYPE);
 	return r.stringValue;
 }
 
 export function evaluateNumber(xnode, xpath) {
-	const r = evaluateWithType(xnode, xpath, XPathResult.NUMBER_TYPE);
-	const n = r.numberValue;
+	let r = evaluateWithType(xnode, xpath, XPathResult.NUMBER_TYPE);
+	let n = r.numberValue;
 	return Number.isNaN(n) ? undefined : n;
 }
 
@@ -66,9 +66,9 @@ export function generateId(context) {
     if (!context[idSymbol]) {
         // Generate a unique ID starting with a letter
         let timestamp = Date.now().toString(36);
-        let random = Math.random().toString(36).substring(2, 8);
+        let random = Math.random().toString(36).substring(2, 9);
         let counter = (Math.floor(Math.random() * 10000)).toString(36);
-        context[idSymbol] = `n${timestamp}${random}${counter}`;
+        context[idSymbol] = `n${timestamp}${random}${counter}`.slice(0,18);
     }
 
     return context[idSymbol];
@@ -93,15 +93,15 @@ export function stripXPathStringLiteral(arg) {
  * @returns {{ numberExpr: string, pattern: string } | null}
  */
 function parseFormatNumberCall(s) {
-	const m = /^format-number\s*\(\s*/i.exec(s);
+	let m = /^format-number\s*\(\s*/i.exec(s);
 	if (!m) return null;
 	let i = m[0].length;
 	let depth = 1;
-	const start = i;
+	let start = i;
 	let inQuote = false;
 	let quote = "";
 	for (; i < s.length; i++) {
-		const c = s[i];
+		let c = s[i];
 		if (!inQuote) {
 			if (c === "'" || c === '"') {
 				inQuote = true;
@@ -128,11 +128,11 @@ function parseFormatNumberCall(s) {
 		}
 	}
 	if (i >= s.length) return null;
-	const numberExpr = s.slice(start, i).trim();
+	let numberExpr = s.slice(start, i).trim();
 	i++;
 	while (i < s.length && /\s/.test(s[i])) i++;
 	if (s[i] !== "'" && s[i] !== '"') return null;
-	const q = s[i];
+	let q = s[i];
 	let j = i + 1;
 	let pattern = "";
 	while (j < s.length) {
@@ -163,18 +163,18 @@ function parseFormatNumberCall(s) {
 }
 
 function formatWithSubpattern(num, subPattern) {
-	const pat = subPattern.trim();
-	const dotIdx = pat.indexOf(".");
-	const intPat = dotIdx === -1 ? pat : pat.slice(0, dotIdx);
-	const fracPat = dotIdx === -1 ? "" : pat.slice(dotIdx + 1);
-	const fracSlots = (fracPat.match(/[0#]/g) || []).length;
-	const rounded =
+	let pat = subPattern.trim();
+	let dotIdx = pat.indexOf(".");
+	let intPat = dotIdx === -1 ? pat : pat.slice(0, dotIdx);
+	let fracPat = dotIdx === -1 ? "" : pat.slice(dotIdx + 1);
+	let fracSlots = (fracPat.match(/[0#]/g) || []).length;
+	let rounded =
 		fracSlots > 0
 			? Math.round(num * Math.pow(10, fracSlots)) / Math.pow(10, fracSlots)
 			: Math.round(num);
-	const s = fracSlots > 0 ? rounded.toFixed(fracSlots) : String(rounded);
+	let s = fracSlots > 0 ? rounded.toFixed(fracSlots) : String(rounded);
 	let [intPart, fracPart = ""] = s.split(".");
-	const minInt = (intPat.match(/0/g) || []).length;
+	let minInt = (intPat.match(/0/g) || []).length;
 	if (minInt > 0) {
 		intPart = intPart.padStart(Math.max(minInt, intPart.length), "0");
 	}
@@ -196,16 +196,16 @@ export function formatNumber(value, context) {
 	let pattern;
 	if (Array.isArray(value) && value.length >= 2) {
 		numberExpr = value[0].trim();
-		const p2 = stripXPathStringLiteral(value[1].trim());
+		let p2 = stripXPathStringLiteral(value[1].trim());
 		pattern = p2 !== null ? p2 : value[1].trim();
 	} else {
-		const parsed = parseFormatNumberCall(String(value).trim());
+		let parsed = parseFormatNumberCall(String(value).trim());
 		if (!parsed) return "";
 		numberExpr = parsed.numberExpr;
 		pattern = parsed.pattern;
 	}
 
-	const r = evaluateWithType(
+	let r = evaluateWithType(
 		context,
 		numberExpr,
 		XPathResult.NUMBER_TYPE
@@ -214,13 +214,13 @@ export function formatNumber(value, context) {
 	if (Number.isNaN(n)) return "NaN";
 	if (!Number.isFinite(n)) return n < 0 ? "-Infinity" : "Infinity";
 
-	const parts = pattern.split(";");
-	const posPat = parts[0] || "";
-	const negPat = parts.length > 1 ? parts[1] : "";
-	const zeroPat = parts.length > 2 ? parts[2] : "";
+	let parts = pattern.split(";");
+	let posPat = parts[0] || "";
+	let negPat = parts.length > 1 ? parts[1] : "";
+	let zeroPat = parts.length > 2 ? parts[2] : "";
 
-	const neg = n < 0;
-	const abs = Math.abs(n);
+	let neg = n < 0;
+	let abs = Math.abs(n);
 
 	if (abs === 0 && zeroPat) {
 		return formatWithSubpattern(0, zeroPat);
@@ -228,6 +228,6 @@ export function formatNumber(value, context) {
 	if (neg && negPat) {
 		return formatWithSubpattern(abs, negPat);
 	}
-	const body = formatWithSubpattern(abs, posPat);
+	let body = formatWithSubpattern(abs, posPat);
 	return neg ? `-${body}` : body;
 }
