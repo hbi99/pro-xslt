@@ -73,4 +73,48 @@ describe('Simple Tests', () => {
     expect(fragment.textContent.trim()).toBe(`Hello <b>World</b>`);
   });
 
+  it('should evaluate arithmetic expression on `value-of` element', async () => {
+    const xmlString =
+        `<page>
+            <message>Hello World</message>
+        </page>`;
+
+    const xsltString =
+        `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+            <xsl:template match="/page/message">
+                <xsl:value-of select="21 div 3" />
+            </xsl:template>
+        </xsl:stylesheet>`;
+
+    const xmlDoc = ProXslt.xmlFromString(xmlString);
+    const xslDoc = ProXslt.xmlFromString(xsltString);
+    const proXslt = new ProXslt();
+    proXslt.importStylesheet(xslDoc);
+    const fragment = proXslt.transformToFragment(xmlDoc, document);
+    
+    expect(fragment.textContent.trim()).toBe(`7`);
+  });
+
+  it('should generate 18 letters long id using `generate-id`', async () => {
+    const xmlString =
+        `<page>
+            <message>Hello World</message>
+        </page>`;
+
+    const xsltString =
+        `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+            <xsl:template match="/page/message">
+                <xsl:value-of select="generate-id()" />
+            </xsl:template>
+        </xsl:stylesheet>`;
+
+    const xmlDoc = ProXslt.xmlFromString(xmlString);
+    const xslDoc = ProXslt.xmlFromString(xsltString);
+    const proXslt = new ProXslt();
+    proXslt.importStylesheet(xslDoc);
+    const fragment = proXslt.transformToFragment(xmlDoc, document);
+    
+    expect(fragment.textContent.trim().length).toBe(18);
+  });
+
 });

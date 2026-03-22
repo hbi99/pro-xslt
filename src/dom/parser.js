@@ -1,4 +1,4 @@
-import { evaluate } from "./utils.js";
+import { evaluate, generateId, formatNumber } from "./utils.js";
 
 export function xmlNodes(context, xslNode) {
 	let fragment = document.createDocumentFragment();
@@ -78,29 +78,51 @@ export function xsltElements(context, xslNode, fragment) {
 }
 
 export function xsltFunctions(context, value) {
+	// create parser for xslt functions, for example inputs like:
+	// format-number(1234.5, '#,##0.00')
+	// string-length('hello')
+	// substring('hello', 1, 3)
+	// substring-before('hello', 'world')
+	// concat('hello', 'world')
+	// position()
+}
+
+export function xsltFunctions_OLD(context, value) {
 	let result;
 	switch (true) {
 		case value.startsWith("current"): break;
 		case value.startsWith("document"): break;
 		case value.startsWith("element-available"): break;
-		case value.startsWith("format-number"): break;
+		case value.startsWith("format-number"):
+			result = formatNumber(value, context);
+			break;
 		case value.startsWith("function-available"): break;
-		case value.startsWith("generate-id"): break;
+		case value.startsWith("generate-id"):
+			result = generateId(context);
+			break;
 		case value.startsWith("key"): break;
 		case value.startsWith("system-property"): break;
 		case value.startsWith("unparsed-entity-uri"): break;
 		default:
-			let arithmeticExpression = evaluate(value, context);
-			result = arithmeticExpression || context.selectSingleNode(value).textContent;
+			result = evaluate(context, value)
+					|| coreFunctions(context, value)
+					|| context.selectSingleNode(value).textContent;
 	}
 	return result;
 }
 
 export function coreFunctions(context, value) {
+	let result;
 	switch (true) {
 		case value.startsWith("boolean"): break;
 		case value.startsWith("ceiling"): break;
-		case value.startsWith("concat"): break;
+		case value.startsWith("concat"):
+			result = value.slice(7, -1).split(",").map(p => {
+				p = p.trim();
+				if (p.startsWith("'") && p.endsWith("'")) p = p.slice(1,-1);
+				return p;
+			}).join("");
+			break;
 		case value.startsWith("contains"): break;
 		case value.startsWith("count"): break;
 		case value.startsWith("false"): break;
@@ -126,4 +148,5 @@ export function coreFunctions(context, value) {
 		case value.startsWith("translate"): break;
 		case value.startsWith("true"): break;
 	}
+	return result;
 }
