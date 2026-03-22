@@ -74,10 +74,6 @@ export function generateId(context) {
     return context[idSymbol];
 }
 
-export function formatNumber(value, context) {
-	// implement xslt format-number function
-}
-
 /**
  * If `arg` is a single- or double-quoted XPath string literal, returns the decoded value; otherwise null.
  */
@@ -90,4 +86,148 @@ export function stripXPathStringLiteral(arg) {
 		return t.slice(1, -1).replace(/""/g, '"');
 	}
 	return null;
+}
+
+/**
+ * Parse `format-number(expr, 'pattern' [, qname])` from a select string.
+ * @returns {{ numberExpr: string, pattern: string } | null}
+ */
+function parseFormatNumberCall(s) {
+	const m = /^format-number\s*\(\s*/i.exec(s);
+	if (!m) return null;
+	let i = m[0].length;
+	let depth = 1;
+	const start = i;
+	let inQuote = false;
+	let quote = "";
+	for (; i < s.length; i++) {
+		const c = s[i];
+		if (!inQuote) {
+			if (c === "'" || c === '"') {
+				inQuote = true;
+				quote = c;
+				continue;
+			}
+			if (c === "(") depth++;
+			else if (c === ")") {
+				depth--;
+				if (depth === 0) return null;
+			} else if (c === "," && depth === 1) break;
+		} else {
+			if (c === quote) {
+				if (quote === "'" && s[i + 1] === "'") {
+					i++;
+					continue;
+				}
+				if (quote === '"' && s[i + 1] === '"') {
+					i++;
+					continue;
+				}
+				inQuote = false;
+			}
+		}
+	}
+	if (i >= s.length) return null;
+	const numberExpr = s.slice(start, i).trim();
+	i++;
+	while (i < s.length && /\s/.test(s[i])) i++;
+	if (s[i] !== "'" && s[i] !== '"') return null;
+	const q = s[i];
+	let j = i + 1;
+	let pattern = "";
+	while (j < s.length) {
+		if (s[j] === q) {
+			if (q === "'" && s[j + 1] === "'") {
+				pattern += "'";
+				j += 2;
+				continue;
+			}
+			if (q === '"' && s[j + 1] === '"') {
+				pattern += '"';
+				j += 2;
+				continue;
+			}
+			break;
+		}
+		pattern += s[j];
+		j++;
+	}
+	if (s[j] !== q) return null;
+	j++;
+	while (j < s.length && /\s/.test(s[j])) j++;
+	if (s[j] === ",") {
+		while (j < s.length && s[j] !== ")") j++;
+	}
+	if (s[j] !== ")") return null;
+	return { numberExpr, pattern };
+}
+
+function formatWithSubpattern(num, subPattern) {
+	const pat = subPattern.trim();
+	const dotIdx = pat.indexOf(".");
+	const intPat = dotIdx === -1 ? pat : pat.slice(0, dotIdx);
+	const fracPat = dotIdx === -1 ? "" : pat.slice(dotIdx + 1);
+	const fracSlots = (fracPat.match(/[0#]/g) || []).length;
+	const rounded =
+		fracSlots > 0
+			? Math.round(num * Math.pow(10, fracSlots)) / Math.pow(10, fracSlots)
+			: Math.round(num);
+	const s = fracSlots > 0 ? rounded.toFixed(fracSlots) : String(rounded);
+	let [intPart, fracPart = ""] = s.split(".");
+	const minInt = (intPat.match(/0/g) || []).length;
+	if (minInt > 0) {
+		intPart = intPart.padStart(Math.max(minInt, intPart.length), "0");
+	}
+	if (intPat.includes(",")) {
+		intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	}
+	if (fracSlots === 0) return intPart;
+	fracPart = fracPart.padEnd(fracSlots, "0").slice(0, fracSlots);
+	return `${intPart}.${fracPart}`;
+}
+
+/**
+ * XSLT `format-number(number, pattern)`.
+ * @param {string | string[]} value — full `format-number(...)` select, or `[numberExpr, patternLiteral]` from {@link parseXsltFunctionCall}
+ * @param {Node} context — XPath context node
+ */
+export function formatNumber(value, context) {
+	let numberExpr;
+	let pattern;
+	if (Array.isArray(value) && value.length >= 2) {
+		numberExpr = value[0].trim();
+		const p2 = stripXPathStringLiteral(value[1].trim());
+		pattern = p2 !== null ? p2 : value[1].trim();
+	} else {
+		const parsed = parseFormatNumberCall(String(value).trim());
+		if (!parsed) return "";
+		numberExpr = parsed.numberExpr;
+		pattern = parsed.pattern;
+	}
+
+	const r = evaluateWithType(
+		context,
+		numberExpr,
+		XPathResult.NUMBER_TYPE
+	);
+	let n = r.numberValue;
+	if (Number.isNaN(n)) return "NaN";
+	if (!Number.isFinite(n)) return n < 0 ? "-Infinity" : "Infinity";
+
+	const parts = pattern.split(";");
+	const posPat = parts[0] || "";
+	const negPat = parts.length > 1 ? parts[1] : "";
+	const zeroPat = parts.length > 2 ? parts[2] : "";
+
+	const neg = n < 0;
+	const abs = Math.abs(n);
+
+	if (abs === 0 && zeroPat) {
+		return formatWithSubpattern(0, zeroPat);
+	}
+	if (neg && negPat) {
+		return formatWithSubpattern(abs, negPat);
+	}
+	const body = formatWithSubpattern(abs, posPat);
+	return neg ? `-${body}` : body;
 }

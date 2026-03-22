@@ -177,7 +177,7 @@
 
 		const defaultXslt = `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<xsl:template match="//message">
-            <xsl:value-of select="concat('hello', 'world')"/>
+            <xsl:value-of select="format-number(7753.1, '#,##0.00')"/>
 	</xsl:template>
 </xsl:stylesheet>`;
 

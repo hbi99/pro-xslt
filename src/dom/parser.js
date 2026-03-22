@@ -7,6 +7,8 @@ import {
 	stripXPathStringLiteral,
 } from "./utils.js";
 
+export { stripXPathStringLiteral } from "./utils.js";
+
 export function xmlNodes(context, xslNode) {
 	let fragment = document.createDocumentFragment();
 	switch (xslNode.nodeType) {
@@ -169,7 +171,10 @@ function dispatchParsedXsltFunction(context, parsed) {
 	let raw = parsed.raw;
 	switch (n) {
 		case "format-number":
-			return formatNumber(raw, context);
+			return formatNumber(
+				parsed.args.length >= 2 ? parsed.args : parsed.raw,
+				context
+			);
 		case "generate-id":
 			return generateId(context);
 		case "concat":
