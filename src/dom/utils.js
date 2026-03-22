@@ -75,6 +75,105 @@ export function generateId(context) {
 }
 
 /**
+ * Turn a bound XSLT variable into an XPath token (number or quoted string).
+ * @param {{ kind: 'number', n: number } | { kind: 'string', s: string } | undefined} entry
+ */
+export function xpathVarToXPathLiteral(entry) {
+	if (!entry) return "''";
+	if (entry.kind === "number") return String(entry.n);
+	if (entry.kind === "string") {
+		return "'" + String(entry.s).replace(/'/g, "''") + "'";
+	}
+	return "''";
+}
+
+/**
+ * Replaces `$QName` references outside string literals. Keys are `name` attribute values (e.g. `x`, `pre:foo`).
+ */
+export function expandXPathVariables(expr, vars) {
+	if (!expr || !vars) return expr;
+	let keys = Object.keys(vars).sort((a, b) => b.length - a.length);
+	if (keys.length === 0) return expr;
+	let out = "";
+	let i = 0;
+	let inSingle = false;
+	let inDouble = false;
+	while (i < expr.length) {
+		let c = expr[i];
+		if (!inSingle && !inDouble) {
+			if (c === "'") {
+				inSingle = true;
+				out += c;
+				i++;
+				continue;
+			}
+			if (c === '"') {
+				inDouble = true;
+				out += c;
+				i++;
+				continue;
+			}
+			if (c === "$") {
+				let matched = false;
+				for (let k of keys) {
+					if (!expr.slice(i + 1).startsWith(k)) continue;
+					let after = expr[i + 1 + k.length];
+					if (
+						after === undefined ||
+						/[\s\[\](),|+\-*/=<>!]/.test(after) ||
+						after === ")" ||
+						after === "]"
+					) {
+						if (vars[k] !== undefined) {
+							out += xpathVarToXPathLiteral(vars[k]);
+							i += 1 + k.length;
+							matched = true;
+							break;
+						}
+					}
+				}
+				if (matched) continue;
+			}
+			out += c;
+			i++;
+		} else if (inSingle) {
+			if (c === "'" && expr[i + 1] === "'") {
+				out += "''";
+				i += 2;
+				continue;
+			}
+			if (c === "'") {
+				inSingle = false;
+			}
+			out += c;
+			i++;
+		} else {
+			if (c === '"' && expr[i + 1] === '"') {
+				out += '""';
+				i += 2;
+				continue;
+			}
+			if (c === '"') {
+				inDouble = false;
+			}
+			out += c;
+			i++;
+		}
+	}
+	return out;
+}
+
+export function concatFromParsedArgs(context, args) {
+	return args
+		.map((a) => {
+			let lit = stripXPathStringLiteral(a);
+			if (lit !== null) return lit;
+			return evaluateString(context, a);
+		})
+		.join("");
+}
+
+/**
  * If `arg` is a single- or double-quoted XPath string literal, returns the decoded value; otherwise null.
  */
 export function stripXPathStringLiteral(arg) {
