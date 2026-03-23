@@ -1,4 +1,12 @@
 import terser from '@rollup/plugin-terser';
+import pkg from './package.json' with { type: 'json' };
+
+let githubUrl = 'https://github.com/hbi99/pro-xslt';
+let banner = `/*!
+ * pro-xslt v${pkg.version}
+ * ${githubUrl}
+ */
+`;
 
 /** @type {import('rollup').RollupOptions[]} */
 export default [
@@ -8,6 +16,7 @@ export default [
     output: {
       file: 'dist/pro-xslt.esm.js',
       format: 'es',
+      banner,
     },
   },
   {
@@ -18,6 +27,7 @@ export default [
       format: 'umd',
       name: 'ProXslt',
       exports: 'default',
+      banner,
     },
   },
 ];
