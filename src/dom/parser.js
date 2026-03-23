@@ -109,12 +109,12 @@ export function xsltElements(context, xslNode, fragment, vars) {
 		case "xsl:message": break;
 		case "xsl:namespace-alias": break;
 		case "xsl:number": break;
-		case "xsl:otherwise": break;
+		case "xsl:otherwise": break; // handled in xsl:choose
 		case "xsl:output": break;
 		case "xsl:param": break;
 		case "xsl:preserve-space": break;
 		case "xsl:processing-instruction": break;
-		case "xsl:sort": break;
+		case "xsl:sort": break; // handled in xsl:for-each
 		case "xsl:strip-space": break;
 		case "xsl:stylesheet": break;
 		case "xsl:template":
@@ -137,7 +137,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			break;
 		case "xsl:variable":
 			break;
-		case "xsl:when": break;
+		case "xsl:when": break; // handled in xsl:choose
 		case "xsl:with-param": break;
 		default: {
 			if (xslNode.namespaceURI === XSL_NS) break;
