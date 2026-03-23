@@ -135,8 +135,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			result = xsltFunctions(context, value, v);
 			fragment.appendChild(document.createTextNode(result));
 			break;
-		case "xsl:variable":
-			break;
+		case "xsl:variable": break; // handled in xsl:stylesheet
 		case "xsl:when": break; // handled in xsl:choose
 		case "xsl:with-param": break;
 		default: {

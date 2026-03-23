@@ -1,5 +1,6 @@
 import { selectNodes, selectSingleNode } from "./dom/utils.js";
 import { xmlNodes } from "./dom/parser.js";
+import { bindXslVariable } from "./dom/xslt/variables.js";
 
 // extending the XML object
 Document.prototype.selectNodes = selectNodes;
@@ -30,7 +31,15 @@ class ProXslt {
 
 	transformToFragment(context, doc) {
 		let xslNode = this.xslDoc.selectSingleNode(`//xsl:template[@match]`);
-		let fragment = xmlNodes(context, xslNode);
+
+		// Bind global stylesheet variables once and make them available inside templates.
+		let globalVars = {};
+		let globalVariableNodes = this.xslDoc.selectNodes(`//xsl:stylesheet/xsl:variable`);
+		globalVariableNodes.forEach((vNode) => {
+			bindXslVariable(context, vNode, globalVars);
+		});
+
+		let fragment = xmlNodes(context, xslNode, globalVars);
 		return fragment;
 	}
 

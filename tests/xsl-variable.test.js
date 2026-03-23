@@ -49,4 +49,25 @@ describe('XSL:variable Tests', () => {
     expect(fragment.textContent.trim()).toBe('12');
   });
 
+  it('should access globally declared `xsl:variable` inside a template', async () => {
+    let xmlString =
+        `<page><message>Hello</message></page>`;
+
+    let xsltString =
+        `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+            <xsl:variable name="greeting" select="'Hi'" />
+            <xsl:template match="/page/message">
+                <xsl:value-of select="$greeting" />
+            </xsl:template>
+        </xsl:stylesheet>`;
+
+    let xmlDoc = ProXslt.xmlFromString(xmlString);
+    let xslDoc = ProXslt.xmlFromString(xsltString);
+    let proXslt = new ProXslt();
+    proXslt.importStylesheet(xslDoc);
+    let fragment = proXslt.transformToFragment(xmlDoc, document);
+
+    expect(fragment.textContent.trim()).toBe('Hi');
+  });
+
 });
