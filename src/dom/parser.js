@@ -187,14 +187,28 @@ export function xsltElements(context, xslNode, fragment, vars) {
 		case "xsl:call-template":
 			invokeNamedTemplate(context, xslNode, fragment, v);
 			break;
-		case "xsl:comment": break;
-		// xsl:copy handled below
-		case "xsl:copy": {
+		case "xsl:comment": {
+			let select = xslNode.getAttribute("select");
+			if (select != null && String(select).trim() !== "") {
+				let valueExpr = String(select).trim();
+				valueExpr = expandXPathVariables(valueExpr, v);
+				valueExpr = expandXPathForEachContextFunctions(valueExpr, v);
+				let value = xsltFunctions(context, valueExpr, v);
+				fragment.appendChild(document.createComment(String(value || "")));
+				break;
+			}
+
+			let tmpFragment = document.createDocumentFragment();
+			processXslChildNodes(context, xslNode.childNodes, tmpFragment, v);
+			let body = (tmpFragment.textContent || "").replace(/\s+/g, " ").trim();
+			fragment.appendChild(document.createComment(body));
+			break;
+		}
+		case "xsl:copy":
 			if (context && context.cloneNode) {
 				fragment.appendChild(context.cloneNode(true));
 			}
 			break;
-		}
 		case "xsl:copy-of": {
 			let select = xslNode.getAttribute("select");
 			if (select == null || String(select).trim() === "") break;
