@@ -1,7 +1,6 @@
 import { selectNodes, selectSingleNode } from "./dom/utils.js";
 import { xmlNodes } from "./dom/parser.js";
 import { bindXslVariable } from "./dom/xslt/variables.js";
-import { buildKeyIndexes } from "./dom/xslt/keys.js";
 
 // extending the XML object
 Document.prototype.selectNodes = selectNodes;
@@ -39,7 +38,9 @@ class ProXslt {
 		globalVariableNodes.forEach((vNode) => {
 			bindXslVariable(context, vNode, globalVars);
 		});
-		globalVars.__keys = buildKeyIndexes(context, this.xslDoc);
+		// xsl:key indexes are built lazily per key name on first key() call.
+		globalVars.__sourceDoc = context;
+		globalVars.__xslDoc = this.xslDoc;
 
 		let fragment = xmlNodes(context, xslNode, globalVars);
 		return fragment;

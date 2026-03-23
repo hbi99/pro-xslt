@@ -1,20 +1,21 @@
 import { evaluateString } from "../utils.js";
 
-export function buildKeyIndexes(sourceDoc, xslDoc) {
-	let keyDefs = xslDoc.selectNodes("//xsl:stylesheet/xsl:key");
-	let keyMap = {};
+function ensureKeyContainers(vars) {
+	if (!vars.__keys) vars.__keys = {};
+	if (!vars.__keyBuiltNames) vars.__keyBuiltNames = {};
+}
 
-	keyDefs.forEach((def) => {
-		let name = def.getAttribute("name");
+export function buildKeyIndexByName(sourceDoc, xslDoc, vars, keyName) {
+	ensureKeyContainers(vars);
+	if (vars.__keyBuiltNames[keyName]) return;
+
+	let defs = xslDoc.selectNodes(`//xsl:stylesheet/xsl:key[@name='${keyName}']`);
+	let indexed = vars.__keys[keyName] || {};
+
+	defs.forEach((def) => {
 		let match = def.getAttribute("match");
 		let use = def.getAttribute("use");
-		if (!name || !match || !use) return;
-
-		let indexed = keyMap[name];
-		if (!indexed) {
-			indexed = {};
-			keyMap[name] = indexed;
-		}
+		if (!match || !use) return;
 
 		let nodes = sourceDoc.selectNodes(match);
 		nodes.forEach((node) => {
@@ -24,12 +25,13 @@ export function buildKeyIndexes(sourceDoc, xslDoc) {
 		});
 	});
 
-	return keyMap;
+	vars.__keys[keyName] = indexed;
+	vars.__keyBuiltNames[keyName] = true;
 }
 
 export function resolveKey(vars, keyName, lookupValue) {
-	let keyMap = vars && vars.__keys;
-	if (!keyMap) return [];
+	if (!vars || !vars.__keys) return [];
+	let keyMap = vars.__keys;
 	let byName = keyMap[keyName];
 	if (!byName) return [];
 	return byName[lookupValue] || [];

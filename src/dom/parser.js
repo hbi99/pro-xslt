@@ -281,7 +281,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
 		}
 		case "xsl:import": break;
 		case "xsl:include": break;
-		case "xsl:key": break;
+		case "xsl:key": break; // handled in xsl:stylesheet
 		case "xsl:message": break;
 		case "xsl:namespace-alias": break;
 		case "xsl:number": break;
