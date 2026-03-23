@@ -182,14 +182,41 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			}
 			break;
 		}
-		case "xsl:attribute": break;
+		case "xsl:attribute": break; // handled in xsl:stylesheet
 		case "xsl:attribute-set": break;
 		case "xsl:call-template":
 			invokeNamedTemplate(context, xslNode, fragment, v);
 			break;
 		case "xsl:comment": break;
-		case "xsl:copy": break;
-		case "xsl:copy-of": break;
+		// xsl:copy handled below
+		case "xsl:copy": {
+			if (context && context.cloneNode) {
+				fragment.appendChild(context.cloneNode(true));
+			}
+			break;
+		}
+		case "xsl:copy-of": {
+			let select = xslNode.getAttribute("select");
+			if (select == null || String(select).trim() === "") break;
+			let expandedSelect = expandXPathVariables(String(select).trim(), v);
+			expandedSelect = expandXPathForEachContextFunctions(expandedSelect, v);
+
+			let nodes = [];
+			try {
+				if (context && typeof context.selectNodes === "function") {
+					nodes = context.selectNodes(expandedSelect);
+				} else if (context && context.ownerDocument && typeof context.ownerDocument.selectNodes === "function") {
+					nodes = context.ownerDocument.selectNodes(expandedSelect, context);
+				}
+			} catch (_) {
+				// If select doesn't yield a node-set, ignore (real XSLT is more strict).
+			}
+
+			for (let node of nodes) {
+				fragment.appendChild(node.cloneNode(true));
+			}
+			break;
+		}
 		case "xsl:decimal-format": break;
 		case "xsl:element": break;
 		case "xsl:fallback": break;
