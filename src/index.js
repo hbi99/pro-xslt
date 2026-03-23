@@ -1,6 +1,8 @@
 import { selectNodes, selectSingleNode } from "./dom/utils.js";
 import { xmlNodes } from "./dom/parser.js";
 import { bindXslVariable } from "./dom/xslt/variables.js";
+import { parseOutputSettings } from "./dom/xslt/output.js";
+import { applyStripSpaceRules } from "./dom/xslt/stripSpace.js";
 
 // extending the XML object
 Document.prototype.selectNodes = selectNodes;
@@ -27,10 +29,14 @@ class ProXslt {
 
 	importStylesheet(xslDoc) {
 		this.xslDoc = xslDoc;
+		this.outputSettings = parseOutputSettings(xslDoc);
 	}
 
 	transformToFragment(context, doc) {
 		let xslNode = this.xslDoc.selectSingleNode(`//xsl:template[@match]`);
+
+		// Apply xsl:strip-space before executing template rules.
+		applyStripSpaceRules(context, this.xslDoc);
 
 		// Bind global stylesheet variables once and make them available inside templates.
 		let globalVars = {};
@@ -41,6 +47,7 @@ class ProXslt {
 		// xsl:key indexes are built lazily per key name on first key() call.
 		globalVars.__sourceDoc = context;
 		globalVars.__xslDoc = this.xslDoc;
+		globalVars.__output = this.outputSettings || null;
 
 		let fragment = xmlNodes(context, xslNode, globalVars);
 		return fragment;
