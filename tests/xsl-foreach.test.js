@@ -70,4 +70,56 @@ describe('xsl:for-each', () => {
 
     expect(fragment.textContent.trim()).toBe('30,10,2,');
   });
+
+  it('supports xsl:sort number descending with separator comma', async () => {
+    let xmlString =
+        `<page><n>10</n><n>2</n><n>30</n></page>`;
+
+    let xsltString =
+        `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+            <xsl:template match="/page">
+                <xsl:for-each select="n">
+                    <xsl:sort select="." data-type="number" order="descending" />
+                    <xsl:value-of select="." />
+                    <xsl:if test="position() != last()">
+                        <xsl:text>,</xsl:text>
+                    </xsl:if>
+                </xsl:for-each>
+            </xsl:template>
+        </xsl:stylesheet>`;
+
+    let xmlDoc = ProXslt.xmlFromString(xmlString);
+    let xslDoc = ProXslt.xmlFromString(xsltString);
+    let proXslt = new ProXslt();
+    proXslt.importStylesheet(xslDoc);
+    let fragment = proXslt.transformToFragment(xmlDoc, document);
+
+    expect(fragment.textContent.trim()).toBe('30,10,2');
+  });
+
+    it('supports xsl:sort number descending with separator hyphen', async () => {
+      let xmlString =
+          `<page><n>10</n><n>2</n><n>30</n></page>`;
+  
+      let xsltString =
+          `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+              <xsl:template match="/page">
+                  <xsl:for-each select="n">
+                      <xsl:sort select="." data-type="number" order="descending" />
+                      <xsl:value-of select="." />
+                      <xsl:if test="position() &lt; last()">
+                          <xsl:text> - </xsl:text>
+                      </xsl:if>
+                  </xsl:for-each>
+              </xsl:template>
+          </xsl:stylesheet>`;
+  
+      let xmlDoc = ProXslt.xmlFromString(xmlString);
+      let xslDoc = ProXslt.xmlFromString(xsltString);
+      let proXslt = new ProXslt();
+      proXslt.importStylesheet(xslDoc);
+      let fragment = proXslt.transformToFragment(xmlDoc, document);
+  
+      expect(fragment.textContent.trim()).toBe('30 - 10 - 2');
+  });
 });

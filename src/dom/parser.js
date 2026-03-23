@@ -12,6 +12,55 @@ import {
 
 const XSL_NS = "http://www.w3.org/1999/XSL/Transform";
 
+function expandXPathForEachContextFunctions(expr, vars) {
+	let pos = vars && vars.__position;
+	let last = vars && vars.__last;
+	if (pos === undefined && last === undefined) return expr;
+
+	let out = "";
+	let i = 0;
+	let inSingle = false;
+	let inDouble = false;
+	while (i < expr.length) {
+		let c = expr[i];
+		if (!inDouble && c === "'") {
+			inSingle = !inSingle;
+			out += c;
+			i++;
+			continue;
+		}
+		if (!inSingle && c === '"') {
+			inDouble = !inDouble;
+			out += c;
+			i++;
+			continue;
+		}
+
+		if (!inSingle && !inDouble) {
+			if (pos !== undefined) {
+				let m = /^position\s*\(\s*\)/.exec(expr.slice(i));
+				if (m) {
+					out += String(pos);
+					i += m[0].length;
+					continue;
+				}
+			}
+			if (last !== undefined) {
+				let m = /^last\s*\(\s*\)/.exec(expr.slice(i));
+				if (m) {
+					out += String(last);
+					i += m[0].length;
+					continue;
+				}
+			}
+		}
+
+		out += c;
+		i++;
+	}
+	return out;
+}
+
 function bindXslVariable(context, el, vars) {
 	let name = el.getAttribute("name");
 	if (!name) return;
@@ -149,8 +198,10 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			let nodes = context.selectNodes(expandedSelect);
 			let sortNodes = xslSortElements(xslNode);
 			let sortedNodes = sortNodesForEach(nodes, sortNodes, v);
-			sortedNodes.forEach((node) => {
+			sortedNodes.forEach((node, idx) => {
 				let scope = Object.assign({}, v);
+				scope.__position = idx + 1;
+				scope.__last = sortedNodes.length;
 				processForEachChildNodes(node, xslNode, fragment, scope);
 			});
 			break;
@@ -159,6 +210,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			let test = xslNode.getAttribute("test");
 			if (test == null || String(test).trim() === "") break;
 			let expandedTest = expandXPathVariables(String(test).trim(), v);
+			expandedTest = expandXPathForEachContextFunctions(expandedTest, v);
 			if (evaluateBoolean(context, expandedTest)) {
 				processXslChildNodes(context, xslNode.childNodes, fragment, v);
 			}
@@ -259,6 +311,7 @@ function dispatchParsedXsltFunction(context, parsed) {
 
 export function xsltFunctions(context, value, vars) {
 	let expanded = expandXPathVariables(String(value).trim(), vars || {});
+	expanded = expandXPathForEachContextFunctions(expanded, vars || {});
 	let parsed = parseXsltFunctionCall(expanded);
 	if (parsed) return dispatchParsedXsltFunction(context, parsed);
 
