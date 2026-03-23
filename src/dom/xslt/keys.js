@@ -5,6 +5,41 @@ function ensureKeyContainers(vars) {
 	if (!vars.__keyBuiltNames) vars.__keyBuiltNames = {};
 }
 
+function firstChildElementByName(node, name) {
+	let children = node.childNodes || [];
+	for (let i = 0; i < children.length; i++) {
+		let c = children[i];
+		if (c.nodeType !== Node.ELEMENT_NODE) continue;
+		if (c.nodeName === name || c.localName === name) return c;
+	}
+	return null;
+}
+
+function buildUseAccessor(useExpr) {
+	let use = String(useExpr || "").trim();
+
+	let attrMatch = /^@([A-Za-z_][\w.\-:]*)$/.exec(use);
+	if (attrMatch) {
+		let attr = attrMatch[1];
+		return (node) => node.getAttribute(attr) || "";
+	}
+
+	if (use === ".") {
+		return (node) => node.textContent || "";
+	}
+
+	let childNameMatch = /^([A-Za-z_][\w.\-:]*)$/.exec(use);
+	if (childNameMatch) {
+		let childName = childNameMatch[1];
+		return (node) => {
+			let child = firstChildElementByName(node, childName);
+			return child ? (child.textContent || "") : "";
+		};
+	}
+
+	return (node) => evaluateString(node, use);
+}
+
 export function buildKeyIndexByName(sourceDoc, xslDoc, vars, keyName) {
 	ensureKeyContainers(vars);
 	if (vars.__keyBuiltNames[keyName]) return;
@@ -16,10 +51,11 @@ export function buildKeyIndexByName(sourceDoc, xslDoc, vars, keyName) {
 		let match = def.getAttribute("match");
 		let use = def.getAttribute("use");
 		if (!match || !use) return;
+		let useAccessor = buildUseAccessor(use);
 
 		let nodes = sourceDoc.selectNodes(match);
 		nodes.forEach((node) => {
-			let k = evaluateString(node, use);
+			let k = useAccessor(node);
 			if (!indexed[k]) indexed[k] = [];
 			indexed[k].push(node);
 		});
