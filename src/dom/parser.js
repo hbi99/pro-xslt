@@ -12,6 +12,51 @@ import { xsltFunctions } from "./xslt/xsltFunctions.js";
 
 const XSL_NS = "http://www.w3.org/1999/XSL/Transform";
 
+function applyXslAttributeNodeToElement(context, outEl, attrNode, vars) {
+	if (!outEl || outEl.nodeType !== Node.ELEMENT_NODE) return;
+	let attrName = attrNode.getAttribute("name");
+	if (attrName == null || String(attrName).trim() === "") return;
+
+	let select = attrNode.getAttribute("select");
+	if (select != null && String(select).trim() !== "") {
+		let valueExpr = String(select).trim();
+		valueExpr = expandXPathVariables(valueExpr, vars);
+		valueExpr = expandXPathForEachContextFunctions(valueExpr, vars);
+		let attrValue = xsltFunctions(context, valueExpr, vars);
+		outEl.setAttribute(attrName, attrValue);
+		return;
+	}
+
+	let tmpFragment = document.createDocumentFragment();
+	processXslChildNodes(context, attrNode.childNodes, tmpFragment, vars);
+	let normalized = (tmpFragment.textContent || "").replace(/\s+/g, " ").trim();
+	outEl.setAttribute(attrName, normalized);
+}
+
+function applyAttributeSetByName(context, outEl, setName, vars, visiting) {
+	let allSets = vars && vars.__attributeSets;
+	if (!allSets) return;
+	let defs = allSets[setName];
+	if (!defs || defs.length === 0) return;
+
+	let seen = visiting || new Set();
+	if (seen.has(setName)) return;
+	seen.add(setName);
+
+	defs.forEach((def) => {
+		def.uses.forEach((n) => applyAttributeSetByName(context, outEl, n, vars, seen));
+		def.attrs.forEach((attrNode) => applyXslAttributeNodeToElement(context, outEl, attrNode, vars));
+	});
+
+	seen.delete(setName);
+}
+
+function applyUseAttributeSets(context, outEl, useValue, vars) {
+	if (!useValue) return;
+	let names = String(useValue).split(/\s+/).map((s) => s.trim()).filter(Boolean);
+	names.forEach((n) => applyAttributeSetByName(context, outEl, n, vars, new Set()));
+}
+
 function processXslChildNodes(context, childNodes, fragment, vars) {
 	Array.from(childNodes).forEach((child) => {
 		if (child.nodeType === Node.ELEMENT_NODE) {
@@ -40,25 +85,7 @@ function processXslChildNodes(context, childNodes, fragment, vars) {
 			}
 			if (child.nodeName === "xsl:attribute") {
 				// xsl:attribute creates/overwrites attributes on the *current output element*.
-				if (!fragment || fragment.nodeType !== Node.ELEMENT_NODE) return;
-
-				let attrName = child.getAttribute("name");
-				if (attrName == null || String(attrName).trim() === "") return;
-
-				let select = child.getAttribute("select");
-				if (select != null && String(select).trim() !== "") {
-					let valueExpr = String(select).trim();
-					valueExpr = expandXPathVariables(valueExpr, vars);
-					valueExpr = expandXPathForEachContextFunctions(valueExpr, vars);
-					let attrValue = xsltFunctions(context, valueExpr, vars);
-					fragment.setAttribute(attrName, attrValue);
-					return;
-				}
-
-				let tmpFragment = document.createDocumentFragment();
-				processXslChildNodes(context, child.childNodes, tmpFragment, vars);
-				let normalized = (tmpFragment.textContent || "").replace(/\s+/g, " ").trim();
-				fragment.setAttribute(attrName, normalized);
+				applyXslAttributeNodeToElement(context, fragment, child, vars);
 				return;
 			}
 		}
@@ -231,7 +258,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			}
 			break;
 		}
-		case "xsl:decimal-format": break;
+		case "xsl:decimal-format": break; // handled in xsl:stylesheet
 		case "xsl:element": break; // skipped
 		case "xsl:fallback": break; // skipped
 		case "xsl:choose": {
@@ -359,8 +386,10 @@ export function xsltElements(context, xslNode, fragment, vars) {
 				: document.createElement(xslNode.localName);
 			Array.from(xslNode.attributes || []).forEach((attr) => {
 				if (attr.name === "xmlns" || attr.name.startsWith("xmlns:")) return;
+				if (attr.name === "use-attribute-sets") return;
 				outEl.setAttribute(attr.name, attr.value);
 			});
+			applyUseAttributeSets(context, outEl, xslNode.getAttribute("use-attribute-sets"), v);
 			processXslChildNodes(context, xslNode.childNodes, outEl, v);
 			fragment.appendChild(outEl);
 			break;
