@@ -11,6 +11,7 @@ import {
 } from "../utils.js";
 
 import { expandXPathForEachContextFunctions } from "./foreachContext.js";
+import { resolveKey } from "./keys.js";
 
 function dispatchParsedXsltFunction(context, parsed) {
 	let n = parsed.name.toLowerCase();
@@ -25,6 +26,14 @@ function dispatchParsedXsltFunction(context, parsed) {
 			return generateId(context);
 		case "concat":
 			return concatFromParsedArgs(context, parsed.args);
+		case "key": {
+			if (!parsed.args || parsed.args.length < 2) return "";
+			let keyName = evaluateString(context, parsed.args[0]);
+			let keyValue = evaluateString(context, parsed.args[1]);
+			let nodes = resolveKey(parsed.vars, keyName, keyValue);
+			if (!nodes || nodes.length === 0) return "";
+			return nodes[0].textContent || "";
+		}
 		case "position":
 		case "last":
 		case "count":
@@ -56,7 +65,10 @@ export function xsltFunctions(context, value, vars) {
 	let expanded = expandXPathVariables(String(value).trim(), vars || {});
 	expanded = expandXPathForEachContextFunctions(expanded, vars || {});
 	let parsed = parseXsltFunctionCall(expanded);
-	if (parsed) return dispatchParsedXsltFunction(context, parsed);
+	if (parsed) {
+		parsed.vars = vars || {};
+		return dispatchParsedXsltFunction(context, parsed);
+	}
 
 	let result;
 	switch (true) {
