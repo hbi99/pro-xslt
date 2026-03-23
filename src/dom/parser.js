@@ -284,14 +284,37 @@ export function xsltElements(context, xslNode, fragment, vars) {
 		case "xsl:key": break; // handled in xsl:stylesheet
 		case "xsl:message": break;
 		case "xsl:namespace-alias": break;
-		case "xsl:number": break;
+		case "xsl:number": {
+			// Minimal XSLT 1.0 support: default level="single" with numeric formatting.
+			let num;
+			if (v && v.__position !== undefined) {
+				num = Number(v.__position);
+			} else if (context && context.parentNode) {
+				let count = 0;
+				let n = context;
+				while (n && n.previousSibling) {
+					n = n.previousSibling;
+					if (n.nodeType === Node.ELEMENT_NODE && n.nodeName === context.nodeName) count++;
+				}
+				num = count + 1;
+			} else {
+				num = 1;
+			}
+			let format = xslNode.getAttribute("format") || "1";
+			if (format === "1") {
+				fragment.appendChild(document.createTextNode(String(num)));
+			} else {
+				fragment.appendChild(document.createTextNode(String(num)));
+			}
+			break;
+		}
 		case "xsl:otherwise": break; // handled in xsl:choose
-		case "xsl:output": break;
+		case "xsl:output": break; // handled in xsl:stylesheet
 		case "xsl:param": break; // handled in xsl:stylesheet
-		case "xsl:preserve-space": break;
+		case "xsl:preserve-space": break; // handled in xsl:stylesheet
 		case "xsl:processing-instruction": break;
 		case "xsl:sort": break; // handled in xsl:for-each
-		case "xsl:strip-space": break;
+		case "xsl:strip-space": break; // handled in xsl:stylesheet
 		case "xsl:stylesheet": break;
 		case "xsl:template":
 			context.selectNodes(xslNode.getAttribute("match"))
