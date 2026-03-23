@@ -105,6 +105,53 @@ function getXsltTemplates(xslNode) {
 	return Array.from(doc.getElementsByTagNameNS(XSL_NS, "template"));
 }
 
+/**
+ * Split an XSLT pattern on top-level | (union), ignoring | inside [], (), or quotes.
+ */
+function splitTopLevelPatternUnion(pattern) {
+	let s = pattern.trim();
+	if (!s) return [];
+	let parts = [];
+	let depth = 0;
+	let quote = null;
+	let start = 0;
+	for (let i = 0; i < s.length; i++) {
+		let c = s[i];
+		if (quote) {
+			if (c === quote) quote = null;
+			continue;
+		}
+		if (c === '"' || c === "'") {
+			quote = c;
+			continue;
+		}
+		if (c === "[" || c === "(") depth++;
+		else if (c === "]" || c === ")") depth--;
+		else if (c === "|" && depth === 0) {
+			parts.push(s.slice(start, i).trim());
+			start = i + 1;
+		}
+	}
+	parts.push(s.slice(start).trim());
+	return parts.filter(Boolean);
+}
+
+/**
+ * Map a match pattern to an XPath node-set over the source document so
+ * doc.selectNodes(...) finds the same nodes as pattern matching (e.g. text() → //text()).
+ */
+function matchPatternToLookupXPath(matchExpr) {
+	let s = matchExpr.trim();
+	if (!s) return "//*[not(self::*)]";
+	let branches = splitTopLevelPatternUnion(s);
+	return branches
+		.map((p) => {
+			if (p.startsWith("/")) return p;
+			return "//" + p;
+		})
+		.join(" | ");
+}
+
 function renderTemplateBody(contextNode, templateNode, fragment, vars) {
 	let scope = Object.assign({}, vars || {});
 	processXslChildNodes(contextNode, templateNode.childNodes, fragment, scope);
@@ -156,13 +203,25 @@ function invokeMatchingTemplate(contextNode, xslNode, fragment, vars) {
 		let matchExpr = t.getAttribute("match");
 		if (!matchExpr) continue;
 
-		let matches = doc.selectNodes(matchExpr);
+		let lookupXpath = matchPatternToLookupXPath(matchExpr);
+		let matches = doc.selectNodes(lookupXpath);
 		for (let m of matches) {
 			if (m === contextNode) {
 				renderTemplateBody(contextNode, t, fragment, vars);
 				return;
 			}
 		}
+	}
+
+	// XSLT 1.0 built-in template rules when no template matches.
+	if (contextNode.nodeType === Node.TEXT_NODE) {
+		fragment.appendChild(document.createTextNode(contextNode.textContent));
+		return;
+	}
+	if (contextNode.nodeType === Node.ELEMENT_NODE || contextNode.nodeType === Node.DOCUMENT_NODE) {
+		Array.from(contextNode.childNodes).forEach((child) => {
+			invokeMatchingTemplate(child, xslNode, fragment, vars);
+		});
 	}
 }
 
@@ -198,7 +257,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
 		case "xsl:apply-imports": break; // skipped
 		case "xsl:apply-templates": {
 			let select = xslNode.getAttribute("select");
-			if (select == null || String(select).trim() === "") select = ".";
+			if (select == null || String(select).trim() === "") select = "child::node()";
 
 			let expandedSelect = expandXPathVariables(String(select).trim(), v);
 			expandedSelect = expandXPathForEachContextFunctions(expandedSelect, v);
@@ -394,6 +453,35 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			fragment.appendChild(outEl);
 			break;
 		}
+	}
+	return fragment;
+}
+
+/**
+ * XSLT processing entry: use match="/" if present; otherwise apply built-in root rule
+ * (process document children with template matching). This avoids using the first
+ * xsl:template in document order (e.g. match="text()") as the transformation entry.
+ */
+export function transformSourceToFragment(context, xslDoc, vars) {
+	let fragment = document.createDocumentFragment();
+	let refNode = xslDoc.selectSingleNode("//xsl:stylesheet") || xslDoc.documentElement;
+	let rootTemplate = xslDoc.selectSingleNode("//xsl:template[@match='/']");
+	if (rootTemplate) {
+		let rootNodes =
+			context.nodeType === Node.DOCUMENT_NODE
+				? context.selectNodes("/")
+				: [context];
+		rootNodes.forEach((rn) => {
+			renderTemplateBody(rn, rootTemplate, fragment, vars);
+		});
+	} else {
+		let startNodes =
+			context.nodeType === Node.DOCUMENT_NODE
+				? Array.from(context.childNodes)
+				: [context];
+		startNodes.forEach((n) => {
+			invokeMatchingTemplate(n, refNode, fragment, vars);
+		});
 	}
 	return fragment;
 }

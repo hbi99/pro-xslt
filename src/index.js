@@ -1,5 +1,5 @@
 import { selectNodes, selectSingleNode } from "./dom/utils.js";
-import { xmlNodes } from "./dom/parser.js";
+import { transformSourceToFragment } from "./dom/parser.js";
 import { bindXslVariable } from "./dom/xslt/variables.js";
 import { parseOutputSettings } from "./dom/xslt/output.js";
 import { applyStripSpaceRules } from "./dom/xslt/stripSpace.js";
@@ -12,6 +12,14 @@ Document.prototype.selectNodes = selectNodes;
 Document.prototype.selectSingleNode = selectSingleNode;
 Element.prototype.selectNodes = function(xpath) { return this.ownerDocument.selectNodes(xpath, this) }
 Element.prototype.selectSingleNode = function(xpath) { return this.ownerDocument.selectSingleNode(xpath, this) }
+Node.prototype.selectNodes = function(xpath) {
+	if (this.nodeType === Node.DOCUMENT_NODE) return selectNodes.call(this, xpath, this);
+	return this.ownerDocument.selectNodes(xpath, this);
+};
+Node.prototype.selectSingleNode = function(xpath) {
+	if (this.nodeType === Node.DOCUMENT_NODE) return selectSingleNode.call(this, xpath, this);
+	return this.ownerDocument.selectSingleNode(xpath, this);
+};
 
 /**
  * @class
@@ -39,10 +47,6 @@ class ProXslt {
 	}
 
 	transformToFragment(context, doc) {
-		let xslNode =
-			this.xslDoc.selectSingleNode(`//xsl:template[@match='/']`) ||
-			this.xslDoc.selectSingleNode(`//xsl:template[@match]`);
-
 		// Apply xsl:strip-space before executing template rules.
 		applyStripSpaceRules(context, this.xslDoc);
 
@@ -59,8 +63,7 @@ class ProXslt {
 		globalVars.__decimalFormats = this.decimalFormats || null;
 		globalVars.__attributeSets = this.attributeSets || null;
 
-		let fragment = xmlNodes(context, xslNode, globalVars);
-		return fragment;
+		return transformSourceToFragment(context, this.xslDoc, globalVars);
 	}
 
 	

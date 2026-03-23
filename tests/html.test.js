@@ -29,4 +29,29 @@ describe('HTML Output Tests', () => {
 
     expect(span.innerHTML.trim()).toBe(`<b>Hello</b> <u>World</u>`);
   });
+
+  it('should output and honor `<xsl:template match="text()"/>`', async () => {
+    let xmlString =
+        `<page><item>one</item><item>two</item></page>`;
+
+    let xsltString =
+        `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+            <xsl:template match="text()"/>
+            <xsl:template match="/page/item[1]">
+                <xsl:value-of select="." />
+            </xsl:template>
+        </xsl:stylesheet>`;
+
+    let xmlDoc = ProXslt.xmlFromString(xmlString);
+    let xslDoc = ProXslt.xmlFromString(xsltString);
+    let proXslt = new ProXslt();
+    proXslt.importStylesheet(xslDoc);
+    let fragment = proXslt.transformToFragment(xmlDoc, document);
+
+    let span = document.createElement('span');
+    span.appendChild(fragment);
+
+    // console.log(span.innerHTML.trim());
+    expect(span.innerHTML.trim()).toBe(`one`);
+  });
 });
