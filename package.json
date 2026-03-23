@@ -1,6 +1,6 @@
 {
   "name": "pro-xslt",
-  "version": "0.0.1",
+  "version": "0.7.3",
   "description": "Browser-based XSLT processor library (pure JavaScript)",
   "type": "module",
   "main": "dist/pro-xslt.umd.js",
