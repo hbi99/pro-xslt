@@ -279,7 +279,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			}
 			break;
 		}
-		case "xsl:import": break;
+		case "xsl:import": break; // handled in xsl:stylesheet
 		case "xsl:include": break;
 		case "xsl:key": break; // handled in xsl:stylesheet
 		case "xsl:message": break;

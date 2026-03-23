@@ -35,7 +35,9 @@ class ProXslt {
 	}
 
 	transformToFragment(context, doc) {
-		let xslNode = this.xslDoc.selectSingleNode(`//xsl:template[@match]`);
+		let xslNode =
+			this.xslDoc.selectSingleNode(`//xsl:template[@match='/']`) ||
+			this.xslDoc.selectSingleNode(`//xsl:template[@match]`);
 
 		// Apply xsl:strip-space before executing template rules.
 		applyStripSpaceRules(context, this.xslDoc);

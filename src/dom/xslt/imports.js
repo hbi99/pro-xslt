@@ -2,21 +2,36 @@ function parseXmlString(str) {
 	let parser = new DOMParser();
 	let xdoc = parser.parseFromString(str, "application/xml");
 	if (xdoc.querySelector("parsererror")) {
-		throw new Error("xsl:import resolver returned invalid XML.");
+		throw new Error("xsl:import/xsl:include resolver returned invalid XML.");
 	}
 	return xdoc;
 }
 
-function importNodesIntoRoot(root, importDoc) {
-	let importRoot = importDoc.selectSingleNode("//xsl:stylesheet");
-	if (!importRoot) return;
+function importableTopLevelNodes(doc) {
+	let root = doc.selectSingleNode("//xsl:stylesheet");
+	if (!root) return [];
+	return Array.from(root.childNodes).filter((n) => {
+		if (n.nodeType !== Node.ELEMENT_NODE) return false;
+		// These are resolved recursively and should not be copied as-is.
+		if (n.nodeName === "xsl:import" || n.nodeName === "xsl:include") return false;
+		return true;
+	});
+}
 
-	Array.from(importRoot.childNodes).forEach((n) => {
-		if (n.nodeType !== Node.ELEMENT_NODE) return;
-		// Keep import declarations internal to the imported doc.
-		if (n.nodeName === "xsl:import") return;
+function appendImportedNodes(root, importDoc) {
+	importableTopLevelNodes(importDoc).forEach((n) => {
 		root.appendChild(root.ownerDocument.importNode(n, true));
 	});
+}
+
+function inlineIncludedNodes(root, includeNode, includeDoc) {
+	let nodes = importableTopLevelNodes(includeDoc);
+	let parent = includeNode.parentNode;
+	if (!parent) return;
+	nodes.forEach((n) => {
+		parent.insertBefore(root.ownerDocument.importNode(n, true), includeNode);
+	});
+	parent.removeChild(includeNode);
 }
 
 export function resolveStylesheetImports(xslDoc, importResolver, visited) {
@@ -39,7 +54,20 @@ export function resolveStylesheetImports(xslDoc, importResolver, visited) {
 		if (!resolved) return;
 		let importDoc = typeof resolved === "string" ? parseXmlString(resolved) : resolved;
 		resolveStylesheetImports(importDoc, importResolver, seen);
-		importNodesIntoRoot(root, importDoc);
+		appendImportedNodes(root, importDoc);
+	});
+
+	let includeNodes = Array.from(root.childNodes).filter((n) => {
+		return n.nodeType === Node.ELEMENT_NODE && n.nodeName === "xsl:include";
+	});
+	includeNodes.forEach((inc) => {
+		let href = inc.getAttribute("href");
+		if (!href) return;
+		let resolved = importResolver(href, xslDoc);
+		if (!resolved) return;
+		let includeDoc = typeof resolved === "string" ? parseXmlString(resolved) : resolved;
+		resolveStylesheetImports(includeDoc, importResolver, seen);
+		inlineIncludedNodes(root, inc, includeDoc);
 	});
 
 	return xslDoc;
