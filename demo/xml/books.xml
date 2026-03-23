@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../xsl/books_imports.xsl"?>
+
+<bookstore>
+	<book category="children">
+		<title lang="en">Harry Potter</title>
+		<author>J K. Rowling</author>
+		<year>2005</year>
+		<price>29.99</price>
+	</book>
+	<book category="web">
+		<title lang="en">XQuery Tips</title>
+		<author>Tom Nolan</author>
+		<year>2022</year>
+		<price>39.99</price>
+	</book>
+	<book category="web">
+		<title lang="en">Learn XML</title>
+		<author>Tutorial Reference</author>
+		<year>2022</year>
+		<price>9.99</price>
+	</book>
+</bookstore>

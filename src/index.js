@@ -3,6 +3,7 @@ import { xmlNodes } from "./dom/parser.js";
 import { bindXslVariable } from "./dom/xslt/variables.js";
 import { parseOutputSettings } from "./dom/xslt/output.js";
 import { applyStripSpaceRules } from "./dom/xslt/stripSpace.js";
+import { resolveStylesheetImports } from "./dom/xslt/imports.js";
 
 // extending the XML object
 Document.prototype.selectNodes = selectNodes;
@@ -15,7 +16,7 @@ Element.prototype.selectSingleNode = function(xpath) { return this.ownerDocument
  */
 class ProXslt {
 	constructor(options) {
-		// TODO
+		this.options = options || {};
 	}
 
 	static xmlFromString(str) {
@@ -28,6 +29,7 @@ class ProXslt {
 	}
 
 	importStylesheet(xslDoc) {
+		resolveStylesheetImports(xslDoc, this.options.importResolver);
 		this.xslDoc = xslDoc;
 		this.outputSettings = parseOutputSettings(xslDoc);
 	}

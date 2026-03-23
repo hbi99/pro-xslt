@@ -1,0 +1,15 @@
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:import href="imported-base.xsl" />
+
+  <xsl:template match="/root">
+    <xsl:apply-templates select="item" />
+    <xsl:text>|</xsl:text>
+    <xsl:call-template name="imported-wrap" />
+  </xsl:template>
+
+  <xsl:template match="/root/item">
+    <xsl:text>LOCAL:</xsl:text>
+    <xsl:value-of select="." />
+  </xsl:template>
+</xsl:stylesheet>
+
