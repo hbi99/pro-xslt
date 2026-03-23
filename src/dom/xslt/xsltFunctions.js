@@ -20,7 +20,8 @@ function dispatchParsedXsltFunction(context, parsed) {
 		case "format-number":
 			return formatNumber(
 				parsed.args.length >= 2 ? parsed.args : parsed.raw,
-				context
+				context,
+				parsed.vars
 			);
 		case "generate-id":
 			return generateId(context);
@@ -80,7 +81,7 @@ export function xsltFunctions(context, value, vars) {
 		case expanded.startsWith("document"): break;
 		case expanded.startsWith("element-available"): break;
 		case expanded.startsWith("format-number"):
-			result = formatNumber(expanded, context);
+			result = formatNumber(expanded, context, vars);
 			break;
 		case expanded.startsWith("function-available"): break;
 		case expanded.startsWith("generate-id"):

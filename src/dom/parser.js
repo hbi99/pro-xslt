@@ -232,8 +232,8 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			break;
 		}
 		case "xsl:decimal-format": break;
-		case "xsl:element": break;
-		case "xsl:fallback": break;
+		case "xsl:element": break; // skipped
+		case "xsl:fallback": break; // skipped
 		case "xsl:choose": {
 			let matched = false;
 			let otherwiseNode = null;
@@ -280,10 +280,10 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			break;
 		}
 		case "xsl:import": break; // handled in xsl:stylesheet
-		case "xsl:include": break;
+		case "xsl:include": break; // handled in xsl:stylesheet
 		case "xsl:key": break; // handled in xsl:stylesheet
-		case "xsl:message": break;
-		case "xsl:namespace-alias": break;
+		case "xsl:message": break; // skipped
+		case "xsl:namespace-alias": break; // skipped
 		case "xsl:number": {
 			// Minimal XSLT 1.0 support: default level="single" with numeric formatting.
 			let num;
@@ -343,7 +343,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
 				document.createTextNode(xslNode.textContent)
 			);
 			break;
-		case "xsl:transform": break;
+		case "xsl:transform": break; // skipped
 		case "xsl:value-of":
 			value = xslNode.getAttribute("select").trim();
 			result = xsltFunctions(context, value, v);

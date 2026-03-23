@@ -329,14 +329,39 @@ function parseFormatNumberCall(s) {
 	if (s[j] !== q) return null;
 	j++;
 	while (j < s.length && /\s/.test(s[j])) j++;
+	let decimalFormatName;
 	if (s[j] === ",") {
-		while (j < s.length && s[j] !== ")") j++;
+		j++;
+		while (j < s.length && /\s/.test(s[j])) j++;
+		let qn = s[j];
+		if (qn === "'" || qn === '"') {
+			let k = j + 1;
+			let name = "";
+			while (k < s.length) {
+				if (s[k] === qn) break;
+				name += s[k];
+				k++;
+			}
+			if (s[k] !== qn) return null;
+			decimalFormatName = name;
+			j = k + 1;
+		} else {
+			let k = j;
+			let name = "";
+			while (k < s.length && s[k] !== ")" && !/\s/.test(s[k])) {
+				name += s[k];
+				k++;
+			}
+			decimalFormatName = name || undefined;
+			j = k;
+		}
+		while (j < s.length && /\s/.test(s[j])) j++;
 	}
 	if (s[j] !== ")") return null;
-	return { numberExpr, pattern };
+	return { numberExpr, pattern, decimalFormatName };
 }
 
-function formatWithSubpattern(num, subPattern) {
+function formatWithSubpattern(num, subPattern, symbols) {
 	let pat = subPattern.trim();
 	let dotIdx = pat.indexOf(".");
 	let intPat = dotIdx === -1 ? pat : pat.slice(0, dotIdx);
@@ -353,11 +378,11 @@ function formatWithSubpattern(num, subPattern) {
 		intPart = intPart.padStart(Math.max(minInt, intPart.length), "0");
 	}
 	if (intPat.includes(",")) {
-		intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+		intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, symbols.groupingSeparator);
 	}
 	if (fracSlots === 0) return intPart;
 	fracPart = fracPart.padEnd(fracSlots, "0").slice(0, fracSlots);
-	return `${intPart}.${fracPart}`;
+	return `${intPart}${symbols.decimalSeparator}${fracPart}`;
 }
 
 /**
@@ -365,19 +390,47 @@ function formatWithSubpattern(num, subPattern) {
  * @param {string | string[]} value — full `format-number(...)` select, or `[numberExpr, patternLiteral]` from {@link parseXsltFunctionCall}
  * @param {Node} context — XPath context node
  */
-export function formatNumber(value, context) {
+function resolveDecimalFormatSymbols(vars, name) {
+	let defaults = {
+		decimalSeparator: ".",
+		groupingSeparator: ",",
+		minusSign: "-",
+		NaN: "NaN",
+		infinity: "Infinity",
+	};
+	let all = vars && vars.__decimalFormats;
+	if (!all) return defaults;
+	let byName = name ? all[name] : null;
+	let base = byName || all.__default || defaults;
+	return {
+		decimalSeparator: base.decimalSeparator || ".",
+		groupingSeparator: base.groupingSeparator || ",",
+		minusSign: base.minusSign || "-",
+		NaN: base.NaN || "NaN",
+		infinity: base.infinity || "Infinity",
+	};
+}
+
+export function formatNumber(value, context, vars) {
 	let numberExpr;
 	let pattern;
+	let decimalFormatName;
 	if (Array.isArray(value) && value.length >= 2) {
 		numberExpr = value[0].trim();
 		let p2 = stripXPathStringLiteral(value[1].trim());
 		pattern = p2 !== null ? p2 : value[1].trim();
+		if (value.length >= 3) {
+			let p3 = stripXPathStringLiteral(value[2].trim());
+			decimalFormatName = p3 !== null ? p3 : value[2].trim();
+		}
 	} else {
 		let parsed = parseFormatNumberCall(String(value).trim());
 		if (!parsed) return "";
 		numberExpr = parsed.numberExpr;
 		pattern = parsed.pattern;
+		decimalFormatName = parsed.decimalFormatName;
 	}
+	let symbols = resolveDecimalFormatSymbols(vars, decimalFormatName);
 
 	let r = evaluateWithType(
 		context,
@@ -385,8 +438,8 @@ export function formatNumber(value, context) {
 		XPathResult.NUMBER_TYPE
 	);
 	let n = r.numberValue;
-	if (Number.isNaN(n)) return "NaN";
-	if (!Number.isFinite(n)) return n < 0 ? "-Infinity" : "Infinity";
+	if (Number.isNaN(n)) return symbols.NaN;
+	if (!Number.isFinite(n)) return n < 0 ? `${symbols.minusSign}${symbols.infinity}` : symbols.infinity;
 
 	let parts = pattern.split(";");
 	let posPat = parts[0] || "";
@@ -397,11 +450,11 @@ export function formatNumber(value, context) {
 	let abs = Math.abs(n);
 
 	if (abs === 0 && zeroPat) {
-		return formatWithSubpattern(0, zeroPat);
+		return formatWithSubpattern(0, zeroPat, symbols);
 	}
 	if (neg && negPat) {
-		return formatWithSubpattern(abs, negPat);
+		return formatWithSubpattern(abs, negPat, symbols);
 	}
-	let body = formatWithSubpattern(abs, posPat);
-	return neg ? `-${body}` : body;
+	let body = formatWithSubpattern(abs, posPat, symbols);
+	return neg ? `${symbols.minusSign}${body}` : body;
 }

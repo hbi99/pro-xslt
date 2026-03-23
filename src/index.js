@@ -4,6 +4,7 @@ import { bindXslVariable } from "./dom/xslt/variables.js";
 import { parseOutputSettings } from "./dom/xslt/output.js";
 import { applyStripSpaceRules } from "./dom/xslt/stripSpace.js";
 import { resolveStylesheetImports } from "./dom/xslt/imports.js";
+import { parseDecimalFormats } from "./dom/xslt/decimalFormat.js";
 
 // extending the XML object
 Document.prototype.selectNodes = selectNodes;
@@ -32,6 +33,7 @@ class ProXslt {
 		resolveStylesheetImports(xslDoc, this.options.importResolver);
 		this.xslDoc = xslDoc;
 		this.outputSettings = parseOutputSettings(xslDoc);
+		this.decimalFormats = parseDecimalFormats(xslDoc);
 	}
 
 	transformToFragment(context, doc) {
@@ -52,6 +54,7 @@ class ProXslt {
 		globalVars.__sourceDoc = context;
 		globalVars.__xslDoc = this.xslDoc;
 		globalVars.__output = this.outputSettings || null;
+		globalVars.__decimalFormats = this.decimalFormats || null;
 
 		let fragment = xmlNodes(context, xslNode, globalVars);
 		return fragment;
