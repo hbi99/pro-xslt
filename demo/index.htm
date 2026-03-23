@@ -244,7 +244,7 @@
 			let xmlDoc = ProXslt.xmlFromString(xmlEditor.getValue());
 			let xsltDoc = ProXslt.xmlFromString(xsltEditor.getValue());
 
-			let processor = new globalThis.ProXslt();
+			let processor = new ProXslt();
 			processor.importStylesheet(xsltDoc);
 
 			let fragment = processor.transformToFragment(xmlDoc, document);

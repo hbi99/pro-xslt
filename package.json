@@ -29,8 +29,9 @@
     "browser",
     "xml"
   ],
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "devDependencies": {
+    "@rollup/plugin-terser": "^1.0.0",
     "jsdom": "^29.0.1",
     "rollup": "^4.28.1",
     "vitest": "^3.0.5"

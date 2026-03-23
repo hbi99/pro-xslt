@@ -66,4 +66,8 @@ class ProXslt {
 	
 }
 
+if (typeof globalThis !== 'undefined') {
+	globalThis.ProXslt = ProXslt;
+}
+
 export default ProXslt;

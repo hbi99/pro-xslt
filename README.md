@@ -1,10 +1,12 @@
 # pro-xslt
 
-Browser-oriented XSLT utilities in plain JavaScript (no TypeScript).
+`pro-xslt` is a browser-oriented XSLT processor implemented in plain JavaScript.
+
+It provides a growing subset of XSLT 1.0 features including template matching, `xsl:value-of`, conditionals, loops/sorting, attribute sets, includes/imports, keys, and formatting helpers.
 
 ## Requirements
 
-- Node.js 18+ (for development and tooling)
+- Node.js 18+ (development and tooling)
 
 ## Install
 
@@ -12,29 +14,37 @@ Browser-oriented XSLT utilities in plain JavaScript (no TypeScript).
 npm install
 ```
 
-## Scripts
+## Development
 
 | Command | Description |
-|--------|---------------|
-| `npm run build` | Produce `dist/pro-xslt.esm.js` and `dist/pro-xslt.umd.js` with Rollup |
-| `npm run build:watch` | Same as `build`, but rebuilds when files under `src/` (or anything in the Rollup graph) change |
-| `npm test` | Run the Vitest suite once (CI-friendly) |
-| `npm run test:watch` | Re-run tests on file changes |
+| --- | --- |
+| `npm run build` | Build minified ESM and UMD bundles into `dist/` |
+| `npm run build:watch` | Rebuild bundles when source changes |
+| `npm test` | Run the full Vitest suite once |
+| `npm run test:watch` | Run Vitest in watch mode |
 
-Build output is written to `dist/`. Run `npm run build` after cloning before loading `index.htm` from disk or a static server, since `dist/` is not committed.
+## Usage
 
-## Tests
+### Global (UMD)
 
-Tests live next to source files as `*.test.js` (see `src/index.test.js`). Vitest is configured in `vitest.config.js`.
+Use `dist/pro-xslt.umd.js` in the browser. The library is exposed as global `ProXslt`.
 
-To add a new test file, create `src/<name>.test.js` and use the `vitest` API (`describe`, `it`, `expect`, etc.).
+### ESM
 
-## Project layout
+Import from `dist/pro-xslt.esm.js` or package entry exports.
 
-- `src/` — library source (`index.js` is the package entry before build)
-- `dist/` — published bundles (generated; gitignored)
-- `demo/index.htm` — local demo page (loads `dist/pro-xslt.umd.js`)
+## Project structure
+
+- `src/` — source code
+- `dist/` — generated bundles
+- `demo/` — browser demo page
+- `tests/` — Vitest test suite and fixtures
+- `.github/workflows/` — CI/CD, releases, and deployment automation
+
+## Contributing
+
+See `CONTRIBUTING.md` for contribution guidelines and development workflow.
 
 ## License
 
-MIT
+GPL-3.0-only
