@@ -74,6 +74,7 @@ export function handleForEach(context, xslNode, fragment, vars, xmlNodes, bindXs
 		let scope = Object.assign({}, vars || {});
 		scope.__position = idx + 1;
 		scope.__last = sortedNodes.length;
+		scope.__current = node;
 		processForEachChildNodes(node, xslNode, fragment, scope, xmlNodes, bindXslVariable);
 	});
 }

@@ -1,7 +1,8 @@
 export function expandXPathForEachContextFunctions(expr, vars) {
 	let pos = vars && vars.__position;
 	let last = vars && vars.__last;
-	if (pos === undefined && last === undefined) return expr;
+	let hasCurrent = vars && vars.__current != null;
+	if (pos === undefined && last === undefined && !hasCurrent) return expr;
 
 	let out = "";
 	let i = 0;
@@ -23,6 +24,14 @@ export function expandXPathForEachContextFunctions(expr, vars) {
 		}
 
 		if (!inSingle && !inDouble) {
+			if (hasCurrent) {
+				let cur = /^current\s*\(\s*\)/.exec(expr.slice(i));
+				if (cur) {
+					out += ".";
+					i += cur[0].length;
+					continue;
+				}
+			}
 			if (pos !== undefined) {
 				let m = /^position\s*\(\s*\)/.exec(expr.slice(i));
 				if (m) {
