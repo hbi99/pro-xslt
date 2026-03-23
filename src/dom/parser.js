@@ -40,6 +40,67 @@ function processXslChildNodes(context, childNodes, fragment, vars) {
 	});
 }
 
+function xslSortElements(forEachNode) {
+	return Array.from(forEachNode.childNodes).filter((child) =>
+		child.nodeType === Node.ELEMENT_NODE && child.nodeName === "xsl:sort"
+	);
+}
+
+function sortKeyForNode(node, sortNode, vars) {
+	let expr = sortNode.getAttribute("select");
+	let expandedExpr = expandXPathVariables(
+		(expr == null || String(expr).trim() === "") ? "." : String(expr).trim(),
+		vars || {}
+	);
+	let dataType = (sortNode.getAttribute("data-type") || "text").toLowerCase();
+	if (dataType === "number") {
+		let n = evaluateNumber(node, expandedExpr);
+		return n !== undefined && !Number.isNaN(n) ? n : Number(evaluateString(node, expandedExpr));
+	}
+	return evaluateString(node, expandedExpr);
+}
+
+function sortNodesForEach(nodes, sortNodes, vars) {
+	if (sortNodes.length === 0) return nodes.slice();
+	let sorted = nodes.slice();
+	sorted.sort((a, b) => {
+		for (let sortNode of sortNodes) {
+			let ka = sortKeyForNode(a, sortNode, vars);
+			let kb = sortKeyForNode(b, sortNode, vars);
+			let order = (sortNode.getAttribute("order") || "ascending").toLowerCase();
+			let cmp = 0;
+			let dataType = (sortNode.getAttribute("data-type") || "text").toLowerCase();
+			if (dataType === "number") {
+				let na = Number(ka);
+				let nb = Number(kb);
+				let aNan = Number.isNaN(na);
+				let bNan = Number.isNaN(nb);
+				if (aNan && bNan) cmp = 0;
+				else if (aNan) cmp = 1;
+				else if (bNan) cmp = -1;
+				else cmp = na === nb ? 0 : (na < nb ? -1 : 1);
+			} else {
+				cmp = String(ka).localeCompare(String(kb));
+			}
+			if (cmp !== 0) return order === "descending" ? -cmp : cmp;
+		}
+		return 0;
+	});
+	return sorted;
+}
+
+function processForEachChildNodes(context, forEachNode, fragment, vars) {
+	Array.from(forEachNode.childNodes).forEach((child) => {
+		if (child.nodeType !== Node.ELEMENT_NODE) return;
+		if (child.nodeName === "xsl:sort") return;
+		if (child.nodeName === "xsl:variable") {
+			bindXslVariable(context, child, vars);
+			return;
+		}
+		fragment.appendChild(xmlNodes(context, child, vars));
+	});
+}
+
 export function xmlNodes(context, xslNode, vars) {
 	let fragment = document.createDocumentFragment();
 	let v = vars || {};
@@ -81,7 +142,19 @@ export function xsltElements(context, xslNode, fragment, vars) {
 		case "xsl:decimal-format": break;
 		case "xsl:element": break;
 		case "xsl:fallback": break;
-		case "xsl:for-each": break;
+		case "xsl:for-each": {
+			let select = xslNode.getAttribute("select");
+			if (select == null || String(select).trim() === "") break;
+			let expandedSelect = expandXPathVariables(String(select).trim(), v);
+			let nodes = context.selectNodes(expandedSelect);
+			let sortNodes = xslSortElements(xslNode);
+			let sortedNodes = sortNodesForEach(nodes, sortNodes, v);
+			sortedNodes.forEach((node) => {
+				let scope = Object.assign({}, v);
+				processForEachChildNodes(node, xslNode, fragment, scope);
+			});
+			break;
+		}
 		case "xsl:if": {
 			let test = xslNode.getAttribute("test");
 			if (test == null || String(test).trim() === "") break;
