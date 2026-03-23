@@ -167,22 +167,23 @@
 	<script>
 		let xmlEditor, xsltEditor, htmlEditor;
 
-		const defaultXml = `<page>
-	<word>Hello</word>
-    <word>World</word>
-</page>`;
+		const defaultXml = `<page><n>10</n><n>2</n><n>30</n></page>`;
 
 // <xsl:output method="html" omit-xml-declaration="yes"/>
 // <xsl:strip-space elements="*"/>
 // <xsl:template match="text()" />
 
 		const defaultXslt = `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-	<xsl:template match="//page">
-        <b><xsl:value-of select="word[1]" /></b>
-        <xsl:text> </xsl:text>
-        <u><xsl:value-of select="word[2]" /></u>
-    </xsl:template>
-</xsl:stylesheet>`;
+              <xsl:template match="/page">
+                  <xsl:for-each select="n">
+                      <xsl:sort select="." data-type="number" order="descending" />
+                      <xsl:value-of select="." />
+                      <xsl:if test="position() &lt; last()">
+                          <xsl:text> - </xsl:text>
+                      </xsl:if>
+                  </xsl:for-each>
+              </xsl:template>
+          </xsl:stylesheet>`;
 
 		// Initialize Monaco Editor
 		require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
