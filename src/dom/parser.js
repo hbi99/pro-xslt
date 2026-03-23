@@ -195,7 +195,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
 		value;
 	let v = vars || {};
 	switch (xslNode.nodeName) {
-		case "xsl:apply-imports": break;
+		case "xsl:apply-imports": break; // skipped
 		case "xsl:apply-templates": {
 			let select = xslNode.getAttribute("select");
 			if (select == null || String(select).trim() === "") select = ".";
