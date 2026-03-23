@@ -52,13 +52,44 @@ export function xsltElements(context, xslNode, fragment, vars) {
 		case "xsl:attribute": break;
 		case "xsl:attribute-set": break;
 		case "xsl:call-template": break;
-		case "xsl:choose": break;
 		case "xsl:comment": break;
 		case "xsl:copy": break;
 		case "xsl:copy-of": break;
 		case "xsl:decimal-format": break;
 		case "xsl:element": break;
 		case "xsl:fallback": break;
+		case "xsl:choose": {
+			let matched = false;
+			let otherwiseNode = null;
+			Array.from(xslNode.childNodes).forEach((child) => {
+				if (matched) return;
+				if (child.nodeType !== Node.ELEMENT_NODE) return;
+
+				if (child.nodeName === "xsl:when") {
+					let test = child.getAttribute("test");
+					if (test == null) return;
+					let expandedTest = expandXPathVariables(String(test).trim(), v);
+					expandedTest = expandXPathForEachContextFunctions(expandedTest, v);
+					if (evaluateBoolean(context, expandedTest)) {
+						let branchScope = Object.assign({}, v);
+						processXslChildNodes(context, child.childNodes, fragment, branchScope);
+						matched = true;
+					}
+					return;
+				}
+
+				if (child.nodeName === "xsl:otherwise") {
+					otherwiseNode = child;
+				}
+			});
+
+			if (!matched && otherwiseNode) {
+				let branchScope = Object.assign({}, v);
+				processXslChildNodes(context, otherwiseNode.childNodes, fragment, branchScope);
+			}
+
+			break;
+		}
 		case "xsl:for-each":
 			handleForEach(context, xslNode, fragment, v, xmlNodes, bindXslVariable);
 			break;
