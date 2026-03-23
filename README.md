@@ -33,7 +33,7 @@ To add a new test file, create `src/<name>.test.js` and use the `vitest` API (`d
 
 - `src/` — library source (`index.js` is the package entry before build)
 - `dist/` — published bundles (generated; gitignored)
-- `index.htm` — local demo page (loads `dist/pro-xslt.umd.js`)
+- `demo/index.htm` — local demo page (loads `dist/pro-xslt.umd.js`)
 
 ## License
 

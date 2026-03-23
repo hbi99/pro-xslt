@@ -315,7 +315,22 @@ export function xsltElements(context, xslNode, fragment, vars) {
 		case "xsl:processing-instruction": break;
 		case "xsl:sort": break; // handled in xsl:for-each
 		case "xsl:strip-space": break; // handled in xsl:stylesheet
-		case "xsl:stylesheet": break;
+		case "xsl:stylesheet": {
+			// Allow stylesheet node to act as an entry point by executing its
+			// match-based templates against the current source context.
+			Array.from(xslNode.childNodes).forEach((child) => {
+				if (child.nodeType !== Node.ELEMENT_NODE) return;
+				if (child.nodeName !== "xsl:template") return;
+				let match = child.getAttribute("match");
+				if (!match) return;
+
+				context.selectNodes(match).forEach((node) => {
+					let scope = Object.assign({}, v);
+					processXslChildNodes(node, child.childNodes, fragment, scope);
+				});
+			});
+			break;
+		}
 		case "xsl:template":
 			context.selectNodes(xslNode.getAttribute("match"))
 				.map(node => {
