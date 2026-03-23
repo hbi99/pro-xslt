@@ -3,6 +3,7 @@ import { evaluateString } from "../utils.js";
 function ensureKeyContainers(vars) {
 	if (!vars.__keys) vars.__keys = {};
 	if (!vars.__keyBuiltNames) vars.__keyBuiltNames = {};
+	if (!vars.__keyMatchCache) vars.__keyMatchCache = {};
 }
 
 function firstChildElementByName(node, name) {
@@ -46,6 +47,7 @@ export function buildKeyIndexByName(sourceDoc, xslDoc, vars, keyName) {
 
 	let defs = xslDoc.selectNodes(`//xsl:stylesheet/xsl:key[@name='${keyName}']`);
 	let indexed = vars.__keys[keyName] || {};
+	let matchCache = vars.__keyMatchCache;
 
 	defs.forEach((def) => {
 		let match = def.getAttribute("match");
@@ -53,7 +55,11 @@ export function buildKeyIndexByName(sourceDoc, xslDoc, vars, keyName) {
 		if (!match || !use) return;
 		let useAccessor = buildUseAccessor(use);
 
-		let nodes = sourceDoc.selectNodes(match);
+		let nodes = matchCache[match];
+		if (!nodes) {
+			nodes = sourceDoc.selectNodes(match);
+			matchCache[match] = nodes;
+		}
 		nodes.forEach((node) => {
 			let k = useAccessor(node);
 			if (!indexed[k]) indexed[k] = [];
