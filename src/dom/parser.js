@@ -14,29 +14,60 @@ const XSL_NS = "http://www.w3.org/1999/XSL/Transform";
 
 function processXslChildNodes(context, childNodes, fragment, vars) {
 	Array.from(childNodes).forEach((child) => {
-		if (child.nodeType !== Node.ELEMENT_NODE) return;
-		if (child.nodeName === "xsl:variable") {
-			bindXslVariable(context, child, vars);
-			return;
-		}
-		if (child.nodeName === "xsl:param") {
-			let name = child.getAttribute("name");
-			if (!name) return;
-			if (vars[name] !== undefined) return;
-
-			let select = child.getAttribute("select");
-			if (select != null && String(select).trim() !== "") {
-				let expanded = expandXPathVariables(String(select).trim(), vars);
-				let num = evaluateNumber(context, expanded);
-				if (num !== undefined && !Number.isNaN(num)) {
-					vars[name] = { kind: "number", n: num };
-				} else {
-					vars[name] = { kind: "string", s: evaluateString(context, expanded) };
-				}
-			} else {
-				vars[name] = { kind: "string", s: child.textContent || "" };
+		if (child.nodeType === Node.ELEMENT_NODE) {
+			if (child.nodeName === "xsl:variable") {
+				bindXslVariable(context, child, vars);
+				return;
 			}
-			return;
+			if (child.nodeName === "xsl:param") {
+				let name = child.getAttribute("name");
+				if (!name) return;
+				if (vars[name] !== undefined) return;
+
+				let select = child.getAttribute("select");
+				if (select != null && String(select).trim() !== "") {
+					let expanded = expandXPathVariables(String(select).trim(), vars);
+					let num = evaluateNumber(context, expanded);
+					if (num !== undefined && !Number.isNaN(num)) {
+						vars[name] = { kind: "number", n: num };
+					} else {
+						vars[name] = { kind: "string", s: evaluateString(context, expanded) };
+					}
+				} else {
+					vars[name] = { kind: "string", s: child.textContent || "" };
+				}
+				return;
+			}
+			if (child.nodeName === "xsl:attribute") {
+				// xsl:attribute creates/overwrites attributes on the *current output element*.
+				if (!fragment || fragment.nodeType !== Node.ELEMENT_NODE) return;
+
+				let attrName = child.getAttribute("name");
+				if (attrName == null || String(attrName).trim() === "") return;
+
+				let select = child.getAttribute("select");
+				if (select != null && String(select).trim() !== "") {
+					let valueExpr = String(select).trim();
+					valueExpr = expandXPathVariables(valueExpr, vars);
+					valueExpr = expandXPathForEachContextFunctions(valueExpr, vars);
+					let attrValue = xsltFunctions(context, valueExpr, vars);
+					fragment.setAttribute(attrName, attrValue);
+					return;
+				}
+
+				let tmpFragment = document.createDocumentFragment();
+				processXslChildNodes(context, child.childNodes, tmpFragment, vars);
+				let normalized = (tmpFragment.textContent || "").replace(/\s+/g, " ").trim();
+				fragment.setAttribute(attrName, normalized);
+				return;
+			}
+		}
+
+		// Literal result text/comments should flow into the output element,
+		// but ignore stylesheet formatting whitespace.
+		if (child.nodeType === Node.TEXT_NODE) {
+			let t = child.textContent || "";
+			if (/^\s*$/.test(t)) return;
 		}
 		fragment.appendChild(xmlNodes(context, child, vars));
 	});
@@ -215,7 +246,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
 		case "xsl:number": break;
 		case "xsl:otherwise": break; // handled in xsl:choose
 		case "xsl:output": break;
-		case "xsl:param": break;
+		case "xsl:param": break; // handled in xsl:stylesheet
 		case "xsl:preserve-space": break;
 		case "xsl:processing-instruction": break;
 		case "xsl:sort": break; // handled in xsl:for-each
@@ -241,7 +272,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			break;
 		case "xsl:variable": break; // handled in xsl:stylesheet
 		case "xsl:when": break; // handled in xsl:choose
-		case "xsl:with-param": break;
+		case "xsl:with-param": break; // handled in xsl:call-template
 		default: {
 			if (xslNode.namespaceURI === XSL_NS) break;
 			let outEl = xslNode.namespaceURI
