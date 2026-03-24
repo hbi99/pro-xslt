@@ -1,3 +1,5 @@
+import { nodesetToXPathLocationExpr } from "../utils.js";
+
 export function expandXPathForEachContextFunctions(expr, vars) {
 	let pos = vars && vars.__position;
 	let last = vars && vars.__last;
@@ -25,7 +27,12 @@ export function expandXPathForEachContextFunctions(expr, vars) {
 		if (!inSingle && !inDouble) {
 			let cur = /^current\s*\(\s*\)/.exec(expr.slice(i));
 			if (cur) {
-				out += ".";
+				// current() is the for-each / template current node, not the inner predicate ".".
+				if (vars && vars.__current) {
+					out += nodesetToXPathLocationExpr([vars.__current]);
+				} else {
+					out += ".";
+				}
 				i += cur[0].length;
 				continue;
 			}

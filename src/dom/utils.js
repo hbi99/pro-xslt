@@ -103,8 +103,9 @@ function elementToAbsoluteXPath(el) {
 
 /**
  * XPath expression denoting a node-set so it can be followed by / or @ (XPath 1.0).
+ * Used for node-set variables and for XSLT current() when the evaluation context differs.
  */
-function nodesetToXPathLocationExpr(nodes) {
+export function nodesetToXPathLocationExpr(nodes) {
 	if (!nodes || nodes.length === 0) return "/*[false()]";
 	let paths = [];
 	for (let n of nodes) {
