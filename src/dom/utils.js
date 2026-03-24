@@ -81,13 +81,17 @@ export function generateId(context) {
 
 /**
  * Turn a bound XSLT variable into an XPath token (number or quoted string).
- * @param {{ kind: 'number', n: number } | { kind: 'string', s: string } | undefined} entry
+ * @param {{ kind: 'number', n: number } | { kind: 'string', s: string } | { kind: 'nodeset', nodes: Node[] } | undefined} entry
  */
 export function xpathVarToXPathLiteral(entry) {
 	if (!entry) return "''";
 	if (entry.kind === "number") return String(entry.n);
 	if (entry.kind === "string") {
 		return "'" + String(entry.s).replace(/'/g, "''") + "'";
+	}
+	if (entry.kind === "nodeset") {
+		let first = entry.nodes && entry.nodes.length ? entry.nodes[0] : null;
+		return "'" + String(first ? (first.textContent || "") : "").replace(/'/g, "''") + "'";
 	}
 	return "''";
 }

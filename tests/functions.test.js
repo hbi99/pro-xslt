@@ -82,4 +82,32 @@ describe('Function Tests', () => {
     expect(fragment.textContent.trim().length).toBe(18);
   });
 
+  it('should make cross reference to a node with `key` and use it as variable', async () => {
+    let xmlString =
+        `<Monkey>
+            <Banana>
+                <i id="registry">
+                    <i name="red" top="153" left="814"/>
+                    <i name="blue" top="200" left="400"/>
+                </i>
+            </Banana>
+            <Me name="red"/>
+        </Monkey>`;
+
+    let xsltString =
+        `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+          <xsl:template match="//Monkey/Me">
+            <xsl:variable name="itemPos" select="//Monkey/Banana/*[@id='registry']/*[@name = current()/@name]"/>
+            top: <xsl:value-of select="$itemPos/@top"/>px;
+          </xsl:template>
+        </xsl:stylesheet>`;
+
+    let xmlDoc = ProXslt.xmlFromString(xmlString);
+    let xslDoc = ProXslt.xmlFromString(xsltString);
+    let proXslt = new ProXslt();
+    proXslt.importStylesheet(xslDoc);
+    let fragment = proXslt.transformToFragment(xmlDoc, document);
+    
+    expect(fragment.textContent.trim()).toBe('top: 153px;');
+  });
 });

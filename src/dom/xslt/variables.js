@@ -3,6 +3,7 @@ import {
 	evaluateString,
 	expandXPathVariables,
 } from "../utils.js";
+import { expandXPathForEachContextFunctions } from "./foreachContext.js";
 
 export function bindXslVariable(context, el, vars) {
 	let name = el.getAttribute("name");
@@ -11,6 +12,16 @@ export function bindXslVariable(context, el, vars) {
 	let select = el.getAttribute("select");
 	if (select != null && String(select).trim() !== "") {
 		let expanded = expandXPathVariables(String(select).trim(), vars);
+		expanded = expandXPathForEachContextFunctions(expanded, vars || {});
+		try {
+			let nodes = context.selectNodes(expanded);
+			if (nodes && nodes.length > 0) {
+				vars[name] = { kind: "nodeset", nodes };
+				return;
+			}
+		} catch (_) {
+			// Not a node-set expression; fall through to number/string handling.
+		}
 		let num = evaluateNumber(context, expanded);
 		if (num !== undefined && !Number.isNaN(num)) {
 			vars[name] = { kind: "number", n: num };

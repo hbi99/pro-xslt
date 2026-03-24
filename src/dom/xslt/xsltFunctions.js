@@ -13,6 +13,20 @@ import {
 import { expandXPathForEachContextFunctions } from "./foreachContext.js";
 import { buildKeyIndexByName, resolveKey } from "./keys.js";
 
+function resolveNodeSetVariablePath(expr, vars) {
+	if (!vars) return null;
+	let m = /^\s*\$([A-Za-z_][\w.\-:]*)\s*(\/.*)?\s*$/.exec(expr);
+	if (!m) return null;
+	let entry = vars[m[1]];
+	if (!entry || entry.kind !== "nodeset" || !entry.nodes || entry.nodes.length === 0) {
+		return null;
+	}
+	let base = entry.nodes[0];
+	let path = m[2];
+	if (!path || String(path).trim() === "") return base.textContent || "";
+	return evaluateString(base, "." + path);
+}
+
 function dispatchParsedXsltFunction(context, parsed) {
 	let n = parsed.name.toLowerCase();
 	let raw = parsed.raw;
@@ -67,6 +81,9 @@ function dispatchParsedXsltFunction(context, parsed) {
 }
 
 export function xsltFunctions(context, value, vars) {
+	let nodeSetValue = resolveNodeSetVariablePath(String(value), vars || {});
+	if (nodeSetValue !== null) return nodeSetValue;
+
 	let expanded = expandXPathVariables(String(value).trim(), vars || {});
 	expanded = expandXPathForEachContextFunctions(expanded, vars || {});
 	let parsed = parseXsltFunctionCall(expanded);
