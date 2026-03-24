@@ -12,6 +12,11 @@ import { handleForEach } from "./xslt/forEach.js";
 import { xsltFunctions } from "./xslt/xsltFunctions.js";
 
 const XSL_NS = "http://www.w3.org/1999/XSL/Transform";
+const MATCH_LOOKUP_CACHE = new Map();
+
+function childScope(vars) {
+	return Object.create(vars || null);
+}
 
 function applyXslAttributeNodeToElement(context, outEl, attrNode, vars) {
 	if (!outEl || outEl.nodeType !== Node.ELEMENT_NODE) return;
@@ -103,7 +108,27 @@ function processXslChildNodes(context, childNodes, fragment, vars) {
 
 function getXsltTemplates(xslNode) {
 	let doc = xslNode.ownerDocument;
-	return Array.from(doc.getElementsByTagNameNS(XSL_NS, "template"));
+	if (!doc.__proXsltTemplateNodes) {
+		doc.__proXsltTemplateNodes = Array.from(doc.getElementsByTagNameNS(XSL_NS, "template"));
+	}
+	return doc.__proXsltTemplateNodes;
+}
+
+function getTemplateMatchers(xslNode) {
+	let doc = xslNode.ownerDocument;
+	if (!doc.__proXsltTemplateMatchers) {
+		doc.__proXsltTemplateMatchers = getXsltTemplates(xslNode)
+			.map((t) => {
+				let matchExpr = t.getAttribute("match");
+				if (!matchExpr) return null;
+				return {
+					template: t,
+					lookupXpath: matchPatternToLookupXPath(matchExpr),
+				};
+			})
+			.filter(Boolean);
+	}
+	return doc.__proXsltTemplateMatchers;
 }
 
 /**
@@ -142,19 +167,25 @@ function splitTopLevelPatternUnion(pattern) {
  * doc.selectNodes(...) finds the same nodes as pattern matching (e.g. text() → //text()).
  */
 function matchPatternToLookupXPath(matchExpr) {
+	if (MATCH_LOOKUP_CACHE.has(matchExpr)) return MATCH_LOOKUP_CACHE.get(matchExpr);
 	let s = matchExpr.trim();
-	if (!s) return "//*[not(self::*)]";
+	if (!s) {
+		MATCH_LOOKUP_CACHE.set(matchExpr, "//*[not(self::*)]");
+		return "//*[not(self::*)]";
+	}
 	let branches = splitTopLevelPatternUnion(s);
-	return branches
+	let lookup = branches
 		.map((p) => {
 			if (p.startsWith("/")) return p;
 			return "//" + p;
 		})
 		.join(" | ");
+	MATCH_LOOKUP_CACHE.set(matchExpr, lookup);
+	return lookup;
 }
 
 function renderTemplateBody(contextNode, templateNode, fragment, vars) {
-	let scope = Object.assign({}, vars || {});
+	let scope = childScope(vars);
 	processXslChildNodes(contextNode, templateNode.childNodes, fragment, scope);
 }
 
@@ -172,7 +203,7 @@ function invokeNamedTemplate(contextNode, callTemplateNode, fragment, vars) {
 	}
 	if (!templateNode) return;
 
-	let scope = Object.assign({}, vars || {});
+	let scope = childScope(vars);
 	let children = Array.from(callTemplateNode.childNodes);
 	children.forEach((child) => {
 		if (child.nodeType !== Node.ELEMENT_NODE) return;
@@ -197,18 +228,20 @@ function invokeNamedTemplate(contextNode, callTemplateNode, fragment, vars) {
 }
 
 function invokeMatchingTemplate(contextNode, xslNode, fragment, vars) {
-	let templates = getXsltTemplates(xslNode);
+	let templates = getTemplateMatchers(xslNode);
 	let doc = contextNode.nodeType === Node.DOCUMENT_NODE ? contextNode : contextNode.ownerDocument;
+	let matchNodeSetCache = (vars && vars.__matchNodeSetCache) || null;
 
-	for (let t of templates) {
-		let matchExpr = t.getAttribute("match");
-		if (!matchExpr) continue;
-
-		let lookupXpath = matchPatternToLookupXPath(matchExpr);
-		let matches = doc.selectNodes(lookupXpath);
+	for (let tm of templates) {
+		let lookupXpath = tm.lookupXpath;
+		let matches = matchNodeSetCache && matchNodeSetCache[lookupXpath];
+		if (!matches) {
+			matches = doc.selectNodes(lookupXpath);
+			if (matchNodeSetCache) matchNodeSetCache[lookupXpath] = matches;
+		}
 		for (let m of matches) {
 			if (m === contextNode) {
-				renderTemplateBody(contextNode, t, fragment, vars);
+				renderTemplateBody(contextNode, tm.template, fragment, vars);
 				return;
 			}
 		}
@@ -262,8 +295,18 @@ export function xsltElements(context, xslNode, fragment, vars) {
 
 			let expandedSelect = expandXPathVariables(String(select).trim(), v);
 			expandedSelect = expandXPathForEachContextFunctions(expandedSelect, v);
-
-			let nodes = context.selectNodes(expandedSelect);
+			let nodes;
+			if (expandedSelect === "child::node()" || expandedSelect === "node()") {
+				nodes = Array.from(context.childNodes || []);
+			} else if (expandedSelect === "text()") {
+				nodes = Array.from(context.childNodes || []).filter((n) => n.nodeType === Node.TEXT_NODE);
+			} else if (/^[A-Za-z_][\w.\-:]*$/.test(expandedSelect)) {
+				nodes = Array.from(context.childNodes || []).filter((n) => {
+					return n.nodeType === Node.ELEMENT_NODE && (n.nodeName === expandedSelect || n.localName === expandedSelect);
+				});
+			} else {
+				nodes = context.selectNodes(expandedSelect);
+			}
 			for (let n of nodes) {
 				invokeMatchingTemplate(n, xslNode, fragment, v);
 			}
@@ -335,7 +378,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
 					expandedTest = expandXPathVariables(expandedTest, v);
 					expandedTest = expandXPathForEachContextFunctions(expandedTest, v);
 					if (evaluateBoolean(context, expandedTest)) {
-						let branchScope = Object.assign({}, v);
+						let branchScope = childScope(v);
 						processXslChildNodes(context, child.childNodes, fragment, branchScope);
 						matched = true;
 					}
@@ -348,7 +391,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			});
 
 			if (!matched && otherwiseNode) {
-				let branchScope = Object.assign({}, v);
+				let branchScope = childScope(v);
 				processXslChildNodes(context, otherwiseNode.childNodes, fragment, branchScope);
 			}
 
@@ -414,7 +457,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
 				if (!match) return;
 
 				context.selectNodes(match).forEach((node) => {
-					let scope = Object.assign({}, v);
+					let scope = childScope(v);
 					processXslChildNodes(node, child.childNodes, fragment, scope);
 				});
 			});
@@ -423,7 +466,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
 		case "xsl:template":
 			context.selectNodes(xslNode.getAttribute("match"))
 				.map(node => {
-					let scope = Object.assign({}, v);
+					let scope = childScope(v);
 					processXslChildNodes(node, xslNode.childNodes, fragment, scope);
 				});
 			break;

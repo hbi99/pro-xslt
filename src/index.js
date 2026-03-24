@@ -41,6 +41,7 @@ class ProXslt {
 	importStylesheet(xslDoc) {
 		resolveStylesheetImports(xslDoc, this.options.importResolver);
 		this.xslDoc = xslDoc;
+		this.globalVariableNodes = this.xslDoc.selectNodes(`//xsl:stylesheet/xsl:variable`);
 		this.outputSettings = parseOutputSettings(xslDoc);
 		this.decimalFormats = parseDecimalFormats(xslDoc);
 		this.attributeSets = parseAttributeSets(xslDoc);
@@ -52,7 +53,7 @@ class ProXslt {
 
 		// Bind global stylesheet variables once and make them available inside templates.
 		let globalVars = {};
-		let globalVariableNodes = this.xslDoc.selectNodes(`//xsl:stylesheet/xsl:variable`);
+		let globalVariableNodes = this.globalVariableNodes || [];
 		globalVariableNodes.forEach((vNode) => {
 			bindXslVariable(context, vNode, globalVars);
 		});
@@ -62,6 +63,7 @@ class ProXslt {
 		globalVars.__output = this.outputSettings || null;
 		globalVars.__decimalFormats = this.decimalFormats || null;
 		globalVars.__attributeSets = this.attributeSets || null;
+		globalVars.__matchNodeSetCache = {};
 
 		return transformSourceToFragment(context, this.xslDoc, globalVars);
 	}

@@ -71,7 +71,7 @@ export function handleForEach(context, xslNode, fragment, vars, xmlNodes, bindXs
 	let sortedNodes = sortNodesForEach(nodes, sortNodes, vars || {});
 
 	sortedNodes.forEach((node, idx) => {
-		let scope = Object.assign({}, vars || {});
+		let scope = Object.create(vars || null);
 		scope.__position = idx + 1;
 		scope.__last = sortedNodes.length;
 		scope.__current = node;

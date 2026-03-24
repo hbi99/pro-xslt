@@ -101,7 +101,9 @@ export function xpathVarToXPathLiteral(entry) {
  */
 export function expandXPathVariables(expr, vars) {
 	if (!expr || !vars) return expr;
-	let keys = Object.keys(vars).sort((a, b) => b.length - a.length);
+	let keys = [];
+	for (let k in vars) keys.push(k);
+	keys.sort((a, b) => b.length - a.length);
 	if (keys.length === 0) return expr;
 	let out = "";
 	let i = 0;
@@ -179,7 +181,9 @@ export function expandXPathVariables(expr, vars) {
  */
 export function expandXPathNodeSetVariables(expr, vars) {
 	if (!expr || !vars) return expr;
-	let keys = Object.keys(vars).sort((a, b) => b.length - a.length);
+	let keys = [];
+	for (let k in vars) keys.push(k);
+	keys.sort((a, b) => b.length - a.length);
 	if (keys.length === 0) return expr;
 	let out = "";
 	let i = 0;

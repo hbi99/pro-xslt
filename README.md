@@ -22,6 +22,21 @@ npm install
 | `npm run build:watch` | Rebuild bundles when source changes |
 | `npm test` | Run the full Vitest suite once |
 | `npm run test:watch` | Run Vitest in watch mode |
+| `npm run bench` | Run transform performance benchmark cases |
+| `npm run bench:compare -- <baseline.txt> <candidate.txt>` | Compare two saved benchmark outputs |
+
+## Benchmarking
+
+Use `npm run bench` to measure transform throughput on two representative workloads:
+
+- `apply-templates-heavy`
+- `key-heavy-50kb`
+
+For commit-to-commit comparison:
+
+1. Run baseline and save output: `npm run bench > baseline.txt`
+2. Switch to candidate commit and save output: `npm run bench > candidate.txt`
+3. Compare automatically: `npm run bench:compare -- baseline.txt candidate.txt`
 
 ## Usage
 
