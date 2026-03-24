@@ -509,19 +509,43 @@ export function xsltElements(context, xslNode, fragment, vars) {
 	return fragment;
 }
 
+function normalizeTemplateMatch(m) {
+	return String(m || "")
+		.trim()
+		.replace(/\s+/g, " ");
+}
+
 /**
- * XSLT processing entry: use match="/" if present; otherwise apply built-in root rule
- * (process document children with template matching). This avoids using the first
- * xsl:template in document order (e.g. match="text()") as the transformation entry.
+ * Entry template: prefer match="/" (first in document order) so xsl:include can add
+ * helpers before the main rule; otherwise first template whose match is not text().
+ * Any other pattern (/foo, //bar, multi-step) is allowed in that second pass.
+ */
+function findRootTemplate(xslDoc) {
+	let templates = xslDoc.selectNodes("//xsl:template[@match]");
+	for (let t of templates) {
+		if (normalizeTemplateMatch(t.getAttribute("match") || "") === "/") return t;
+	}
+	for (let t of templates) {
+		let m = normalizeTemplateMatch(t.getAttribute("match") || "");
+		if (m === "" || m === "text()") continue;
+		return t;
+	}
+	return null;
+}
+
+/**
+ * XSLT processing entry: run the chosen root template against nodes from its match
+ * pattern; if no eligible template, apply built-in root rules.
  */
 export function transformSourceToFragment(context, xslDoc, vars) {
 	let fragment = document.createDocumentFragment();
 	let refNode = xslDoc.selectSingleNode("//xsl:stylesheet") || xslDoc.documentElement;
-	let rootTemplate = xslDoc.selectSingleNode("//xsl:template[@match='/']");
+	let rootTemplate = findRootTemplate(xslDoc);
 	if (rootTemplate) {
+		let rootMatch = normalizeTemplateMatch(rootTemplate.getAttribute("match") || "");
 		let rootNodes =
 			context.nodeType === Node.DOCUMENT_NODE
-				? context.selectNodes("/")
+				? context.selectNodes(rootMatch)
 				: [context];
 		rootNodes.forEach((rn) => {
 			renderTemplateBody(rn, rootTemplate, fragment, vars);
