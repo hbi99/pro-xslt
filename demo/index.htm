@@ -158,6 +158,7 @@
 	let xmlEditor, xsltEditor, htmlEditor;
 
 	const defaultXml = `<Monkey>
+    <User id="demo" account-type="1"/>
     <Banana>
         <i id="registry">
             <i name="red" top="153" left="814"/>
@@ -168,11 +169,14 @@
 </Monkey>`;
 
 	const defaultXslt = `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-    <xsl:template match="//Monkey/Me">
-	<xsl:variable name="itemPos" select="//Monkey/Banana/*[@id='registry']/*[@name = current()/@name]"/>
-	top: <xsl:value-of select="$itemPos/@top"/>px;
-</xsl:template>
-</xsl:stylesheet>`;
+            <xsl:template match="//Monkey/Me">
+                <xsl:variable name="meUser" select="//User"/>
+                <xsl:variable name="itemPos" select="//Monkey/Banana//*[@name='red' and @left=814]"/>
+                <xsl:if test="$meUser/@account-type = '1' and $meUser/@id = 'demo'">
+                    top: <xsl:value-of select="$itemPos/@top"/>px;
+                </xsl:if>
+            </xsl:template>
+        </xsl:stylesheet>`;
 
 	// Initialize Monaco Editor
 	require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });

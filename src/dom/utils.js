@@ -76,7 +76,46 @@ export function generateId(context) {
         context[idSymbol] = `n${timestamp}${random}${counter}`.slice(0,18);
     }
 
-    return context[idSymbol];
+	return context[idSymbol];
+}
+
+/**
+ * Absolute XPath 1.0 location path for an element (e.g. /Monkey[1]/User[1]).
+ */
+function elementToAbsoluteXPath(el) {
+	if (!el || el.nodeType !== Node.ELEMENT_NODE) return null;
+	let parts = [];
+	let current = el;
+	while (current && current.nodeType === Node.ELEMENT_NODE) {
+		let parent = current.parentNode;
+		if (!parent) break;
+		let name = current.nodeName;
+		let siblings = [];
+		for (let c = parent.firstChild; c; c = c.nextSibling) {
+			if (c.nodeType === Node.ELEMENT_NODE && c.nodeName === name) siblings.push(c);
+		}
+		let index = siblings.indexOf(current) + 1;
+		parts.unshift(name + "[" + index + "]");
+		current = parent;
+	}
+	return "/" + parts.join("/");
+}
+
+/**
+ * XPath expression denoting a node-set so it can be followed by / or @ (XPath 1.0).
+ */
+function nodesetToXPathLocationExpr(nodes) {
+	if (!nodes || nodes.length === 0) return "/*[false()]";
+	let paths = [];
+	for (let n of nodes) {
+		if (n.nodeType === Node.ELEMENT_NODE) {
+			let p = elementToAbsoluteXPath(n);
+			if (p) paths.push(p);
+		}
+	}
+	if (paths.length === 0) return "/*[false()]";
+	if (paths.length === 1) return paths[0];
+	return "(" + paths.join("|") + ")";
 }
 
 /**
@@ -129,12 +168,23 @@ export function expandXPathVariables(expr, vars) {
 					let after = expr[i + 1 + k.length];
 					if (
 						after === undefined ||
+						after === "/" ||
+						after === "@" ||
 						/[\s\[\](),|+\-*/=<>!]/.test(after) ||
 						after === ")" ||
 						after === "]"
 					) {
 						if (vars[k] !== undefined) {
-							out += xpathVarToXPathLiteral(vars[k]);
+							let v = vars[k];
+							if (
+								v &&
+								v.kind === "nodeset" &&
+								(after === "/" || after === "@")
+							) {
+								out += nodesetToXPathLocationExpr(v.nodes);
+							} else {
+								out += xpathVarToXPathLiteral(v);
+							}
 							i += 1 + k.length;
 							matched = true;
 							break;
