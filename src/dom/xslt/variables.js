@@ -1,6 +1,7 @@
 import {
 	evaluateNumber,
 	evaluateString,
+	expandXPathNodeSetVariables,
 	expandXPathVariables,
 } from "../utils.js";
 import { expandXPathForEachContextFunctions } from "./foreachContext.js";
@@ -11,7 +12,8 @@ export function bindXslVariable(context, el, vars) {
 
 	let select = el.getAttribute("select");
 	if (select != null && String(select).trim() !== "") {
-		let expanded = expandXPathVariables(String(select).trim(), vars);
+		let expanded = expandXPathNodeSetVariables(String(select).trim(), vars);
+		expanded = expandXPathVariables(expanded, vars);
 		expanded = expandXPathForEachContextFunctions(expanded, vars || {});
 		try {
 			let nodes = context.selectNodes(expanded);

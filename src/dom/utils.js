@@ -140,7 +140,9 @@ export function xpathVarToXPathLiteral(entry) {
  */
 export function expandXPathVariables(expr, vars) {
 	if (!expr || !vars) return expr;
-	let keys = Object.keys(vars).sort((a, b) => b.length - a.length);
+	let keys = [];
+	for (let k in vars) keys.push(k);
+	keys.sort((a, b) => b.length - a.length);
 	if (keys.length === 0) return expr;
 	let out = "";
 	let i = 0;
@@ -215,6 +217,91 @@ export function expandXPathVariables(expr, vars) {
 			if (c === '"') {
 				inDouble = false;
 			}
+			out += c;
+			i++;
+		}
+	}
+	return out;
+}
+
+/**
+ * Resolves node-set variable references like `$v/@attr` or `$v/path` by
+ * evaluating against the first node in the variable's node-set and replacing
+ * them with XPath string literals. Keeps quoted text untouched.
+ */
+export function expandXPathNodeSetVariables(expr, vars) {
+	if (!expr || !vars) return expr;
+	let keys = [];
+	for (let k in vars) keys.push(k);
+	keys.sort((a, b) => b.length - a.length);
+	if (keys.length === 0) return expr;
+	let out = "";
+	let i = 0;
+	let inSingle = false;
+	let inDouble = false;
+	while (i < expr.length) {
+		let c = expr[i];
+		if (!inSingle && !inDouble) {
+			if (c === "'") {
+				inSingle = true;
+				out += c;
+				i++;
+				continue;
+			}
+			if (c === '"') {
+				inDouble = true;
+				out += c;
+				i++;
+				continue;
+			}
+			if (c === "$") {
+				let matched = false;
+				for (let k of keys) {
+					if (!expr.slice(i + 1).startsWith(k)) continue;
+					let entry = vars[k];
+					if (!entry || entry.kind !== "nodeset") continue;
+					let base = entry.nodes && entry.nodes.length ? entry.nodes[0] : null;
+					let j = i + 1 + k.length;
+					let path = "";
+					if (expr[j] === "/") {
+						let start = j;
+						j++;
+						while (j < expr.length) {
+							let ch = expr[j];
+							if (/[\s(),|+*=<>!]/.test(ch)) break;
+							j++;
+						}
+						path = expr.slice(start, j);
+					}
+					let value = "";
+					if (base) {
+						value = path ? evaluateString(base, "." + path) : (base.textContent || "");
+					}
+					out += "'" + String(value).replace(/'/g, "''") + "'";
+					i = j;
+					matched = true;
+					break;
+				}
+				if (matched) continue;
+			}
+			out += c;
+			i++;
+		} else if (inSingle) {
+			if (c === "'" && expr[i + 1] === "'") {
+				out += "''";
+				i += 2;
+				continue;
+			}
+			if (c === "'") inSingle = false;
+			out += c;
+			i++;
+		} else {
+			if (c === '"' && expr[i + 1] === '"') {
+				out += '""';
+				i += 2;
+				continue;
+			}
+			if (c === '"') inDouble = false;
 			out += c;
 			i++;
 		}
