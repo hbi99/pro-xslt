@@ -2,6 +2,7 @@ import {
 	evaluateBoolean,
 	evaluateNumber,
 	evaluateString,
+	expandXPathNodeSetVariables,
 	expandXPathVariables,
 } from "./utils.js";
 
@@ -330,7 +331,8 @@ export function xsltElements(context, xslNode, fragment, vars) {
 				if (child.nodeName === "xsl:when") {
 					let test = child.getAttribute("test");
 					if (test == null) return;
-					let expandedTest = expandXPathVariables(String(test).trim(), v);
+					let expandedTest = expandXPathNodeSetVariables(String(test).trim(), v);
+					expandedTest = expandXPathVariables(expandedTest, v);
 					expandedTest = expandXPathForEachContextFunctions(expandedTest, v);
 					if (evaluateBoolean(context, expandedTest)) {
 						let branchScope = Object.assign({}, v);
@@ -358,7 +360,8 @@ export function xsltElements(context, xslNode, fragment, vars) {
 		case "xsl:if": {
 			let test = xslNode.getAttribute("test");
 			if (test == null || String(test).trim() === "") break;
-			let expandedTest = expandXPathVariables(String(test).trim(), v);
+			let expandedTest = expandXPathNodeSetVariables(String(test).trim(), v);
+			expandedTest = expandXPathVariables(expandedTest, v);
 			expandedTest = expandXPathForEachContextFunctions(expandedTest, v);
 			if (evaluateBoolean(context, expandedTest)) {
 				processXslChildNodes(context, xslNode.childNodes, fragment, v);

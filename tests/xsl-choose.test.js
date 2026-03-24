@@ -89,5 +89,43 @@ describe('xsl:choose', () => {
 
     expect(fragment.textContent.trim()).toBe('right');
   });
+
+  it('supports =, or, > in xsl:when tests with variables', async () => {
+    let xmlString =
+        `<Monkey>
+		<User id="demo" account-type="1"/>
+		<Banana>
+			<i id="registry">
+    			<i name="red" top="153" left="814"/>
+    			<i name="blue" top="200" left="400"/>
+    		</i>
+    	</Banana>
+    	<Me name="red"/>
+    </Monkey>`;
+
+    let xsltString =
+        `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+            <xsl:template match="//Monkey/Me">
+                <xsl:variable name="meUser" select="//User"/>
+                <xsl:variable name="itemPos" select="//Monkey/Banana//*[@name='red' and @left=814]"/>
+                <xsl:choose>
+                    <xsl:when test="$meUser/@account-type = '1' or $itemPos/@top &gt; 999">
+                        top: <xsl:value-of select="$itemPos/@top"/>px;
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="'no'"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:template>
+        </xsl:stylesheet>`;
+
+    let xmlDoc = ProXslt.xmlFromString(xmlString);
+    let xslDoc = ProXslt.xmlFromString(xsltString);
+    let proXslt = new ProXslt();
+    proXslt.importStylesheet(xslDoc);
+    let fragment = proXslt.transformToFragment(xmlDoc, document);
+
+    expect(fragment.textContent.replace(/\s+/g, ' ').trim()).toBe('top: 153px;');
+  });
 });
 
