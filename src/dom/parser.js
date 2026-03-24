@@ -19,7 +19,11 @@ function childScope(vars) {
 }
 
 function applyXslAttributeNodeToElement(context, outEl, attrNode, vars) {
-	if (!outEl || outEl.nodeType !== Node.ELEMENT_NODE) return;
+	let target = outEl;
+	if (!target || target.nodeType !== Node.ELEMENT_NODE) {
+		target = vars && vars.__lreParent;
+	}
+	if (!target || target.nodeType !== Node.ELEMENT_NODE) return;
 	let attrName = attrNode.getAttribute("name");
 	if (attrName == null || String(attrName).trim() === "") return;
 
@@ -29,14 +33,14 @@ function applyXslAttributeNodeToElement(context, outEl, attrNode, vars) {
 		valueExpr = expandXPathVariables(valueExpr, vars);
 		valueExpr = expandXPathForEachContextFunctions(valueExpr, vars);
 		let attrValue = xsltFunctions(context, valueExpr, vars);
-		outEl.setAttribute(attrName, attrValue);
+		target.setAttribute(attrName, attrValue);
 		return;
 	}
 
 	let tmpFragment = document.createDocumentFragment();
 	processXslChildNodes(context, attrNode.childNodes, tmpFragment, vars);
 	let normalized = (tmpFragment.textContent || "").replace(/\s+/g, " ").trim();
-	outEl.setAttribute(attrName, normalized);
+	target.setAttribute(attrName, normalized);
 }
 
 function applyAttributeSetByName(context, outEl, setName, vars, visiting) {
@@ -495,7 +499,9 @@ export function xsltElements(context, xslNode, fragment, vars) {
 				outEl.setAttribute(attr.name, attr.value);
 			});
 			applyUseAttributeSets(context, outEl, xslNode.getAttribute("use-attribute-sets"), v);
-			processXslChildNodes(context, xslNode.childNodes, outEl, v);
+			let lreScope = childScope(v);
+			lreScope.__lreParent = outEl;
+			processXslChildNodes(context, xslNode.childNodes, outEl, lreScope);
 			fragment.appendChild(outEl);
 			break;
 		}
