@@ -85,12 +85,7 @@ class ProXslt {
 
         return transformSourceToFragment(context, this.xslDoc, globalVars);
     }
-
-    
-}
-
-if (typeof globalThis !== 'undefined') {
-    globalThis.ProXslt = ProXslt;
+   
 }
 
 export default ProXslt;
