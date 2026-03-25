@@ -6,7 +6,6 @@ import {
 	expandXPathVariables,
 } from "./utils.js";
 
-import { bindXslVariable } from "./xslt/variables.js";
 import { expandXPathForEachContextFunctions } from "./xslt/foreachContext.js";
 import { handleForEach } from "./xslt/forEach.js";
 import { xsltFunctions } from "./xslt/xsltFunctions.js";
@@ -67,12 +66,46 @@ function applyUseAttributeSets(context, outEl, useValue, vars) {
 	names.forEach((n) => applyAttributeSetByName(context, outEl, n, vars, new Set()));
 }
 
+export function bindXslVariableNode(context, el, vars, xmlNodes) {
+	let name = el.getAttribute("name");
+	if (!name) return;
+
+	let select = el.getAttribute("select");
+	if (select != null && String(select).trim() !== "") {
+		let expanded = expandXPathNodeSetVariables(String(select).trim(), vars);
+		expanded = expandXPathVariables(expanded, vars);
+		expanded = expandXPathForEachContextFunctions(expanded, vars || {});
+		try {
+			let nodes = context.selectNodes(expanded);
+			if (nodes && nodes.length > 0) {
+				vars[name] = { kind: "nodeset", nodes };
+				return;
+			}
+		} catch (_) {
+			// Not a node-set expression; fall through to number/string handling.
+		}
+		let num = evaluateNumber(context, expanded);
+		if (num !== undefined && !Number.isNaN(num)) {
+			vars[name] = { kind: "number", n: num };
+		} else {
+			vars[name] = { kind: "string", s: evaluateString(context, expanded) };
+		}
+		return;
+	}
+
+	// Variable content can contain XSL instructions (e.g. xsl:call-template).
+	// Evaluate the body and store its text result.
+	let tmpFragment = document.createDocumentFragment();
+	processXslChildNodes(context, el.childNodes, tmpFragment, vars);
+	vars[name] = { kind: "string", s: tmpFragment.textContent || "" };
+}
+
 function processXslChildNodes(context, childNodes, fragment, vars) {
 	for (let i = 0; i < childNodes.length; i++) {
 		let child = childNodes[i];
 		if (child.nodeType === Node.ELEMENT_NODE) {
 			if (child.nodeName === "xsl:variable") {
-				bindXslVariable(context, child, vars);
+				bindXslVariableNode(context, child, vars, xmlNodes);
 				continue;
 			}
 			if (child.nodeName === "xsl:param") {
@@ -83,12 +116,19 @@ function processXslChildNodes(context, childNodes, fragment, vars) {
 				let select = child.getAttribute("select");
 				if (select != null && String(select).trim() !== "") {
 					let expanded = expandXPathVariables(String(select).trim(), vars);
-					let num = evaluateNumber(context, expanded);
-					if (num !== undefined && !Number.isNaN(num)) {
-						vars[name] = { kind: "number", n: num };
-					} else {
-						vars[name] = { kind: "string", s: evaluateString(context, expanded) };
+					expanded = expandXPathForEachContextFunctions(expanded, vars || {});
+					try {
+						let nodes = context.selectNodes(expanded);
+						if (nodes && nodes.length > 0) {
+							vars[name] = { kind: "nodeset", nodes };
+							continue;
+						}
+					} catch (_) {
+						// Not a node-set expression; fall through to number/string handling.
 					}
+					let num = evaluateNumber(context, expanded);
+					if (num !== undefined && !Number.isNaN(num)) vars[name] = { kind: "number", n: num };
+					else vars[name] = { kind: "string", s: evaluateString(context, expanded) };
 				} else {
 					vars[name] = { kind: "string", s: child.textContent || "" };
 				}
@@ -167,6 +207,144 @@ function splitTopLevelPatternUnion(pattern) {
 	return parts.filter(Boolean);
 }
 
+function splitTopLevelLogical(expr, opWord) {
+	let s = String(expr || "");
+	let parts = [];
+	let depth = 0;
+	let quote = null;
+	let start = 0;
+	let needle = " " + opWord + " ";
+	for (let i = 0; i < s.length; i++) {
+		let c = s[i];
+		if (quote) {
+			if (c === quote) quote = null;
+			continue;
+		}
+		if (c === '"' || c === "'") {
+			quote = c;
+			continue;
+		}
+		if (c === "[" || c === "(") depth++;
+		else if (c === "]" || c === ")") depth--;
+		if (depth === 0 && s.slice(i, i + needle.length).toLowerCase() === needle) {
+			parts.push(s.slice(start, i));
+			start = i + needle.length;
+			i += needle.length - 1;
+		}
+	}
+	parts.push(s.slice(start));
+	return parts.map((p) => p.trim()).filter(Boolean);
+}
+
+function rewriteNotEqualsForJsdom(expr) {
+	// Work around jsdom XPath bug with "!=" in some cases (notably involving name()).
+	// Rewrites: A != B  =>  not(A = B) at top-level within each AND/OR term.
+	let orTerms = splitTopLevelLogical(expr, "or");
+	let rewrittenOr = orTerms.map((orTerm) => {
+		let andTerms = splitTopLevelLogical(orTerm, "and");
+		let rewrittenAnd = andTerms.map((t) => {
+			// Only rewrite a single top-level != per term (sufficient for our use).
+			let s = t;
+			let depth = 0;
+			let quote = null;
+			for (let i = 0; i < s.length - 1; i++) {
+				let c = s[i];
+				if (quote) {
+					if (c === quote) quote = null;
+					continue;
+				}
+				if (c === '"' || c === "'") {
+					quote = c;
+					continue;
+				}
+				if (c === "[" || c === "(") depth++;
+				else if (c === "]" || c === ")") depth--;
+				if (depth === 0 && s[i] === "!" && s[i + 1] === "=") {
+					let lhs = s.slice(0, i).trim();
+					let rhs = s.slice(i + 2).trim();
+					return `not(${lhs} = ${rhs})`;
+				}
+			}
+			return t.trim();
+		});
+		return rewrittenAnd.length > 1 ? rewrittenAnd.join(" and ") : rewrittenAnd[0] || "";
+	});
+	return rewrittenOr.length > 1 ? rewrittenOr.join(" or ") : rewrittenOr[0] || "";
+}
+
+function expandNameFunctions(expr, contextNode) {
+	// jsdom's XPath implementation is buggy when comparing name() results.
+	// Replace name(<xpath>) with a string literal of the selected node's name.
+	let s = String(expr || "");
+	let out = "";
+	let i = 0;
+	let inSingle = false;
+	let inDouble = false;
+	while (i < s.length) {
+		let c = s[i];
+		if (!inDouble && c === "'") {
+			inSingle = !inSingle;
+			out += c;
+			i++;
+			continue;
+		}
+		if (!inSingle && c === '"') {
+			inDouble = !inDouble;
+			out += c;
+			i++;
+			continue;
+		}
+
+		if (!inSingle && !inDouble && s.slice(i, i + 5).toLowerCase() === "name(") {
+			let j = i + 5;
+			let depth = 1;
+			let q = null;
+			while (j < s.length) {
+				let ch = s[j];
+				if (q) {
+					if (ch === q) q = null;
+					j++;
+					continue;
+				}
+				if (ch === "'" || ch === '"') {
+					q = ch;
+					j++;
+					continue;
+				}
+				if (ch === "(") depth++;
+				else if (ch === ")") {
+					depth--;
+					if (depth === 0) break;
+				}
+				j++;
+			}
+			if (j < s.length && s[j] === ")") {
+				let inner = s.slice(i + 5, j).trim();
+				let nodeName = "";
+				try {
+					// name() with no argument is the context node's name (XPath 1.0).
+					let n;
+					if (!inner || inner === "." || inner === "self::node()") {
+						n = contextNode;
+					} else if (contextNode && typeof contextNode.selectSingleNode === "function") {
+						n = contextNode.selectSingleNode(inner);
+					}
+					nodeName = n ? (n.nodeName || n.localName || "") : "";
+				} catch (_) {
+					nodeName = "";
+				}
+				out += "'" + String(nodeName).replace(/'/g, "''") + "'";
+				i = j + 1;
+				continue;
+			}
+		}
+
+		out += c;
+		i++;
+	}
+	return out;
+}
+
 /**
  * Map a match pattern to an XPath node-set over the source document so
  * doc.selectNodes(...) finds the same nodes as pattern matching (e.g. text() → //text()).
@@ -221,12 +399,19 @@ function invokeNamedTemplate(contextNode, callTemplateNode, fragment, vars) {
 		let expanded = expandXPathVariables(String(select).trim(), vars || {});
 		expanded = expandXPathForEachContextFunctions(expanded, vars || {});
 
-		let num = evaluateNumber(contextNode, expanded);
-		if (num !== undefined && !Number.isNaN(num)) {
-			scope[paramName] = { kind: "number", n: num };
-		} else {
-			scope[paramName] = { kind: "string", s: evaluateString(contextNode, expanded) };
+		try {
+			let nodes = contextNode.selectNodes(expanded);
+			if (nodes && nodes.length > 0) {
+				scope[paramName] = { kind: "nodeset", nodes };
+				return;
+			}
+		} catch (_) {
+			// Not a node-set expression; fall through.
 		}
+
+		let num = evaluateNumber(contextNode, expanded);
+		if (num !== undefined && !Number.isNaN(num)) scope[paramName] = { kind: "number", n: num };
+		else scope[paramName] = { kind: "string", s: evaluateString(contextNode, expanded) };
 	});
 
 	renderTemplateBody(contextNode, templateNode, fragment, scope);
@@ -380,9 +565,10 @@ export function xsltElements(context, xslNode, fragment, vars) {
 				if (child.nodeName === "xsl:when") {
 					let test = child.getAttribute("test");
 					if (test == null) return;
-					let expandedTest = expandXPathNodeSetVariables(String(test).trim(), v);
-					expandedTest = expandXPathVariables(expandedTest, v);
+					let expandedTest = expandXPathVariables(String(test).trim(), v);
 					expandedTest = expandXPathForEachContextFunctions(expandedTest, v);
+					expandedTest = expandNameFunctions(expandedTest, context);
+					expandedTest = rewriteNotEqualsForJsdom(expandedTest);
 					if (evaluateBoolean(context, expandedTest)) {
 						let branchScope = childScope(v);
 						processXslChildNodes(context, child.childNodes, fragment, branchScope);
@@ -404,14 +590,17 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			break;
 		}
 		case "xsl:for-each":
-			handleForEach(context, xslNode, fragment, v, xmlNodes, bindXslVariable);
+			handleForEach(context, xslNode, fragment, v, xmlNodes, (ctx, varNode, scope) => {
+				bindXslVariableNode(ctx, varNode, scope, xmlNodes);
+			});
 			break;
 		case "xsl:if": {
 			let test = xslNode.getAttribute("test");
 			if (test == null || String(test).trim() === "") break;
-			let expandedTest = expandXPathNodeSetVariables(String(test).trim(), v);
-			expandedTest = expandXPathVariables(expandedTest, v);
+			let expandedTest = expandXPathVariables(String(test).trim(), v);
 			expandedTest = expandXPathForEachContextFunctions(expandedTest, v);
+			expandedTest = expandNameFunctions(expandedTest, context);
+			expandedTest = rewriteNotEqualsForJsdom(expandedTest);
 			if (evaluateBoolean(context, expandedTest)) {
 				processXslChildNodes(context, xslNode.childNodes, fragment, v);
 			}
@@ -522,6 +711,27 @@ export function transformSourceToFragment(context, xslDoc, vars) {
 			renderTemplateBody(rn, rootTemplate, fragment, vars);
 		});
 	} else {
+		// If there are no match-based templates, fall back to the first named template.
+		let namedTemplate = xslDoc.selectSingleNode("//xsl:template[@name]");
+		if (namedTemplate) {
+			let start = context.nodeType === Node.DOCUMENT_NODE ? context.documentElement : context;
+			// Heuristic: if the document is wrapped in single-child element layers,
+			// descend to the first node with multiple element children.
+			while (start && start.nodeType === Node.ELEMENT_NODE) {
+				let onlyEl = null;
+				let count = 0;
+				for (let c = start.firstChild; c; c = c.nextSibling) {
+					if (c.nodeType !== Node.ELEMENT_NODE) continue;
+					count++;
+					if (count > 1) break;
+					onlyEl = c;
+				}
+				if (count === 1 && onlyEl) start = onlyEl;
+				else break;
+			}
+			renderTemplateBody(start, namedTemplate, fragment, vars);
+			return fragment;
+		}
 		let startNodes =
 			context.nodeType === Node.DOCUMENT_NODE
 				? Array.from(context.childNodes)

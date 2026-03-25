@@ -1,6 +1,5 @@
 import { selectNodes, selectSingleNode } from "./utils.js";
-import { transformSourceToFragment } from "./parser.js";
-import { bindXslVariable } from "./xslt/variables.js";
+import { transformSourceToFragment, bindXslVariableNode } from "./parser.js";
 import { parseOutputSettings } from "./xslt/output.js";
 import { applyStripSpaceRules } from "./xslt/stripSpace.js";
 import { resolveStylesheetImports } from "./xslt/imports.js";
@@ -20,6 +19,17 @@ Node.prototype.selectSingleNode = function(xpath) {
 	if (this.nodeType === Node.DOCUMENT_NODE) return selectSingleNode.call(this, xpath, this);
 	return this.ownerDocument.selectSingleNode(xpath, this);
 };
+
+// Convenience for tests/consumers: jsdom doesn't expose innerHTML on DocumentFragment.
+if (typeof DocumentFragment !== "undefined" && !("innerHTML" in DocumentFragment.prototype)) {
+	Object.defineProperty(DocumentFragment.prototype, "innerHTML", {
+		get() {
+			let host = document.createElement("div");
+			host.appendChild(this.cloneNode(true));
+			return host.innerHTML;
+		},
+	});
+}
 
 /**
  * @class
@@ -63,7 +73,7 @@ class ProXslt {
 		let globalVars = {};
 		let globalVariableNodes = this.globalVariableNodes || [];
 		globalVariableNodes.forEach((vNode) => {
-			bindXslVariable(context, vNode, globalVars);
+			bindXslVariableNode(context, vNode, globalVars);
 		});
 		// xsl:key indexes are built lazily per key name on first key() call.
 		globalVars.__sourceDoc = context;

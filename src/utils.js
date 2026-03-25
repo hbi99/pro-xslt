@@ -179,11 +179,9 @@ export function expandXPathVariables(expr, vars) {
 					) {
 						if (vars[k] !== undefined) {
 							let v = vars[k];
-							if (
-								v &&
-								v.kind === "nodeset" &&
-								(after === "/" || after === "@")
-							) {
+							if (v && v.kind === "nodeset") {
+								// Prefer emitting a node-set expression so it can be used in functions like name($n)
+								// and in path contexts ($n/@id). XPath will coerce node-sets to string/number as needed.
 								out += nodesetToXPathLocationExpr(v.nodes);
 							} else {
 								out += xpathVarToXPathLiteral(v);
