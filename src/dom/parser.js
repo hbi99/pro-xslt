@@ -543,10 +543,10 @@ export function transformSourceToFragment(context, xslDoc, vars) {
 	let rootTemplate = findRootTemplate(xslDoc);
 	if (rootTemplate) {
 		let rootMatch = normalizeTemplateMatch(rootTemplate.getAttribute("match") || "");
-		let rootNodes =
-			context.nodeType === Node.DOCUMENT_NODE
-				? context.selectNodes(rootMatch)
-				: [context];
+		// Always resolve the entry nodes by evaluating the match XPath from the document root,
+		// even if the caller passed an element node as `context`.
+		let doc = context.nodeType === Node.DOCUMENT_NODE ? context : context.ownerDocument;
+		let rootNodes = doc.selectNodes(rootMatch, doc);
 		rootNodes.forEach((rn) => {
 			renderTemplateBody(rn, rootTemplate, fragment, vars);
 		});

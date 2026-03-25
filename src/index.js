@@ -30,10 +30,18 @@ class ProXslt {
 	}
 
 	static xmlFromString(str) {
+		let s = String(str == null ? "" : str);
+		let looksLikeXsl =
+			/<\s*xsl:(stylesheet|transform)\b/i.test(s) ||
+			/xmlns:xsl\s*=\s*["']http:\/\/www\.w3\.org\/1999\/XSL\/Transform["']/i.test(s);
+
 		let parser = new DOMParser();
-		let xdoc = parser.parseFromString(str, "application/xml");
+		let xdoc = parser.parseFromString(s, "application/xml");
 		if (xdoc.querySelector("parsererror")) {
-			throw new Error(`Parsererror: ${str}`);
+			if (looksLikeXsl) {
+				throw new Error(`Invalid XSL template: malformed XML (unclosed tag(s) or invalid markup)`);
+			}
+			throw new Error(`Parsererror: ${s}`);
 		}
 		return xdoc;
 	}
