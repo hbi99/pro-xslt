@@ -1,9 +1,13 @@
 import { evaluateNumber, evaluateString, expandXPathVariables } from "../utils.js";
 
 function xslSortElements(forEachNode) {
-	return Array.from(forEachNode.childNodes).filter((child) => {
-		return child.nodeType === Node.ELEMENT_NODE && child.nodeName === "xsl:sort";
-	});
+	let out = [];
+	for (let child = forEachNode.firstChild; child; child = child.nextSibling) {
+		if (child.nodeType === Node.ELEMENT_NODE && child.nodeName === "xsl:sort") {
+			out.push(child);
+		}
+	}
+	return out;
 }
 
 function sortKeyForNode(node, sortNode, vars) {
@@ -50,15 +54,15 @@ function sortNodesForEach(nodes, sortNodes, vars) {
 }
 
 function processForEachChildNodes(context, forEachNode, fragment, vars, xmlNodes, bindXslVariable) {
-	Array.from(forEachNode.childNodes).forEach((child) => {
-		if (child.nodeType !== Node.ELEMENT_NODE) return;
-		if (child.nodeName === "xsl:sort") return;
+	for (let child = forEachNode.firstChild; child; child = child.nextSibling) {
+		if (child.nodeType !== Node.ELEMENT_NODE) continue;
+		if (child.nodeName === "xsl:sort") continue;
 		if (child.nodeName === "xsl:variable") {
 			bindXslVariable(context, child, vars);
-			return;
+			continue;
 		}
 		fragment.appendChild(xmlNodes(context, child, vars));
-	});
+	}
 }
 
 export function handleForEach(context, xslNode, fragment, vars, xmlNodes, bindXslVariable) {

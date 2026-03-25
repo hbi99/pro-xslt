@@ -68,16 +68,17 @@ function applyUseAttributeSets(context, outEl, useValue, vars) {
 }
 
 function processXslChildNodes(context, childNodes, fragment, vars) {
-	Array.from(childNodes).forEach((child) => {
+	for (let i = 0; i < childNodes.length; i++) {
+		let child = childNodes[i];
 		if (child.nodeType === Node.ELEMENT_NODE) {
 			if (child.nodeName === "xsl:variable") {
 				bindXslVariable(context, child, vars);
-				return;
+				continue;
 			}
 			if (child.nodeName === "xsl:param") {
 				let name = child.getAttribute("name");
-				if (!name) return;
-				if (vars[name] !== undefined) return;
+				if (!name) continue;
+				if (vars[name] !== undefined) continue;
 
 				let select = child.getAttribute("select");
 				if (select != null && String(select).trim() !== "") {
@@ -91,12 +92,12 @@ function processXslChildNodes(context, childNodes, fragment, vars) {
 				} else {
 					vars[name] = { kind: "string", s: child.textContent || "" };
 				}
-				return;
+				continue;
 			}
 			if (child.nodeName === "xsl:attribute") {
 				// xsl:attribute creates/overwrites attributes on the *current output element*.
 				applyXslAttributeNodeToElement(context, fragment, child, vars);
-				return;
+				continue;
 			}
 		}
 
@@ -104,10 +105,10 @@ function processXslChildNodes(context, childNodes, fragment, vars) {
 		// but ignore stylesheet formatting whitespace.
 		if (child.nodeType === Node.TEXT_NODE) {
 			let t = child.textContent || "";
-			if (/^\s*$/.test(t)) return;
+			if (/^\s*$/.test(t)) continue;
 		}
 		fragment.appendChild(xmlNodes(context, child, vars));
-	});
+	}
 }
 
 function getXsltTemplates(xslNode) {
@@ -298,20 +299,27 @@ export function xsltElements(context, xslNode, fragment, vars) {
 
 			let expandedSelect = expandXPathVariables(String(select).trim(), v);
 			expandedSelect = expandXPathForEachContextFunctions(expandedSelect, v);
-			let nodes;
 			if (expandedSelect === "child::node()" || expandedSelect === "node()") {
-				nodes = Array.from(context.childNodes || []);
+				let cn = context.childNodes || [];
+				for (let i = 0; i < cn.length; i++) invokeMatchingTemplate(cn[i], xslNode, fragment, v);
 			} else if (expandedSelect === "text()") {
-				nodes = Array.from(context.childNodes || []).filter((n) => n.nodeType === Node.TEXT_NODE);
+				let cn = context.childNodes || [];
+				for (let i = 0; i < cn.length; i++) {
+					let n = cn[i];
+					if (n.nodeType === Node.TEXT_NODE) invokeMatchingTemplate(n, xslNode, fragment, v);
+				}
 			} else if (/^[A-Za-z_][\w.\-:]*$/.test(expandedSelect)) {
-				nodes = Array.from(context.childNodes || []).filter((n) => {
-					return n.nodeType === Node.ELEMENT_NODE && (n.nodeName === expandedSelect || n.localName === expandedSelect);
-				});
+				let cn = context.childNodes || [];
+				for (let i = 0; i < cn.length; i++) {
+					let n = cn[i];
+					if (n.nodeType !== Node.ELEMENT_NODE) continue;
+					if (n.nodeName === expandedSelect || n.localName === expandedSelect) invokeMatchingTemplate(n, xslNode, fragment, v);
+				}
 			} else {
-				nodes = context.selectNodes(expandedSelect);
-			}
-			for (let n of nodes) {
-				invokeMatchingTemplate(n, xslNode, fragment, v);
+				let nodes = context.selectNodes(expandedSelect);
+				for (let n of nodes) {
+					invokeMatchingTemplate(n, xslNode, fragment, v);
+				}
 			}
 			break;
 		}
