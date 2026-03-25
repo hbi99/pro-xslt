@@ -292,7 +292,6 @@ export function xsltElements(context, xslNode, fragment, vars) {
 		value;
 	let v = vars || {};
 	switch (xslNode.nodeName) {
-		case "xsl:apply-imports": break; // skipped
 		case "xsl:apply-templates": {
 			let select = xslNode.getAttribute("select");
 			if (select == null || String(select).trim() === "") select = "child::node()";
@@ -316,8 +315,6 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			}
 			break;
 		}
-		case "xsl:attribute": break; // handled in xsl:stylesheet
-		case "xsl:attribute-set": break;
 		case "xsl:call-template":
 			invokeNamedTemplate(context, xslNode, fragment, v);
 			break;
@@ -365,9 +362,6 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			}
 			break;
 		}
-		case "xsl:decimal-format": break; // handled in xsl:stylesheet
-		case "xsl:element": break; // skipped
-		case "xsl:fallback": break; // skipped
 		case "xsl:choose": {
 			let matched = false;
 			let otherwiseNode = null;
@@ -415,11 +409,6 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			}
 			break;
 		}
-		case "xsl:import": break; // handled in xsl:stylesheet
-		case "xsl:include": break; // handled in xsl:stylesheet
-		case "xsl:key": break; // handled in xsl:stylesheet
-		case "xsl:message": break; // skipped
-		case "xsl:namespace-alias": break; // skipped
 		case "xsl:number": {
 			// Minimal XSLT 1.0 support: default level="single" with numeric formatting.
 			let num;
@@ -444,13 +433,6 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			}
 			break;
 		}
-		case "xsl:otherwise": break; // handled in xsl:choose
-		case "xsl:output": break; // handled in xsl:stylesheet
-		case "xsl:param": break; // handled in xsl:stylesheet
-		case "xsl:preserve-space": break; // handled in xsl:stylesheet
-		case "xsl:processing-instruction": break;
-		case "xsl:sort": break; // handled in xsl:for-each
-		case "xsl:strip-space": break; // handled in xsl:stylesheet
 		case "xsl:stylesheet": {
 			// Allow stylesheet node to act as an entry point by executing its
 			// match-based templates against the current source context.
@@ -479,15 +461,35 @@ export function xsltElements(context, xslNode, fragment, vars) {
 				document.createTextNode(xslNode.textContent)
 			);
 			break;
-		case "xsl:transform": break; // skipped
 		case "xsl:value-of":
 			value = xslNode.getAttribute("select").trim();
 			result = xsltFunctions(context, value, v);
 			fragment.appendChild(document.createTextNode(result));
 			break;
+		/*
+		case "xsl:apply-imports": break; // skipped
+		case "xsl:attribute": break; // handled in xsl:stylesheet
+		case "xsl:attribute-set": break; // skipped
+		case "xsl:decimal-format": break; // handled in xsl:stylesheet
+		case "xsl:element": break; // skipped
+		case "xsl:fallback": break; // skipped
+		case "xsl:import": break; // handled in xsl:stylesheet
+		case "xsl:include": break; // handled in xsl:stylesheet
+		case "xsl:key": break; // handled in xsl:stylesheet
+		case "xsl:message": break; // skipped
+		case "xsl:namespace-alias": break; // skipped
+		case "xsl:otherwise": break; // handled in xsl:choose
+		case "xsl:output": break; // handled in xsl:stylesheet
+		case "xsl:param": break; // handled in xsl:stylesheet
+		case "xsl:preserve-space": break; // handled in xsl:stylesheet
+		case "xsl:processing-instruction": break;
+		case "xsl:sort": break; // handled in xsl:for-each
+		case "xsl:strip-space": break; // handled in xsl:stylesheet
+		case "xsl:transform": break; // skipped
 		case "xsl:variable": break; // handled in xsl:stylesheet
 		case "xsl:when": break; // handled in xsl:choose
 		case "xsl:with-param": break; // handled in xsl:call-template
+		*/
 		default: {
 			if (xslNode.namespaceURI === XSL_NS) break;
 			let outEl = xslNode.namespaceURI

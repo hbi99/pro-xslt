@@ -94,19 +94,21 @@ export function xsltFunctions(context, value, vars) {
 
 	let result;
 	switch (true) {
-		case expanded.startsWith("current"): break;
-		case expanded.startsWith("document"): break;
-		case expanded.startsWith("element-available"): break;
 		case expanded.startsWith("format-number"):
 			result = formatNumber(expanded, context, vars);
 			break;
-		case expanded.startsWith("function-available"): break;
 		case expanded.startsWith("generate-id"):
 			result = generateId(context);
 			break;
-		case expanded.startsWith("key"): break;
-		case expanded.startsWith("system-property"): break;
-		case expanded.startsWith("unparsed-entity-uri"): break;
+		/*
+		case expanded.startsWith("current"): break; // dead stub
+		case expanded.startsWith("document"): break; // dead stub
+		case expanded.startsWith("element-available"): break; // dead stub
+		case expanded.startsWith("function-available"): break; // dead stub
+		case expanded.startsWith("key"): break; // dead stub
+		case expanded.startsWith("system-property"): break; // dead stub
+		case expanded.startsWith("unparsed-entity-uri"): break; // dead stub
+		*/
 		default: {
 			let num = evaluate(context, expanded);
 			if (num !== undefined && !Number.isNaN(num)) {
