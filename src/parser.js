@@ -449,7 +449,15 @@ export function xsltElements(context, xslNode, fragment, vars) {
 		case "xsl:value-of":
 			value = xslNode.getAttribute("select").trim();
 			result = xsltFunctions(context, value, v);
-			fragment.appendChild(document.createTextNode(result));
+			if ((xslNode.getAttribute("disable-output-escaping") || "").toLowerCase() === "yes") {
+				// Interpret the string result as markup and append nodes (HTML-like behavior).
+				// This matches the expected behavior in our tests when disable-output-escaping="yes".
+				let tpl = document.createElement("template");
+				tpl.innerHTML = String(result ?? "");
+				fragment.appendChild(tpl.content.cloneNode(true));
+			} else {
+				fragment.appendChild(document.createTextNode(String(result ?? "")));
+			}
 			break;
 		default: {
 			if (xslNode.namespaceURI === XSL_NS) break;
