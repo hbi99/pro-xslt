@@ -441,29 +441,6 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			}
 			break;
 		}
-		case "xsl:stylesheet": {
-			// Allow stylesheet node to act as an entry point by executing its
-			// match-based templates against the current source context.
-			Array.from(xslNode.childNodes).forEach((child) => {
-				if (child.nodeType !== Node.ELEMENT_NODE) return;
-				if (child.nodeName !== "xsl:template") return;
-				let match = child.getAttribute("match");
-				if (!match) return;
-
-				context.selectNodes(match).forEach((node) => {
-					let scope = childScope(v);
-					processXslChildNodes(node, child.childNodes, fragment, scope);
-				});
-			});
-			break;
-		}
-		case "xsl:template":
-			context.selectNodes(xslNode.getAttribute("match"))
-				.map(node => {
-					let scope = childScope(v);
-					processXslChildNodes(node, xslNode.childNodes, fragment, scope);
-				});
-			break;
 		case "xsl:text":
 			fragment.appendChild(
 				document.createTextNode(xslNode.textContent)
@@ -474,30 +451,6 @@ export function xsltElements(context, xslNode, fragment, vars) {
 			result = xsltFunctions(context, value, v);
 			fragment.appendChild(document.createTextNode(result));
 			break;
-		/*
-		case "xsl:apply-imports": break; // skipped
-		case "xsl:attribute": break; // handled in xsl:stylesheet
-		case "xsl:attribute-set": break; // skipped
-		case "xsl:decimal-format": break; // handled in xsl:stylesheet
-		case "xsl:element": break; // skipped
-		case "xsl:fallback": break; // skipped
-		case "xsl:import": break; // handled in xsl:stylesheet
-		case "xsl:include": break; // handled in xsl:stylesheet
-		case "xsl:key": break; // handled in xsl:stylesheet
-		case "xsl:message": break; // skipped
-		case "xsl:namespace-alias": break; // skipped
-		case "xsl:otherwise": break; // handled in xsl:choose
-		case "xsl:output": break; // handled in xsl:stylesheet
-		case "xsl:param": break; // handled in xsl:stylesheet
-		case "xsl:preserve-space": break; // handled in xsl:stylesheet
-		case "xsl:processing-instruction": break;
-		case "xsl:sort": break; // handled in xsl:for-each
-		case "xsl:strip-space": break; // handled in xsl:stylesheet
-		case "xsl:transform": break; // skipped
-		case "xsl:variable": break; // handled in xsl:stylesheet
-		case "xsl:when": break; // handled in xsl:choose
-		case "xsl:with-param": break; // handled in xsl:call-template
-		*/
 		default: {
 			if (xslNode.namespaceURI === XSL_NS) break;
 			let outEl = xslNode.namespaceURI
@@ -573,3 +526,4 @@ export function transformSourceToFragment(context, xslDoc, vars) {
 }
 
 export { xsltFunctions };
+

@@ -1,11 +1,11 @@
-import { selectNodes, selectSingleNode } from "./dom/utils.js";
-import { transformSourceToFragment } from "./dom/parser.js";
-import { bindXslVariable } from "./dom/xslt/variables.js";
-import { parseOutputSettings } from "./dom/xslt/output.js";
-import { applyStripSpaceRules } from "./dom/xslt/stripSpace.js";
-import { resolveStylesheetImports } from "./dom/xslt/imports.js";
-import { parseDecimalFormats } from "./dom/xslt/decimalFormat.js";
-import { parseAttributeSets } from "./dom/xslt/attributeSets.js";
+import { selectNodes, selectSingleNode } from "./utils.js";
+import { transformSourceToFragment } from "./parser.js";
+import { bindXslVariable } from "./xslt/variables.js";
+import { parseOutputSettings } from "./xslt/output.js";
+import { applyStripSpaceRules } from "./xslt/stripSpace.js";
+import { resolveStylesheetImports } from "./xslt/imports.js";
+import { parseDecimalFormats } from "./xslt/decimalFormat.js";
+import { parseAttributeSets } from "./xslt/attributeSets.js";
 
 // extending the XML object
 Document.prototype.selectNodes = selectNodes;

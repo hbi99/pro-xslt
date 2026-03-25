@@ -100,15 +100,6 @@ export function xsltFunctions(context, value, vars) {
 		case expanded.startsWith("generate-id"):
 			result = generateId(context);
 			break;
-		/*
-		case expanded.startsWith("current"): break; // dead stub
-		case expanded.startsWith("document"): break; // dead stub
-		case expanded.startsWith("element-available"): break; // dead stub
-		case expanded.startsWith("function-available"): break; // dead stub
-		case expanded.startsWith("key"): break; // dead stub
-		case expanded.startsWith("system-property"): break; // dead stub
-		case expanded.startsWith("unparsed-entity-uri"): break; // dead stub
-		*/
 		default: {
 			let num = evaluate(context, expanded);
 			if (num !== undefined && !Number.isNaN(num)) {

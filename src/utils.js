@@ -527,11 +527,6 @@ function formatWithSubpattern(num, subPattern, symbols) {
 	return `${intPart}${symbols.decimalSeparator}${fracPart}`;
 }
 
-/**
- * XSLT `format-number(number, pattern)`.
- * @param {string | string[]} value — full `format-number(...)` select, or `[numberExpr, patternLiteral]` from {@link parseXsltFunctionCall}
- * @param {Node} context — XPath context node
- */
 function resolveDecimalFormatSymbols(vars, name) {
 	let defaults = {
 		decimalSeparator: ".",
@@ -600,3 +595,4 @@ export function formatNumber(value, context, vars) {
 	let body = formatWithSubpattern(abs, posPat, symbols);
 	return neg ? `${symbols.minusSign}${body}` : body;
 }
+

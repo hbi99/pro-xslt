@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import ProXslt from '../src/index.js';
-import { stripXPathStringLiteral, parseXsltFunctionCall } from '../src/dom/utils.js';
+import { stripXPathStringLiteral, parseXsltFunctionCall } from '../src/utils.js';
 
 
 describe('parseXsltFunctionCall', () => {
