@@ -133,5 +133,58 @@ describe('xsl:call-template and xsl:apply-templates', () => {
                 let fragment = proXslt.transformToFragment(xmlDoc, document);
                 expect(fragment.innerHTML.trim()).toBe(`<div>/Desktop/mp3</div><div>/Desktop/file-2.txt</div><div>/Desktop/hbi</div><div>/Desktop/file-1.txt</div><div>/Desktop/coast-2.jpg</div><div>/Desktop/test-goya.jpg</div><div>/Desktop/excell files</div>`);
     });
+
+    it('should slice strings recursively', async () => {
+        let xmlString = `<page>
+    <i name="Banan"/>
+    <i name="Orange"/>
+    <i name="Apple"/>
+    <i name="Pineapple"/>
+</page>`;
+
+        let xsltString = `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:variable name="white-space" select="'                           '" />
+<xsl:variable name="col1">10</xsl:variable>
+
+<xsl:template name="test">
+    <xsl:for-each select="./*">
+        -<xsl:call-template name="slice-string">
+            <xsl:with-param name="str" select="concat(@name, $white-space)" />
+            <xsl:with-param name="len" select="$col1" />
+        </xsl:call-template>-
+    </xsl:for-each>
+</xsl:template>
+
+<xsl:template name="slice-string">
+    <xsl:param name="str"/>
+    <xsl:param name="len"/>
+    <xsl:choose>
+        <xsl:when test="$len &lt; 0">
+            <xsl:value-of select="substring( $str, string-length( $str ) + $len, string-length( $str ) )" />
+        </xsl:when>
+        <xsl:when test="$len &gt; 0">
+            <xsl:value-of select="substring( $str, 1, $len )" />
+        </xsl:when>
+    </xsl:choose>
+    <xsl:text> </xsl:text>
+</xsl:template>
+</xsl:stylesheet>`;
+
+        let xmlDoc = ProXslt.xmlFromString(xmlString);
+        let xslDoc = ProXslt.xmlFromString(xsltString);
+        let proXslt = new ProXslt();
+        proXslt.importStylesheet(xslDoc);
+
+        let fragment = proXslt.transformToFragment(xmlDoc, document);
+        expect(fragment.innerHTML).toBe(`
+        -Banan      -
+    
+        -Orange     -
+    
+        -Apple      -
+    
+        -Pineapple  -
+    `);
+    });
 });
 

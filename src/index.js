@@ -1,5 +1,9 @@
 import { selectNodes, selectSingleNode } from "./utils.js";
-import { transformSourceToFragment, bindXslVariableNode } from "./parser.js";
+import {
+    transformSourceToFragment,
+    bindXslVariableNode,
+    resetProXsltInternals,
+} from "./parser.js";
 import { parseOutputSettings } from "./xslt/output.js";
 import { applyStripSpaceRules } from "./xslt/stripSpace.js";
 import { resolveStylesheetImports } from "./xslt/imports.js";
@@ -57,6 +61,11 @@ class ProXslt {
     }
 
     importStylesheet(xslDoc) {
+        // Full reset: clear internal caches and per-document precomputed matcher data.
+        resetProXsltInternals();
+        if (xslDoc && xslDoc.__proXsltTemplateNodes) delete xslDoc.__proXsltTemplateNodes;
+        if (xslDoc && xslDoc.__proXsltTemplateMatchers) delete xslDoc.__proXsltTemplateMatchers;
+
         resolveStylesheetImports(xslDoc, this.options.importResolver);
         this.xslDoc = xslDoc;
         this.globalVariableNodes = this.xslDoc.selectNodes(`//xsl:stylesheet/xsl:variable`);

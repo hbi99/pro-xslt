@@ -13,6 +13,12 @@ import { xsltFunctions } from "./xslt/xsltFunctions.js";
 const XSL_NS = "http://www.w3.org/1999/XSL/Transform";
 const MATCH_LOOKUP_CACHE = new Map();
 
+// For long-running apps: allow the host to fully clear internal caches.
+// `importStylesheet()` is expected to be called rarely.
+export function resetProXsltInternals() {
+    MATCH_LOOKUP_CACHE.clear();
+}
+
 function childScope(vars) {
     return Object.create(vars || null);
 }

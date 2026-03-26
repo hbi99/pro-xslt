@@ -55,11 +55,16 @@ function sortNodesForEach(nodes, sortNodes, vars) {
 
 function processForEachChildNodes(context, forEachNode, fragment, vars, xmlNodes, bindXslVariable) {
     for (let child = forEachNode.firstChild; child; child = child.nextSibling) {
-        if (child.nodeType !== Node.ELEMENT_NODE) continue;
-        if (child.nodeName === "xsl:sort") continue;
-        if (child.nodeName === "xsl:variable") {
-            bindXslVariable(context, child, vars);
-            continue;
+        if (child.nodeType === Node.ELEMENT_NODE) {
+            if (child.nodeName === "xsl:sort") continue;
+            if (child.nodeName === "xsl:variable") {
+                bindXslVariable(context, child, vars);
+                continue;
+            }
+        } else if (child.nodeType === Node.TEXT_NODE) {
+            // Preserve literal result text inside xsl:for-each, but ignore formatting whitespace.
+            let t = child.textContent || "";
+            if (/^\s*$/.test(t)) continue;
         }
         fragment.appendChild(xmlNodes(context, child, vars));
     }
