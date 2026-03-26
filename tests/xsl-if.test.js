@@ -95,4 +95,27 @@ describe('xsl:if', () => {
 
         expect(fragment.textContent.trim()).toBe('3');
     });
+
+    it('should make comparison with called xslt function', async () => {
+        let xmlString =
+                `<page><n/></page>`;
+
+        let xsltString =
+                `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+                        <xsl:template match="/page/n">
+                                <xsl:template name="test">
+                                        <xsl:variable name="bytes" select="248"/>
+                                        <xsl:if test="format-number($bytes div 1024, '0') = 0">1</xsl:if>
+                                </xsl:template>
+                        </xsl:template>
+                </xsl:stylesheet>`;
+
+        let xmlDoc = ProXslt.xmlFromString(xmlString);
+        let xslDoc = ProXslt.xmlFromString(xsltString);
+        let proXslt = new ProXslt();
+        proXslt.importStylesheet(xslDoc);
+        let fragment = proXslt.transformToFragment(xmlDoc, document);
+
+        expect(fragment.textContent.trim()).toBe('1');
+    });
 });

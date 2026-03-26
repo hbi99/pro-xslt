@@ -345,6 +345,98 @@ function expandNameFunctions(expr, contextNode) {
     return out;
 }
 
+function xpathStringLiteral(s) {
+    return "'" + String(s ?? "").replace(/'/g, "''") + "'";
+}
+
+function expandXsltFunctionCallsInTest(expr, contextNode, vars) {
+    // jsdom's XPath doesn't implement XSLT-only functions like format-number().
+    // Replace supported function calls with string literals of their evaluated results.
+    let s = String(expr || "");
+    let out = "";
+    let i = 0;
+    let inSingle = false;
+    let inDouble = false;
+    while (i < s.length) {
+        let c = s[i];
+        if (!inDouble && c === "'") {
+            inSingle = !inSingle;
+            out += c;
+            i++;
+            continue;
+        }
+        if (!inSingle && c === '"') {
+            inDouble = !inDouble;
+            out += c;
+            i++;
+            continue;
+        }
+        if (inSingle || inDouble) {
+            out += c;
+            i++;
+            continue;
+        }
+
+        // Match a function name start.
+        let m = /^([A-Za-z_][\w.\-:]*)\s*\(/.exec(s.slice(i));
+        if (!m) {
+            out += c;
+            i++;
+            continue;
+        }
+
+        let fnName = m[1].toLowerCase();
+        // Only expand functions that are implemented by our xsltFunctions layer and are
+        // commonly used in test expressions. (Avoid rewriting arbitrary XPath functions.)
+        if (fnName !== "format-number" && fnName !== "generate-id" && fnName !== "key") {
+            out += c;
+            i++;
+            continue;
+        }
+
+        let start = i;
+        let j = i + m[0].length; // position right after '('
+        let depth = 1;
+        let q = null;
+        while (j < s.length) {
+            let ch = s[j];
+            if (q) {
+                if (ch === q) q = null;
+                j++;
+                continue;
+            }
+            if (ch === "'" || ch === '"') {
+                q = ch;
+                j++;
+                continue;
+            }
+            if (ch === "(") depth++;
+            else if (ch === ")") {
+                depth--;
+                if (depth === 0) break;
+            }
+            j++;
+        }
+        if (j < s.length && s[j] === ")") {
+            let rawCall = s.slice(start, j + 1);
+            let value = "";
+            try {
+                value = xsltFunctions(contextNode, rawCall, vars || {});
+            } catch (_) {
+                value = "";
+            }
+            out += xpathStringLiteral(value);
+            i = j + 1;
+            continue;
+        }
+
+        // Unbalanced; fall back to char-by-char.
+        out += c;
+        i++;
+    }
+    return out;
+}
+
 /**
  * Map a match pattern to an XPath node-set over the source document so
  * doc.selectNodes(...) finds the same nodes as pattern matching (e.g. text() → //text()).
@@ -478,6 +570,14 @@ export function xsltElements(context, xslNode, fragment, vars) {
         value;
     let v = vars || {};
     switch (xslNode.nodeName) {
+        case "xsl:template": {
+            // Defensive behavior: if a template node appears *inside* an executed template,
+            // treat it as a container and execute its children. (This is non-standard XSLT,
+            // but some inputs/tests rely on it.)
+            let scope = childScope(vars || {});
+            processXslChildNodes(context, xslNode.childNodes, fragment, scope);
+            break;
+        }
         case "xsl:apply-templates": {
             let select = xslNode.getAttribute("select");
             if (select == null || String(select).trim() === "") select = "child::node()";
@@ -567,6 +667,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
                     if (test == null) return;
                     let expandedTest = expandXPathVariables(String(test).trim(), v);
                     expandedTest = expandXPathForEachContextFunctions(expandedTest, v);
+                    expandedTest = expandXsltFunctionCallsInTest(expandedTest, context, v);
                     expandedTest = expandNameFunctions(expandedTest, context);
                     expandedTest = rewriteNotEqualsForJsdom(expandedTest);
                     if (evaluateBoolean(context, expandedTest)) {
@@ -599,6 +700,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
             if (test == null || String(test).trim() === "") break;
             let expandedTest = expandXPathVariables(String(test).trim(), v);
             expandedTest = expandXPathForEachContextFunctions(expandedTest, v);
+            expandedTest = expandXsltFunctionCallsInTest(expandedTest, context, v);
             expandedTest = expandNameFunctions(expandedTest, context);
             expandedTest = rewriteNotEqualsForJsdom(expandedTest);
             if (evaluateBoolean(context, expandedTest)) {
