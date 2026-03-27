@@ -109,7 +109,11 @@ export function xsltFunctions(context, value, vars) {
             try {
                 let sn = context.selectSingleNode(expanded);
                 if (sn != null) {
-                    result = sn.textContent;
+                    if (sn.nodeType === Node.ATTRIBUTE_NODE) {
+                        result = sn.value != null ? String(sn.value) : "";
+                    } else {
+                        result = sn.textContent;
+                    }
                     break;
                 }
             } catch (_) {

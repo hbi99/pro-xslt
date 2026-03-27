@@ -110,4 +110,82 @@ describe('Function Tests', () => {
         
         expect(fragment.textContent.trim()).toBe('top: 153px;');
     });
+
+    it('should make correctly handle string with recursive backtracking', async () => {
+        let xmlString =
+                `<Data>
+                    <i id="fs-sidebar-favorites" type="raw-xml">
+                        <item icon="desktop" path="/fs/Desktop"/>
+                        <item icon="documents" path="/fs/Documents"/>
+                        <item icon="applications" path="/fs/Applications"/>
+                        <item icon="network" path="/fs/Network"/>
+                        <item icon="folder" path="/fs/Desktop/mp3"/>
+                    </i>
+                </Data>`;
+
+        let xsltString =
+                `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+                    <xsl:template name="hbi-test" match="//i[@id='fs-sidebar-favorites']/item">
+                        <span>
+                            <xsl:call-template name="substring-after-last">
+                            <xsl:with-param name="string" select="@path" />
+                            <xsl:with-param name="delimiter" select="'/'" />
+                            </xsl:call-template>
+                        </span>
+                    </xsl:template>
+
+                    <xsl:template name="substring-after-last">
+                        <xsl:param name="string" />
+                        <xsl:param name="delimiter" />
+                        <xsl:choose>
+                            <xsl:when test="contains($string, $delimiter)">
+                            <xsl:call-template name="substring-after-last">
+                                <xsl:with-param name="string" select="substring-after($string, $delimiter)" />
+                                <xsl:with-param name="delimiter" select="$delimiter" />
+                            </xsl:call-template>
+                            </xsl:when>
+                            <xsl:otherwise><xsl:value-of select="$string" /></xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:template>
+                </xsl:stylesheet>`;
+
+        let xmlDoc = ProXslt.xmlFromString(xmlString);
+        let xslDoc = ProXslt.xmlFromString(xsltString);
+        let proXslt = new ProXslt();
+        proXslt.importStylesheet(xslDoc);
+        let fragment = proXslt.transformToFragment(xmlDoc, document);
+
+        expect(fragment.innerHTML).toBe(`<span>Desktop</span><span>Documents</span><span>Applications</span><span>Network</span><span>mp3</span>`);
+    });
+
+    it('should make another deep cross reference and use result in if test', async () => {
+        let xmlString =
+                `<pack>
+                    <FileSystem>
+                        <i name="Desktop">
+                            <i name="coast.jpg" kind="jpg" />
+                        </i>
+                    </FileSystem>
+                    <Mime>
+                        <i id="jpg" preview="image" />
+                    </Mime>
+                </pack>`;
+
+        let xsltString =
+                `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+                    <xsl:template name="hbi-test" match="//FileSystem/i[@name='Desktop']/i[@name='coast.jpg']">
+                        <xsl:if test="string(//Mime/*[@id=current()/@kind]/@preview) != ''">
+                            <span><xsl:value-of select="//Mime/*[@id=current()/@kind]/@preview"/></span>
+                        </xsl:if>
+                    </xsl:template>
+                </xsl:stylesheet>`;
+
+        let xmlDoc = ProXslt.xmlFromString(xmlString);
+        let xslDoc = ProXslt.xmlFromString(xsltString);
+        let proXslt = new ProXslt();
+        proXslt.importStylesheet(xslDoc);
+        let fragment = proXslt.transformToFragment(xmlDoc, document);
+
+        expect(fragment.innerHTML.trim()).toBe('<span>image</span>');
+    });
 });

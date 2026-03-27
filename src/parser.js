@@ -467,6 +467,8 @@ function matchPatternToLookupXPath(matchExpr) {
 
 function renderTemplateBody(contextNode, templateNode, fragment, vars) {
     let scope = childScope(vars);
+    // XSLT current() is the template's context node (not necessarily "." inside predicates).
+    scope.__current = contextNode;
     processXslChildNodes(contextNode, templateNode.childNodes, fragment, scope);
 }
 

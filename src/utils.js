@@ -112,6 +112,15 @@ export function nodesetToXPathLocationExpr(nodes) {
         if (n.nodeType === Node.ELEMENT_NODE) {
             let p = elementToAbsoluteXPath(n);
             if (p) paths.push(p);
+        } else if (n.nodeType === Node.ATTRIBUTE_NODE) {
+            // Attribute nodes must resolve to parent element path + /@name (XPath 1.0).
+            let owner = n.ownerElement;
+            if (!owner) continue;
+            let ep = elementToAbsoluteXPath(owner);
+            if (ep) {
+                let an = n.localName || n.name;
+                paths.push(ep + "/@" + an);
+            }
         }
     }
     if (paths.length === 0) return "/*[false()]";
@@ -131,7 +140,11 @@ export function xpathVarToXPathLiteral(entry) {
     }
     if (entry.kind === "nodeset") {
         let first = entry.nodes && entry.nodes.length ? entry.nodes[0] : null;
-        return "'" + String(first ? (first.textContent || "") : "").replace(/'/g, "''") + "'";
+        if (!first) return "''";
+        if (first.nodeType === Node.ATTRIBUTE_NODE) {
+            return "'" + String(first.value || "").replace(/'/g, "''") + "'";
+        }
+        return "'" + String(first.textContent || "").replace(/'/g, "''") + "'";
     }
     return "''";
 }
