@@ -63,15 +63,22 @@ class ProXslt {
     importStylesheet(xslDoc) {
         // Full reset: clear internal caches and per-document precomputed matcher data.
         resetProXsltInternals();
-        if (xslDoc && xslDoc.__proXsltTemplateNodes) delete xslDoc.__proXsltTemplateNodes;
-        if (xslDoc && xslDoc.__proXsltTemplateMatchers) delete xslDoc.__proXsltTemplateMatchers;
+        // Accept either a Document or a node within the stylesheet document.
+        let doc =
+            xslDoc && xslDoc.nodeType === Node.DOCUMENT_NODE
+                ? xslDoc
+                : xslDoc && xslDoc.ownerDocument
+                  ? xslDoc.ownerDocument
+                  : xslDoc;
+        if (doc && doc.__proXsltTemplateNodes) delete doc.__proXsltTemplateNodes;
+        if (doc && doc.__proXsltTemplateMatchers) delete doc.__proXsltTemplateMatchers;
 
-        resolveStylesheetImports(xslDoc, this.options.importResolver);
-        this.xslDoc = xslDoc;
+        resolveStylesheetImports(doc, this.options.importResolver);
+        this.xslDoc = doc;
         this.globalVariableNodes = this.xslDoc.selectNodes(`//xsl:stylesheet/xsl:variable`);
-        this.outputSettings = parseOutputSettings(xslDoc);
-        this.decimalFormats = parseDecimalFormats(xslDoc);
-        this.attributeSets = parseAttributeSets(xslDoc);
+        this.outputSettings = parseOutputSettings(doc);
+        this.decimalFormats = parseDecimalFormats(doc);
+        this.attributeSets = parseAttributeSets(doc);
     }
 
     transformToFragment(context, doc) {
