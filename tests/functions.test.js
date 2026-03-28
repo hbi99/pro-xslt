@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import ProXslt from '../src/index.js';
 import { stripXPathStringLiteral, parseXsltFunctionCall } from '../src/utils.js';
+import { loadXml } from './utils/common.js';
 
 
 describe('parseXsltFunctionCall', () => {
@@ -38,6 +39,11 @@ describe('parseXsltFunctionCall', () => {
 });
 
 describe('Function Tests', () => {
+    it('should load resources', async () => {
+        let { xmlDoc, xslDoc, description } = loadXml(`functions.test.1.xml`);
+        console.log(description);
+    });
+
     it('should format numbers with `format-number`', async () => {
         let xmlString =
                 `<page>
