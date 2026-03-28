@@ -9,13 +9,16 @@ function matchesStripRule(el, rules) {
 
 function removeWhitespaceTextChildren(el) {
     let toRemove = [];
-    Array.from(el.childNodes).forEach((child) => {
+    for (let child = el.firstChild; child; child = child.nextSibling) {
         if (child.nodeType === Node.TEXT_NODE) {
             let t = child.textContent || "";
             if (/^\s*$/.test(t)) toRemove.push(child);
         }
-    });
-    toRemove.forEach((n) => n.parentNode && n.parentNode.removeChild(n));
+    }
+    for (let i = 0; i < toRemove.length; i++) {
+        let n = toRemove[i];
+        if (n.parentNode) n.parentNode.removeChild(n);
+    }
 }
 
 export function applyStripSpaceRules(sourceDoc, xslDoc) {

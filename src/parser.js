@@ -487,14 +487,13 @@ function invokeNamedTemplate(contextNode, callTemplateNode, fragment, vars) {
     if (!templateNode) return;
 
     let scope = childScope(vars);
-    let children = Array.from(callTemplateNode.childNodes);
-    children.forEach((child) => {
-        if (child.nodeType !== Node.ELEMENT_NODE) return;
-        if (child.nodeName !== "xsl:with-param") return;
+    for (let child = callTemplateNode.firstChild; child; child = child.nextSibling) {
+        if (child.nodeType !== Node.ELEMENT_NODE) continue;
+        if (child.nodeName !== "xsl:with-param") continue;
         let paramName = child.getAttribute("name");
-        if (!paramName) return;
+        if (!paramName) continue;
         let select = child.getAttribute("select");
-        if (select == null || String(select).trim() === "") return;
+        if (select == null || String(select).trim() === "") continue;
 
         let expanded = expandXPathVariables(String(select).trim(), vars || {});
         expanded = expandXPathForEachContextFunctions(expanded, vars || {});
@@ -503,7 +502,7 @@ function invokeNamedTemplate(contextNode, callTemplateNode, fragment, vars) {
             let nodes = contextNode.selectNodes(expanded);
             if (nodes && nodes.length > 0) {
                 scope[paramName] = { kind: "nodeset", nodes };
-                return;
+                continue;
             }
         } catch (_) {
             // Not a node-set expression; fall through.
@@ -512,7 +511,7 @@ function invokeNamedTemplate(contextNode, callTemplateNode, fragment, vars) {
         let num = evaluateNumber(contextNode, expanded);
         if (num !== undefined && !Number.isNaN(num)) scope[paramName] = { kind: "number", n: num };
         else scope[paramName] = { kind: "string", s: evaluateString(contextNode, expanded) };
-    });
+    }
 
     renderTemplateBody(contextNode, templateNode, fragment, scope);
 }
@@ -543,9 +542,9 @@ function invokeMatchingTemplate(contextNode, xslNode, fragment, vars) {
         return;
     }
     if (contextNode.nodeType === Node.ELEMENT_NODE || contextNode.nodeType === Node.DOCUMENT_NODE) {
-        Array.from(contextNode.childNodes).forEach((child) => {
+        for (let child = contextNode.firstChild; child; child = child.nextSibling) {
             invokeMatchingTemplate(child, xslNode, fragment, vars);
-        });
+        }
     }
 }
 
@@ -666,13 +665,13 @@ export function xsltElements(context, xslNode, fragment, vars) {
         case "xsl:choose": {
             let matched = false;
             let otherwiseNode = null;
-            Array.from(xslNode.childNodes).forEach((child) => {
-                if (matched) return;
-                if (child.nodeType !== Node.ELEMENT_NODE) return;
+            for (let child = xslNode.firstChild; child; child = child.nextSibling) {
+                if (matched) break;
+                if (child.nodeType !== Node.ELEMENT_NODE) continue;
 
                 if (child.nodeName === "xsl:when") {
                     let test = child.getAttribute("test");
-                    if (test == null) return;
+                    if (test == null) continue;
                     let expandedTest = expandXPathVariables(String(test).trim(), v);
                     expandedTest = expandXPathForEachContextFunctions(expandedTest, v);
                     expandedTest = expandXsltFunctionCallsInTest(expandedTest, context, v);
@@ -683,13 +682,13 @@ export function xsltElements(context, xslNode, fragment, vars) {
                         processXslChildNodes(context, child.childNodes, fragment, branchScope);
                         matched = true;
                     }
-                    return;
+                    continue;
                 }
 
                 if (child.nodeName === "xsl:otherwise") {
                     otherwiseNode = child;
                 }
-            });
+            }
 
             if (!matched && otherwiseNode) {
                 let branchScope = childScope(v);
@@ -763,11 +762,15 @@ export function xsltElements(context, xslNode, fragment, vars) {
             let outEl = xslNode.namespaceURI
                 ? document.createElementNS(xslNode.namespaceURI, xslNode.nodeName)
                 : document.createElement(xslNode.localName);
-            Array.from(xslNode.attributes || []).forEach((attr) => {
-                if (attr.name === "xmlns" || attr.name.startsWith("xmlns:")) return;
-                if (attr.name === "use-attribute-sets") return;
-                outEl.setAttribute(attr.name, attr.value);
-            });
+            let attrs = xslNode.attributes;
+            if (attrs) {
+                for (let ai = 0; ai < attrs.length; ai++) {
+                    let attr = attrs[ai];
+                    if (attr.name === "xmlns" || attr.name.startsWith("xmlns:")) continue;
+                    if (attr.name === "use-attribute-sets") continue;
+                    outEl.setAttribute(attr.name, attr.value);
+                }
+            }
             applyUseAttributeSets(context, outEl, xslNode.getAttribute("use-attribute-sets"), v);
             let lreScope = childScope(v);
             lreScope.__lreParent = outEl;
@@ -842,13 +845,13 @@ export function transformSourceToFragment(context, xslDoc, vars) {
             renderTemplateBody(start, namedTemplate, fragment, vars);
             return fragment;
         }
-        let startNodes =
-            context.nodeType === Node.DOCUMENT_NODE
-                ? Array.from(context.childNodes)
-                : [context];
-        startNodes.forEach((n) => {
-            invokeMatchingTemplate(n, refNode, fragment, vars);
-        });
+        if (context.nodeType === Node.DOCUMENT_NODE) {
+            for (let n = context.firstChild; n; n = n.nextSibling) {
+                invokeMatchingTemplate(n, refNode, fragment, vars);
+            }
+        } else {
+            invokeMatchingTemplate(context, refNode, fragment, vars);
+        }
     }
     return fragment;
 }
