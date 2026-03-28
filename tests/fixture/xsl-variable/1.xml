@@ -1,0 +1,12 @@
+<Scheme>
+	<Description><![CDATA[should bind and use `xsl:variable` with select]]></Description>
+	<page>
+		<message>Hello World</message>
+	</page>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template match="/page/message">
+			<xsl:variable name="len" select="string-length('hello')" />
+			<xsl:value-of select="$len" />
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

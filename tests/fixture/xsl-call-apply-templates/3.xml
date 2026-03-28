@@ -1,0 +1,12 @@
+<Scheme>
+	<Description><![CDATA[applies templates for a selected node-set]]></Description>
+	<page><item>1</item><item>2</item></page>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template match="/page">
+			<xsl:apply-templates select="item" />
+		</xsl:template>
+		<xsl:template match="/page/item">
+			<xsl:value-of select="." />
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

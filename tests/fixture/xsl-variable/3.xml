@@ -1,0 +1,10 @@
+<Scheme>
+	<Description><![CDATA[should access globally declared `xsl:variable` inside a template]]></Description>
+	<page><message>Hello</message></page>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:variable name="greeting" select="'Hi'" />
+		<xsl:template match="/page/message">
+			<xsl:value-of select="$greeting" />
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

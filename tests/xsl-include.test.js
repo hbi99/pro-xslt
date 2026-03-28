@@ -2,18 +2,14 @@ import { describe, it, expect } from 'vitest';
 import ProXslt from '../src/index.js';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { loadXml } from './utils/common.js';
 
 describe('xsl:include', () => {
     it('inlines included templates and named templates', async () => {
-        let xmlString = `<doc><item>X</item></doc>`;
+        let { xmlDoc, xslDoc } = loadXml(`xsl-include/1.xml`);
 
-        let mainPath = resolve(process.cwd(), 'tests/fixture/include-main.xsl');
         let includedPath = resolve(process.cwd(), 'tests/fixture/included-common.xsl');
-        let mainXslString = readFileSync(mainPath, 'utf8');
         let includedXslString = readFileSync(includedPath, 'utf8');
-
-        let xmlDoc = ProXslt.xmlFromString(xmlString);
-        let mainXslDoc = ProXslt.xmlFromString(mainXslString);
 
         let proXslt = new ProXslt({
             importResolver: (href) => {
@@ -21,10 +17,9 @@ describe('xsl:include', () => {
                 return null;
             },
         });
-        proXslt.importStylesheet(mainXslDoc);
+        proXslt.importStylesheet(xslDoc);
 
         let fragment = proXslt.transformToFragment(xmlDoc, document);
         expect(fragment.textContent.trim()).toBe('INCLUDED:X-ok');
     });
 });
-

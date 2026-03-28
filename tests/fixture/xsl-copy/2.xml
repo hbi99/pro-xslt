@@ -1,0 +1,11 @@
+<Scheme>
+	<Description><![CDATA[copies nodes selected by select expression]]></Description>
+	<root><a>1</a><a>2</a></root>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template match="/root">
+			<out>
+				<xsl:copy-of select="a" />
+			</out>
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

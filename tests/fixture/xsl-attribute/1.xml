@@ -1,0 +1,12 @@
+<Scheme>
+	<Description><![CDATA[sets an attribute via select]]></Description>
+	<page><message>Hello</message></page>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template match="/page">
+			<span>
+				<xsl:attribute name="data-msg" select="'greeting:'" />
+				<xsl:value-of select="message" />
+			</span>
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

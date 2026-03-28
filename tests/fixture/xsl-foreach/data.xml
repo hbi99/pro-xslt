@@ -1,0 +1,24 @@
+<data>
+	<Settings>
+		<Apps>
+			<i ns="ant" id="othello" name="Othello"/>
+			<i ns="ant" id="2048" name="2048"/>
+			<i ns="ant" id="finder" name="Finder"/>
+			<i ns="ant" id="mail" name="Mail"/>
+			<i ns="ant" id="calendar" name="Calendar"/>
+			<i ns="ant" id="eniac" name="Eniac"/>
+			<i ns="ant" id="textedit" name="Textedit"/>
+			<i ns="ant" id="spotify" name="Spotify"/>
+		</Apps>
+		<dock>
+			<i order="9" ns="ant" id="othello"/>
+			<i order="7" ns="ant" id="2048"/>
+			<i order="1" ns="ant" id="finder"/>
+			<i order="2" ns="ant" id="mail"/>
+			<i order="3" ns="ant" id="calendar"/>
+			<i order="4" ns="ant" id="eniac"/>
+			<i order="5" ns="ant" id="textedit"/>
+			<i order="6" ns="ant" id="spotify"/>
+		</dock>
+	</Settings>
+</data>

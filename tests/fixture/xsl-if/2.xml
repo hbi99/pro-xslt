@@ -1,0 +1,15 @@
+<Scheme>
+	<Description><![CDATA[should read name of node in test comparison]]></Description>
+	<page>
+		<message>Hello World.</message>
+	</page>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template name="_menubar" match="/page">
+			<xsl:for-each select="./*">
+				<xsl:if test="name() = 'message'">
+					123
+				</xsl:if>
+			</xsl:for-each>
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

@@ -1,0 +1,22 @@
+<Scheme>
+	<Description><![CDATA[should make another deep cross reference and use result in if test]]></Description>
+
+	<pack>
+		<FileSystem>
+			<i name="Desktop">
+				<i name="coast.jpg" kind="jpg" />
+			</i>
+		</FileSystem>
+		<Mime>
+			<i id="jpg" preview="image" />
+		</Mime>
+	</pack>
+
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template name="hbi-test" match="//FileSystem/i[@name='Desktop']/i[@name='coast.jpg']">
+			<xsl:if test="string(//Mime/*[@id=current()/@kind]/@preview) != ''">
+				<span><xsl:value-of select="//Mime/*[@id=current()/@kind]/@preview"/></span>
+			</xsl:if>
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

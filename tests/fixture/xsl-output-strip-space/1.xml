@@ -1,0 +1,10 @@
+<Scheme>
+	<Description><![CDATA[reads xsl:output settings from stylesheet]]></Description>
+	<root><item>ok</item></root>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:output method="html" encoding="UTF-8" indent="yes" omit-xml-declaration="yes" />
+		<xsl:template match="/root/item">
+			<xsl:value-of select="." />
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

@@ -1,0 +1,12 @@
+<Scheme>
+	<Description><![CDATA[supports xsl:sort text ascending]]></Description>
+	<page><word>b</word><word>a</word><word>c</word></page>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template match="/page">
+			<xsl:for-each select="word">
+				<xsl:sort select="." />
+				<xsl:value-of select="." />
+			</xsl:for-each>
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

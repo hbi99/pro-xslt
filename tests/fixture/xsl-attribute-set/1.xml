@@ -1,0 +1,15 @@
+<Scheme>
+	<Description><![CDATA[applies attribute-set to literal result element]]></Description>
+	<page><message>Hello</message></page>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:attribute-set name="base">
+			<xsl:attribute name="class">card</xsl:attribute>
+			<xsl:attribute name="data-kind" select="'note'" />
+		</xsl:attribute-set>
+		<xsl:template match="/page">
+			<div use-attribute-sets="base">
+				<xsl:value-of select="message" />
+			</div>
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

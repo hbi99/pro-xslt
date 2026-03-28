@@ -1,0 +1,14 @@
+<Scheme>
+	<Description><![CDATA[should output HTML content with text nodes]]></Description>
+	<page>
+		<word>Hello</word>
+		<word>World</word>
+	</page>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template match="//page">
+			<b><xsl:value-of select="word[1]" /></b>
+			<xsl:text> </xsl:text>
+			<u><xsl:value-of select="word[2]" /></u>
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

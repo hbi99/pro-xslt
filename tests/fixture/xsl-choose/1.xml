@@ -1,0 +1,19 @@
+<Scheme>
+	<Description><![CDATA[renders the first matching xsl:when branch]]></Description>
+	<page><item id="1"/></page>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template match="/page/item">
+			<xsl:choose>
+				<xsl:when test="@id = '1'">
+					<xsl:value-of select="'yes'"/>
+				</xsl:when>
+				<xsl:when test="@id = '2'">
+					<xsl:value-of select="'no'"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="'other'"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

@@ -40,25 +40,14 @@ describe('parseXsltFunctionCall', () => {
 
 describe('Function Tests', () => {
     it('should load resources', async () => {
-        let { xmlDoc, xslDoc, description } = loadXml(`functions.test.1.xml`);
+        let { xmlDoc, xslDoc, description } = loadXml(`functions/1.xml`);
         console.log(description);
     });
 
     it('should format numbers with `format-number`', async () => {
-        let xmlString =
-                `<page>
-                        <message>Hello World</message>
-                </page>`;
+        let { xmlDoc, xslDoc, description } = loadXml(`functions/2.xml`);
+        expect(description).toContain('format-number');
 
-        let xsltString =
-                `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-                        <xsl:template match="/page/message">
-                                <xsl:value-of select="format-number(7753.1, '#,##0.00')" />
-                        </xsl:template>
-                </xsl:stylesheet>`;
-
-        let xmlDoc = ProXslt.xmlFromString(xmlString);
-        let xslDoc = ProXslt.xmlFromString(xsltString);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -67,96 +56,28 @@ describe('Function Tests', () => {
     });
 
     it('should generate 18 letters long id using `generate-id`', async () => {
-        let xmlString =
-                `<page>
-                        <message>Hello World</message>
-                </page>`;
+        let { xmlDoc, xslDoc } = loadXml(`functions/3.xml`);
 
-        let xsltString =
-                `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-                        <xsl:template match="/page/message">
-                                <xsl:value-of select="generate-id()" />
-                        </xsl:template>
-                </xsl:stylesheet>`;
-
-        let xmlDoc = ProXslt.xmlFromString(xmlString);
-        let xslDoc = ProXslt.xmlFromString(xsltString);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
-        
+
         expect(fragment.textContent.trim().length).toBe(18);
     });
 
     it('should make cross reference to a node with `key` and use it as variable', async () => {
-        let xmlString =
-                `<Monkey>
-                        <Banana>
-                                <i id="registry">
-                                        <i name="red" top="153" left="814"/>
-                                        <i name="blue" top="200" left="400"/>
-                                </i>
-                        </Banana>
-                        <Me name="red"/>
-                </Monkey>`;
+        let { xmlDoc, xslDoc } = loadXml(`functions/4.xml`);
 
-        let xsltString =
-                `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-                    <xsl:template match="//Monkey/Me">
-                        <xsl:variable name="itemPos" select="//Monkey/Banana/*[@id='registry']/*[@name = current()/@name]"/>
-                        top: <xsl:value-of select="$itemPos/@top"/>px;
-                    </xsl:template>
-                </xsl:stylesheet>`;
-
-        let xmlDoc = ProXslt.xmlFromString(xmlString);
-        let xslDoc = ProXslt.xmlFromString(xsltString);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
-        
+
         expect(fragment.textContent.trim()).toBe('top: 153px;');
     });
 
     it('should make correctly handle string with recursive backtracking', async () => {
-        let xmlString =
-                `<Data>
-                    <i id="fs-sidebar-favorites" type="raw-xml">
-                        <item icon="desktop" path="/fs/Desktop"/>
-                        <item icon="documents" path="/fs/Documents"/>
-                        <item icon="applications" path="/fs/Applications"/>
-                        <item icon="network" path="/fs/Network"/>
-                        <item icon="folder" path="/fs/Desktop/mp3"/>
-                    </i>
-                </Data>`;
+        let { xmlDoc, xslDoc } = loadXml(`functions/5.xml`);
 
-        let xsltString =
-                `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-                    <xsl:template name="hbi-test" match="//i[@id='fs-sidebar-favorites']/item">
-                        <span>
-                            <xsl:call-template name="substring-after-last">
-                            <xsl:with-param name="string" select="@path" />
-                            <xsl:with-param name="delimiter" select="'/'" />
-                            </xsl:call-template>
-                        </span>
-                    </xsl:template>
-
-                    <xsl:template name="substring-after-last">
-                        <xsl:param name="string" />
-                        <xsl:param name="delimiter" />
-                        <xsl:choose>
-                            <xsl:when test="contains($string, $delimiter)">
-                            <xsl:call-template name="substring-after-last">
-                                <xsl:with-param name="string" select="substring-after($string, $delimiter)" />
-                                <xsl:with-param name="delimiter" select="$delimiter" />
-                            </xsl:call-template>
-                            </xsl:when>
-                            <xsl:otherwise><xsl:value-of select="$string" /></xsl:otherwise>
-                        </xsl:choose>
-                    </xsl:template>
-                </xsl:stylesheet>`;
-
-        let xmlDoc = ProXslt.xmlFromString(xmlString);
-        let xslDoc = ProXslt.xmlFromString(xsltString);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -165,29 +86,8 @@ describe('Function Tests', () => {
     });
 
     it('should make another deep cross reference and use result in if test', async () => {
-        let xmlString =
-                `<pack>
-                    <FileSystem>
-                        <i name="Desktop">
-                            <i name="coast.jpg" kind="jpg" />
-                        </i>
-                    </FileSystem>
-                    <Mime>
-                        <i id="jpg" preview="image" />
-                    </Mime>
-                </pack>`;
+        let { xmlDoc, xslDoc } = loadXml(`functions/6.xml`);
 
-        let xsltString =
-                `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-                    <xsl:template name="hbi-test" match="//FileSystem/i[@name='Desktop']/i[@name='coast.jpg']">
-                        <xsl:if test="string(//Mime/*[@id=current()/@kind]/@preview) != ''">
-                            <span><xsl:value-of select="//Mime/*[@id=current()/@kind]/@preview"/></span>
-                        </xsl:if>
-                    </xsl:template>
-                </xsl:stylesheet>`;
-
-        let xmlDoc = ProXslt.xmlFromString(xmlString);
-        let xslDoc = ProXslt.xmlFromString(xsltString);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);

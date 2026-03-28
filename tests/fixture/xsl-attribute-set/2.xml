@@ -1,0 +1,17 @@
+<Scheme>
+	<Description><![CDATA[supports chained use-attribute-sets]]></Description>
+	<page><message>World</message></page>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:attribute-set name="base">
+			<xsl:attribute name="data-a">A</xsl:attribute>
+		</xsl:attribute-set>
+		<xsl:attribute-set name="extended" use-attribute-sets="base">
+			<xsl:attribute name="data-b">B</xsl:attribute>
+		</xsl:attribute-set>
+		<xsl:template match="/page">
+			<span use-attribute-sets="extended">
+				<xsl:value-of select="message" />
+			</span>
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

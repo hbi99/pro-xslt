@@ -1,0 +1,10 @@
+<Scheme>
+	<Description><![CDATA[applies default decimal and grouping separators]]></Description>
+	<page><n>1</n></page>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:decimal-format decimal-separator="," grouping-separator="." minus-sign="~" />
+		<xsl:template match="/page/n">
+			<xsl:value-of select="format-number(-1234.5, '#,##0.00')" />
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

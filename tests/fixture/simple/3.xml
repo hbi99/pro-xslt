@@ -1,0 +1,11 @@
+<Scheme>
+	<Description><![CDATA[should output CDATA escaped HTML-content]]></Description>
+	<page>
+		<message><![CDATA[Hello <b>World</b>]]></message>
+	</page>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template match="/page/message">
+			<xsl:value-of select="." />
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

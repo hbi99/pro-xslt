@@ -2,18 +2,14 @@ import { describe, it, expect } from 'vitest';
 import ProXslt from '../src/index.js';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { loadXml } from './utils/common.js';
 
 describe('xsl:import', () => {
     it('loads imported stylesheet and keeps local template precedence', async () => {
-        let xmlString = `<root><item>A</item></root>`;
+        let { xmlDoc, xslDoc } = loadXml(`xsl-import/1.xml`);
 
-        let mainPath = resolve(process.cwd(), 'tests/fixture/import-main.xsl');
         let importedPath = resolve(process.cwd(), 'tests/fixture/imported-base.xsl');
-        let mainXslString = readFileSync(mainPath, 'utf8');
         let importedXslString = readFileSync(importedPath, 'utf8');
-
-        let xmlDoc = ProXslt.xmlFromString(xmlString);
-        let mainXslDoc = ProXslt.xmlFromString(mainXslString);
 
         let proXslt = new ProXslt({
             importResolver: (href) => {
@@ -21,10 +17,9 @@ describe('xsl:import', () => {
                 return null;
             },
         });
-        proXslt.importStylesheet(mainXslDoc);
+        proXslt.importStylesheet(xslDoc);
 
         let fragment = proXslt.transformToFragment(xmlDoc, document);
         expect(fragment.textContent.trim()).toBe('LOCAL:A|[A]');
     });
 });
-

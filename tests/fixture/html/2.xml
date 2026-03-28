@@ -1,0 +1,10 @@
+<Scheme>
+	<Description><![CDATA[should output and honor `<xsl:template match="text()"/>`]]></Description>
+	<page><item>one</item><item>two</item></page>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template match="text()"/>
+		<xsl:template match="/page/item[1]">
+			<xsl:value-of select="." />
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

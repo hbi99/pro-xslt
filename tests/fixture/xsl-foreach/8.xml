@@ -1,0 +1,21 @@
+<Scheme>
+	<Description><![CDATA[should honor deep nested attribute]]></Description>
+	<ExternalSource href="data.xml"/>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template match="/">
+			<xsl:for-each select="//Settings/dock/*">
+				<xsl:sort order="ascending" select="@order" data-type="number"/>
+				<xsl:call-template name="dock-temp"/>
+			</xsl:for-each>
+		</xsl:template>
+
+		<xsl:template name="dock-temp">
+			<div>
+				<xsl:value-of select="//Settings/Apps/*[@ns=current()/@ns and @id=current()/@id]/@name"/>
+				<xsl:if test="@id">
+					<xsl:attribute name="id">1</xsl:attribute>
+				</xsl:if>
+			</div>
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

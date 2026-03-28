@@ -1,0 +1,10 @@
+<Scheme>
+	<Description><![CDATA[outputs literal text from the stylesheet]]></Description>
+	<page><item/></page>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template match="/page/item">
+			<xsl:text>Hello, </xsl:text>
+			<xsl:text>world</xsl:text>
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

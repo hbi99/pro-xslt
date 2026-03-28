@@ -1,0 +1,20 @@
+<Scheme>
+	<Description><![CDATA[should make cross reference to a node with `key` and use it as variable]]></Description>
+
+	<Monkey>
+		<Banana>
+			<i id="registry">
+				<i name="red" top="153" left="814"/>
+				<i name="blue" top="200" left="400"/>
+			</i>
+		</Banana>
+		<Me name="red"/>
+	</Monkey>
+
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template match="//Monkey/Me">
+			<xsl:variable name="itemPos" select="//Monkey/Banana/*[@id='registry']/*[@name = current()/@name]"/>
+			top: <xsl:value-of select="$itemPos/@top"/>px;
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

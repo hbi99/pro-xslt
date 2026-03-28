@@ -1,9 +1,0 @@
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-  <xsl:include href="included-common.xsl" />
-
-  <xsl:template match="/">
-    <xsl:apply-templates select="/doc/item" />
-    <xsl:call-template name="included-suffix" />
-  </xsl:template>
-</xsl:stylesheet>
-

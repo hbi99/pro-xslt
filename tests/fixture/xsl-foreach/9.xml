@@ -1,0 +1,19 @@
+<Scheme>
+	<Description><![CDATA[should switch template and render different content]]></Description>
+	<ExternalSource href="data.xml"/>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template name="apps">
+			<xsl:for-each select="//Settings/Apps/*">
+				<xsl:sort order="ascending" select="@name"/>
+				<div><xsl:value-of select="@name"/></div>
+			</xsl:for-each>
+		</xsl:template>
+
+		<xsl:template name="dock">
+			<xsl:for-each select="//Settings/dock/*">
+				<xsl:sort order="ascending" select="@order" data-type="number"/>
+				<div><xsl:value-of select="@order"/></div>
+			</xsl:for-each>
+		</xsl:template>
+	</xsl:stylesheet>
+</Scheme>

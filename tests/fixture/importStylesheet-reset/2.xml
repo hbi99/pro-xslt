@@ -1,0 +1,8 @@
+<Scheme>
+	<Description><![CDATA[importStylesheet reset — xsl2]]></Description>
+	<page><a/></page>
+	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+		<xsl:template match="/page/a">one</xsl:template>
+		<xsl:template match="/page">two</xsl:template>
+	</xsl:stylesheet>
+</Scheme>
