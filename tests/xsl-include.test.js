@@ -6,7 +6,7 @@ import { loadXml } from './utils/common.js';
 
 describe('xsl:include', () => {
     it('inlines included templates and named templates', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-include/1.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-include/include-common-templates.xml`);
 
         let includedPath = resolve(process.cwd(), 'tests/fixture/included-common.xsl');
         let includedXslString = readFileSync(includedPath, 'utf8');

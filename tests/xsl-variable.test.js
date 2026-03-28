@@ -4,7 +4,7 @@ import { loadXml } from './utils/common.js';
 
 describe('XSL:variable Tests', () => {
     it('should bind and use `xsl:variable` with select', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-variable/1.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-variable/variable-with-select.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -13,7 +13,7 @@ describe('XSL:variable Tests', () => {
     });
 
     it('should bind `xsl:variable` from content and use in expression', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-variable/2.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-variable/variable-expression.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -22,7 +22,7 @@ describe('XSL:variable Tests', () => {
     });
 
     it('should access globally declared `xsl:variable` inside a template', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-variable/3.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-variable/global-variable.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);

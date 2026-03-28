@@ -40,12 +40,12 @@ describe('parseXsltFunctionCall', () => {
 
 describe('Function Tests', () => {
     it('should load resources', async () => {
-        let { xmlDoc, xslDoc, description } = loadXml(`functions/1.xml`);
+        let { xmlDoc, xslDoc, description } = loadXml(`functions/load-resources.xml`);
         console.log(description);
     });
 
     it('should format numbers with `format-number`', async () => {
-        let { xmlDoc, xslDoc, description } = loadXml(`functions/2.xml`);
+        let { xmlDoc, xslDoc, description } = loadXml(`functions/format-numbers.xml`);
         expect(description).toContain('format-number');
 
         let proXslt = new ProXslt();
@@ -56,7 +56,7 @@ describe('Function Tests', () => {
     });
 
     it('should generate 18 letters long id using `generate-id`', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`functions/3.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`functions/generate-id.xml`);
 
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
@@ -66,7 +66,7 @@ describe('Function Tests', () => {
     });
 
     it('should make cross reference to a node with `key` and use it as variable', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`functions/4.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`functions/key-registry-lookup.xml`);
 
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
@@ -76,7 +76,7 @@ describe('Function Tests', () => {
     });
 
     it('should make correctly handle string with recursive backtracking', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`functions/5.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`functions/recursive-sidebar-paths.xml`);
 
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
@@ -86,7 +86,7 @@ describe('Function Tests', () => {
     });
 
     it('should make another deep cross reference and use result in if test', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`functions/6.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`functions/pack-cross-reference.xml`);
 
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);

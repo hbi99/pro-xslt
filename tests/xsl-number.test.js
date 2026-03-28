@@ -4,7 +4,7 @@ import { loadXml } from './utils/common.js';
 
 describe('xsl:number', () => {
     it('formats item labels with xsl:number', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-number/1.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-number/numbered-item-list.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);

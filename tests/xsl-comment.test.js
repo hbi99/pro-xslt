@@ -4,7 +4,7 @@ import { loadXml } from './utils/common.js';
 
 describe('xsl:comment', () => {
     it('creates a comment from select expression', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-comment/1.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-comment/comment-from-select.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -17,7 +17,7 @@ describe('xsl:comment', () => {
     });
 
     it('creates a comment from body content', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-comment/2.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-comment/comment-from-body.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);

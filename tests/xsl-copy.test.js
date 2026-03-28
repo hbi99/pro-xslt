@@ -4,7 +4,7 @@ import { loadXml } from './utils/common.js';
 
 describe('xsl:copy and xsl:copy-of', () => {
     it('copies the current context node', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-copy/1.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-copy/shallow-copy-element.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -16,7 +16,7 @@ describe('xsl:copy and xsl:copy-of', () => {
     });
 
     it('copies nodes selected by select expression', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-copy/2.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-copy/copy-of-selection.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);

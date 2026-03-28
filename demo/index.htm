@@ -13,13 +13,18 @@
 <div class="layout">
 	<div class="toolbar">
 		<div class="layout-left">
-			<span class="tool button">Tree</span>
+			<span class="tool button">Sidebar</span>
 		</div>
 		<div class="layout-middle">
 			<span class="tool options">
 				<span>XML</span>
 				<span>XSL</span>
 				<span>Output</span>
+			</span>
+			<span class="tool options">
+				<span>Native</span>
+				<span>Pro-Xslt</span>
+				<span>Xslt Processor</span>
 			</span>
 		</div>
 		<div class="layout-right">
@@ -28,17 +33,87 @@
 	</div>
 	<div class="divider locked"></div>
 	<div class="workarea">
-		<div class="sidebar"></div>
+		<div class="sidebar">
+			<!-- tree goes here -->
+			<div class="leaf open">
+				<span>
+					<i class="icon-chevron-right"></i>
+					<i class="icon-book"></i>
+					<b>XSLT v1.0</b>
+				</span>
+				<div class="children">
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>html</b></span><div class="children"></div></div>
+					<div class="leaf open">
+						<span>
+							<i class="icon-chevron-right"></i>
+							<i class="icon-folder"></i>
+							<b>Functions</b>
+						</span>
+						<div class="children">
+							<div class="leaf"><span><i class="tree-blank"></i><i class="icon-file-code-o"></i><b>recursive-sidebar-paths</b></span></div>
+							<div class="leaf"><span><i class="tree-blank"></i><i class="icon-file-code-o"></i><b>pack-cross-reference</b></span></div>
+							<div class="leaf"><span><i class="tree-blank"></i><i class="icon-file-code-o"></i><b>load-resources</b></span></div>
+							<div class="leaf"><span><i class="tree-blank"></i><i class="icon-file-code-o"></i><b>key-registry-lookup</b></span></div>
+							<div class="leaf"><span><i class="tree-blank"></i><i class="icon-file-code-o"></i><b>generate-id</b></span></div>
+							<div class="leaf"><span><i class="tree-blank"></i><i class="icon-file-code-o"></i><b>format-numbers</b></span></div>
+						</div>
+					</div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>importStylesheet-reset</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>simple</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-attribute</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-attribute-set</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-call-apply-templates</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-choose</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-comment</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-copy</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-decimal-format</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-foreach</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-if</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-import</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-include</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-key</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-number</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-output-strip-space</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-text</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-validation</b></span><div class="children"></div></div>
+					<div class="leaf"><span><i class="icon-chevron-right"></i><i class="icon-folder"></i><b>xsl-variable</b></span><div class="children"></div></div>
+				</div>
+			</div>
+			<div class="leaf">
+				<span>
+					<i class="icon-chevron-right"></i>
+					<i class="icon-book"></i>
+					<b>XSLT v2.0</b>
+				<span>
+				<div class="children"></div>
+			</div>
+			<div class="leaf">
+				<span>
+					<i class="icon-chevron-right"></i>
+					<i class="icon-book"></i>
+					<b>XSLT v3.0</b>
+				<span>
+				<div class="children"></div>
+			</div>
+		</div>
 		<div class="divider vertical"></div>
-		<div class="xml-doc"></div>
+		<div class="xml-doc">
+			<!-- XML code goes here -->
+		</div>
 		<div class="divider vertical"></div>
-		<div class="xslt-doc"></div>
+		<div class="xslt-doc">
+			<!-- XSLT code goes here -->
+		</div>
 	</div>
 	<div class="divider horisontal"></div>
-	<div class="output"></div>
+	<div class="output">
+		<!-- transformed output goes here -->
+	</div>
 	<div class="footer">
-		<div class="layout-left">Created with <3 in Sweden</div>
-		<div class="layout-middle"></div>
+		<div class="layout-left">Created with <i class="icon-heart"></i> in Sweden</div>
+		<div class="layout-middle">
+			<i class="icon-hb" title="Hakan Bilgin"></i>
+		</div>
 		<div class="layout-right">
 			Powered by <a href="//github.com/hbi99/pro-xslt" target="_new">Pro-XSLT</a>
 		</div>

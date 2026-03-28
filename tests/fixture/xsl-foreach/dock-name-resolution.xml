@@ -1,6 +1,6 @@
 <Scheme>
-	<Description><![CDATA[should honor deep nested attribute]]></Description>
-	<ExternalSource href="data.xml"/>
+	<Description><![CDATA[should render advanced cross reference with current() function]]></Description>
+	<ExternalSource href="dock-apps-data.xml"/>
 	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 		<xsl:template match="/">
 			<xsl:for-each select="//Settings/dock/*">
@@ -12,9 +12,6 @@
 		<xsl:template name="dock-temp">
 			<div>
 				<xsl:value-of select="//Settings/Apps/*[@ns=current()/@ns and @id=current()/@id]/@name"/>
-				<xsl:if test="@id">
-					<xsl:attribute name="id">1</xsl:attribute>
-				</xsl:if>
 			</div>
 		</xsl:template>
 	</xsl:stylesheet>

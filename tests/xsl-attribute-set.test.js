@@ -4,7 +4,7 @@ import { loadXml } from './utils/common.js';
 
 describe('xsl:attribute-set', () => {
     it('applies attribute-set to literal result element', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-attribute-set/1.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-attribute-set/literal-element-sets.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -18,7 +18,7 @@ describe('xsl:attribute-set', () => {
     });
 
     it('supports chained use-attribute-sets', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-attribute-set/2.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-attribute-set/chained-attribute-sets.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);

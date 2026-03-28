@@ -1,6 +1,6 @@
 <Scheme>
 	<Description><![CDATA[should switch template and render different content]]></Description>
-	<ExternalSource href="data.xml"/>
+	<ExternalSource href="dock-apps-data.xml"/>
 	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 		<xsl:template name="apps">
 			<xsl:for-each select="//Settings/Apps/*">

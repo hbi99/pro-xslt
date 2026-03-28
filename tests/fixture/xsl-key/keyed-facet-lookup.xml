@@ -1,6 +1,6 @@
 <Scheme>
 	<Description><![CDATA[resolves keyed lookups against large facet fixture]]></Description>
-	<ExternalSource href="catalog-facets-50kb.xml"/>
+	<ExternalSource href="large-facet-catalog.xml"/>
 	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 		<xsl:key name="by-id" match="/catalog/product" use="@id" />
 		<xsl:key name="by-category" match="/catalog/product" use="@category" />

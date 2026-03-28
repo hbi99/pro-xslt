@@ -9,7 +9,7 @@ describe('Simple Tests', () => {
     });
 
     it('should output XML node text content', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`simple/1.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`simple/output-node-text.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -18,7 +18,7 @@ describe('Simple Tests', () => {
     });
 
     it('should output XML node attribute value', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`simple/2.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`simple/output-attribute-value.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -27,7 +27,7 @@ describe('Simple Tests', () => {
     });
 
     it('should output CDATA escaped HTML-content', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`simple/3.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`simple/cdata-html-content.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -36,7 +36,7 @@ describe('Simple Tests', () => {
     });
 
     it('should evaluate arithmetic expression on `value-of` element', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`simple/4.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`simple/value-of-arithmetic.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);

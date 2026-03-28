@@ -11,7 +11,7 @@ const FIXTURE_DIR = resolve(process.cwd(), 'tests/fixture');
  * The source root may be any element name (page, Monkey, Data, pack, …).
  *
  * Optional <ExternalSource href="other.xml"/> loads XML relative to the Scheme file’s folder
- * (e.g. tests/fixture/xsl-key/catalog-facets-50kb.xml).
+ * (e.g. tests/fixture/xsl-key/large-facet-catalog.xml).
  * Stylesheet and source are each re-parsed as standalone documents (see implementation).
  */
 export function loadXml(filename) {

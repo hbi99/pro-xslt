@@ -4,7 +4,7 @@ import { loadXml } from './utils/common.js';
 
 describe('xsl:attribute', () => {
     it('sets an attribute via select', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-attribute/1.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-attribute/attribute-via-select.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -15,7 +15,7 @@ describe('xsl:attribute', () => {
     });
 
     it('sets an attribute via body content', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-attribute/2.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-attribute/attribute-via-body.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -25,7 +25,7 @@ describe('xsl:attribute', () => {
     });
 
     it('sets an attribute via body content with text nodes', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-attribute/3.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-attribute/attribute-body-text.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);

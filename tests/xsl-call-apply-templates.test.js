@@ -4,7 +4,7 @@ import { loadXml } from './utils/common.js';
 
 describe('xsl:call-template and xsl:apply-templates', () => {
     it('calls a named template with the current context node', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-call-apply-templates/1.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-call-apply-templates/named-template-context.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
 
@@ -13,7 +13,7 @@ describe('xsl:call-template and xsl:apply-templates', () => {
     });
 
     it('passes parameters via xsl:with-param', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-call-apply-templates/2.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-call-apply-templates/call-template-params.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
 
@@ -22,7 +22,7 @@ describe('xsl:call-template and xsl:apply-templates', () => {
     });
 
     it('applies templates for a selected node-set', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-call-apply-templates/3.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-call-apply-templates/apply-selected-nodes.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
 
@@ -31,7 +31,7 @@ describe('xsl:call-template and xsl:apply-templates', () => {
     });
 
     it('should call a template recursively', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-call-apply-templates/4.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-call-apply-templates/recursive-directory-paths.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
 
@@ -40,7 +40,7 @@ describe('xsl:call-template and xsl:apply-templates', () => {
     });
 
     it('should slice strings recursively', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-call-apply-templates/5.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-call-apply-templates/slice-padding-strings.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
 

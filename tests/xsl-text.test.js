@@ -4,7 +4,7 @@ import { loadXml } from './utils/common.js';
 
 describe('xsl:text', () => {
     it('outputs literal text from the stylesheet', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-text/1.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-text/literal-text-output.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -13,7 +13,7 @@ describe('xsl:text', () => {
     });
 
     it('works inside xsl:if', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-text/2.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-text/text-inside-if.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);

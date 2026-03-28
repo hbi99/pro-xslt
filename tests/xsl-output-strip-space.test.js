@@ -4,7 +4,7 @@ import { loadXml } from './utils/common.js';
 
 describe('xsl:output and xsl:strip-space', () => {
     it('reads xsl:output settings from stylesheet', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-output-strip-space/1.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-output-strip-space/output-settings.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         proXslt.transformToFragment(xmlDoc, document);
@@ -17,7 +17,7 @@ describe('xsl:output and xsl:strip-space', () => {
     });
 
     it('applies xsl:strip-space to matched elements', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-output-strip-space/2.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-output-strip-space/strip-space-elements.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);

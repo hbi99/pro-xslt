@@ -4,7 +4,7 @@ import { loadXml } from './utils/common.js';
 
 describe('HTML Output Tests', () => {
     it('should output HTML content with text nodes', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`html/1.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`html/html-text-nodes.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -16,7 +16,7 @@ describe('HTML Output Tests', () => {
     });
 
     it('should output and honor `<xsl:template match="text()"/>`', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`html/2.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`html/match-text-template.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -28,7 +28,7 @@ describe('HTML Output Tests', () => {
     });
 
     it('should NOT output escaped HTML content', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`html/3.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`html/escaped-html-output.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -40,7 +40,7 @@ describe('HTML Output Tests', () => {
     });
 
     it('should output escaped HTML content', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`html/4.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`html/raw-html-output.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
