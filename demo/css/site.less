@@ -22,6 +22,18 @@ body {
 	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
 	font-size: 14px;
 	line-height: 24px;
+
+	&.covered {
+		&:after {
+			content: "";
+			background: #f000;
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+		}
+	}
 }
 
 a {
@@ -30,113 +42,31 @@ a {
 }
 
 
+.divider {
+	// background: #f007;
+	position: relative;
 
-.leaf {
-	font-size: 0;
-	height: 21px;
-	line-height: 1;
-	margin-bottom: 1px;
-	cursor: default;
-	color: #666;
-
-	&.open {
-		height: auto;
-
-		> span {
-			> i {
-				&.icon-chevron-right {
-					transform: rotate(90deg);
-				}
-
-				&.icon-folder {
-					font-size: 16px;
-					padding-top: 2px;
-
-					&:before {
-						content: "\e904";
-						position: relative;
-						left: 1px;
-					}
-				}
-			}
-		}
-
-		> .children {
-			height: auto;
-		}
+	&.clone {
+		background: #f007;
+		position: absolute;
+		margin: 7px 0 0 7px;
 	}
 
-	> span {
-		display: inline-block;
-		white-space: nowrap;
-		margin-bottom: 1px;
-		cursor: pointer;
-
-		&:hover {
-			> b {
-				background: #0001;
-				color: #222;
-			}
-		}
-
-		> i {
-			// background: #0001;
-			color: #999;
-			display: inline-block;
-			width: 21px;
-			height: 21px;
-			font-size: 11px;
-			vertical-align: text-top;
-			padding-top: 7px;
-			margin-right: 1px;
-			text-align: center;
-
-			&.tree-blank {
-
-			}
-
-			&.icon-chevron-right {
-				transform: rotate(0deg);
-				transition: transform 100ms ease-in-out;
-			}
-
-			&.icon-book {
-				font-size: 16px;
-				padding-top: 3px;
-				color: #f70;
-			}
-
-			&.icon-folder {
-				font-size: 15px;
-				padding-top: 3px;
-			}
-
-			&.icon-file-code-o {
-				font-size: 16px;
-				padding-top: 2px;
-			}
-		}
-
-		> b {
-			// background: #0001;
-			border-radius: 3px;
-			display: inline-block;
-			padding: 3px 5px;
-			height: 21px;
-			font-size: 14px;
-			font-weight: 400;
-			vertical-align: text-top;
-		}
+	&.locked {
+		cursor: default;
 	}
-
-	> .children {
-		// background: #0001;
-		height: 0;
-		overflow: hidden;
-		padding-left: 13px;
-		margin-bottom: -1px;
+	
+	&.horisontal {
+		cursor: ns-resize;
+		height: 5px;
+	}
+	
+	&.vertical {
+		cursor: ew-resize;
+		width: 5px;
 	}
 }
+
 
 
 
@@ -165,6 +95,8 @@ a {
 	.tool {
 		border-radius: 21px;
 		display: inline-block;
+		cursor: pointer;
+		color: #777;
 
 		&.button {
 			background: #0001;
@@ -201,24 +133,19 @@ a {
 				}
 			}
 		}
-	}
 
-	.divider {
-		// background: #f007;
-		position: relative;
-
-		&.locked {
-			cursor: default;
-		}
-		
-		&.horisontal {
-			cursor: ns-resize;
-			height: 5px;
-		}
-		
-		&.vertical {
-			cursor: ew-resize;
-			width: 5px;
+		i {
+			// background: #0001;
+			color: #777;
+			display: inline-block;
+			position: relative;
+			top: -2px;
+			width: 21px;
+			height: 21px;
+			font-size: 16px;
+			vertical-align: text-top;
+			padding-top: 3px;
+			text-align: center;
 		}
 	}
 
@@ -263,8 +190,8 @@ a {
 	}
 
 	.output {
-		// background: #0001;
-		box-shadow: inset 0 0 0 1px #0001;
+		background: #fff;
+		box-shadow: inset 0 0 0 1px #0002;
 		height: 320px;
 		border-radius: 7px;
 	}
