@@ -1,24 +1,18 @@
 
-(() => {
-
-const App = {
-	init() {
-		Resize.init();
-	},
-	dispatch(event) {
-		switch (event.type) {
-			case "resize-layout":
-				break;
-		}
-	}
-};
-
-let Resize = {
-	init() {
+const Resize = {
+	init(app) {
+		// save reference to app
+		this.app = app;
 		// fast references
 		this.els = {
 			doc: $(document),
 			body: $("body"),
+		};
+		// resize constraints for areas
+		this.constrains = {
+			tree: { min: { x: 100 }, max: { x: 300 } },
+			xmlDoc: { min: { x: 200 }, max: { x: 600 } },
+			workarea: { min: { x: 600 }, max: { x: 1050 } },
 		};
 		// bind event handlers
 		$(".divider").on("mousedown", this.dispatch);
@@ -36,7 +30,9 @@ let Resize = {
 				// locked divider
 				if (org.prop("className").includes("locked")) return;
 				// collect info
-				let off = org.offset(),
+				let bEl = org.prevAll("div:first"),
+					aEl = org.nextAll("div:first"),
+					off = org.offset(),
 					el = org.clone().addClass("clone").css(off),
 					click = {
 						x : event.clientX - off.left - event.offsetX - 14,
@@ -54,7 +50,7 @@ let Resize = {
 				Resize.els.body.addClass("covered").append(el);
 				el = Resize.els.body.find(".clone");
 				// safe drag details
-				Resize.drag = { el, org, dir, click, off, min, max };
+				Resize.drag = { el, bEl, aEl, dir, click, off, min, max };
 				// bind more event handlers
 				Resize.els.doc.bind("mousemove mouseup", Resize.dispatch);
 				break;
@@ -71,13 +67,11 @@ let Resize = {
 				break;
 			case "mouseup":
 				let offset = Drag.el.offset(),
-					bEl = Drag.org.prevAll("div:first"),
-					aEl = Drag.org.nextAll("div:first"),
 					diff = offset.left - Drag.off.left,
-					bW = bEl.width() + diff - 7,
-					aW = aEl.width() - diff - 7;
-				bEl.css({ width: bW });
-				aEl.css({ width: aW });
+					bW = Drag.bEl.width() + diff - 7,
+					aW = Drag.aEl.width() - diff - 7;
+				Drag.bEl.css({ width: bW });
+				Drag.aEl.css({ width: aW });
 
 				// delete clone from DOM
 				Drag.el.remove();
@@ -90,7 +84,4 @@ let Resize = {
 	}
 };
 
-// init App
-$.ready_(() => App.init());
-
-})();
+export default Resize;

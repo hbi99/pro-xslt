@@ -2,27 +2,31 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pro-XSLT</title>
+<title>Pro-XSLT | Hakan Bilgin</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Design Liquido Branding Meta Tags -->
+<meta name="description" content="Interactive XSLT transformation testing tool by Hakan Bilgin">
+<meta property="og:title" content="Pro-XSLT - Interactive Test">
+<meta property="og:description" content="Interactive XSLT transformation testing tool by Hakan Bilgin">
+<meta property="og:image" content="https://hbi99.github.io/img/logo-og.png">
+<meta property="og:url" content="https://hbi99.github.io/">
+<meta property="og:site_name" content="Hakan Bilgin">
+<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+<link rel="icon" href="img/favicon.ico" type="image/x-icon">
 <link href="css/site.css" rel="stylesheet">
 <script src="js/junior.js"></script>
-<script src="js/site.js"></script>
+<script src="js/app.js" type="module"></script>
 </head>
 <body>
 
 <div class="layout">
-	<div class="toolbar">
+	<div class="toolbar" data-area="toolbar">
 		<div class="layout-left">
-			<span class="tool button">
+			<span class="tool button" data-click="toggle-sidebar">
 				<i class="icon-tree"></i>
 			</span>
 		</div>
 		<div class="layout-middle">
-			<span class="tool options">
-				<span>XML</span>
-				<span>XSL</span>
-				<span>Output</span>
-			</span>
 			<span class="tool options">
 				<span>Native</span>
 				<span>Pro-Xslt</span>
@@ -37,7 +41,7 @@
 	</div>
 	<div class="divider locked"></div>
 	<div class="workarea">
-		<div class="sidebar">
+		<div class="sidebar" data-area="tree">
 			<!-- tree goes here -->
 			<div class="leaf open">
 				<span>
@@ -101,17 +105,23 @@
 			</div>
 		</div>
 		<div class="divider vertical"></div>
-		<div class="xml-doc">
+		<div class="xml-doc" data-area="xml-doc">
 			<!-- XML code goes here -->
 		</div>
 		<div class="divider vertical"></div>
-		<div class="xslt-doc">
+		<div class="xslt-doc" data-area="xslt-doc">
 			<!-- XSLT code goes here -->
 		</div>
 	</div>
 	<div class="divider horisontal"></div>
-	<div class="output">
+	<div class="output" data-area="output">
 		<!-- transformed output goes here -->
+	</div>
+	<div class="output-tools">
+		<span class="tool options">
+			<span>HTML</span>
+			<span>Rendered</span>
+		</span>
 	</div>
 	<div class="footer">
 		<div class="layout-left">Created with <i class="icon-heart"></i> in Sweden</div>
