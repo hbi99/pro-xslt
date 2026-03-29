@@ -8,6 +8,12 @@ const Output = {
 		let Self = Output,
 			App = Self.app,
 			el;
+		// console.log(event);
+		switch (event.type) {
+			case "set-output-mode":
+				console.log(event);
+				break;
+		}
 	}
 };
 

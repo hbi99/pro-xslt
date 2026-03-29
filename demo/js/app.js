@@ -10,6 +10,10 @@ import Output from "./output.js"
 
 const App = {
 	init() {
+		// fast references
+		this.els = {
+			layout: $(".layout"),
+		};
 		// init modules
 		Object.keys(this).map(mod => this[mod].init ? this[mod].init(this) : void(0));
 		// bind event handlers
@@ -25,18 +29,27 @@ const App = {
 			case "click":
 				el = $(event.target);
 				type = el.data("click");
+				if (el.hasClass("disabled")) return;
 				// prevent default behaviour
 				event.stopPropagation();
 				event.preventDefault();
 
-				pEl = el.parents("[data-area]");
+				if (el.hasClass("tool") && el.hasClass("toggle")) {
+					let isOn = el.hasClass("on");
+					el.toggleClass("on", isOn);
+				}
+
+				pEl = el.parents("?[data-area]");
 				if (pEl.length) {
 					// proxy event
 					Self[pEl.data("area")].dispatch({ el, type, orgEvent: event });
+				} else {
+					// falls through
+					Self.dispatch({ el, type, orgEvent: event });
 				}
 				break;
 			// custom events
-			case "banana":
+			case "some-event":
 				break;
 		}
 	},

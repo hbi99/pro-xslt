@@ -8,10 +8,6 @@
 	-webkit-tap-highlight-color: transparent;
 }
 
-[data-click] * {
-	pointer-events: none;
-}
-
 html {
 	height: 100%;
 	overflow: hidden;
@@ -49,6 +45,7 @@ a {
 .divider {
 	// background: #f007;
 	position: relative;
+	z-index: 2;
 
 	&.clone {
 		background: #69e7;
@@ -69,6 +66,15 @@ a {
 		cursor: ew-resize;
 		width: 5px;
 	}
+
+	// over
+	&.horisontal {		
+		.tool.options {
+			position: absolute;
+			right: 5px;
+			top: 13px;
+		}
+	}
 }
 
 
@@ -82,6 +88,22 @@ a {
 	bottom: 7px;
 	display: flex;
 	flex-direction: column;
+
+	&.hide-sidebar {
+		.workarea {
+			.sidebar {
+				padding-left: 0;
+				padding-right: 0;
+				width: 0;
+				opacity: 0;
+
+				& + .divider {
+					width: 0;
+					pointer-events: none;
+				}
+			}
+		}
+	}
 
 	.layout-left {
 		width: 25%;
@@ -99,7 +121,10 @@ a {
 	}
 
 	.tool {
+		position: relative;
+		height: 30px;
 		border-radius: 21px;
+		vertical-align: text-top;
 		display: inline-block;
 		cursor: pointer;
 		color: #777;
@@ -107,18 +132,64 @@ a {
 		&.button {
 			background: #0001;
 			padding: 3px 11px;
+
+			&:focus,
+			&:active,
+			&.on {
+				background: #bbb;
+				color: #fff;
+
+				i[class^="icon-"],
+				i[class*=" icon-"] {
+					color: #fff;
+					text-shadow: 0 1px 0 #0001;
+				}
+
+				// &:before {
+				// 	content: "";
+				// 	background: #0001;
+				// 	position: absolute;
+				// 	top: 2px;
+				// 	left: 2px;
+				// 	right: 2px;
+				// 	bottom: 2px;
+				// 	border-radius: inherit;
+				// }
+			}
 		}
 
 		&.toggle {
 			background: #0001;
-			padding: 3px 11px;
+			padding: 2px 11px;
+
+			&.on {
+				> span {
+					left: -33px;
+				}
+			}
+
+			> span {
+				background: #bbb;
+				color: #fff;
+				display: inline-block;
+				position: relative;
+				left: 0;
+				height: 26px;
+				z-index: 2;
+				padding: 1px 11px;
+				margin-right: -33px;
+				pointer-events: none;
+				border-radius: inherit;
+				transition: left 150ms ease-in-out;
+			}
 		}
 
 		&.options {
 			font-size: 0;
+			cursor: default;
 
+			> label,
 			> span {
-				background: #0001;
 				display: inline-block;
 				padding: 3px 11px;
 				margin: 0 1px;
@@ -138,6 +209,23 @@ a {
 					border-bottom-left-radius: 0;
 				}
 			}
+
+			> label {
+				box-shadow: inset 0 0 0 2px #0001;
+				cursor: default;
+			}
+
+			> span {
+				box-shadow: inset 0 0 0 2px #0001;
+				cursor: pointer;
+
+				&:focus,
+				&:active,
+				&.on {
+					background: #bbb;
+					color: #fff;
+				}
+			}
 		}
 
 		i {
@@ -152,11 +240,13 @@ a {
 			vertical-align: text-top;
 			padding-top: 3px;
 			text-align: center;
+			pointer-events: none;
 		}
 	}
 
 	.toolbar {
-		padding-top: 3px;
+		// background: #0001;
+		// padding-top: 3px;
 		height: 43px;
 		display: flex;
 	}
@@ -169,9 +259,13 @@ a {
 		.sidebar {
 			// background: #0001;
 			box-shadow: inset 0 0 0 1px #0001;
+			overflow-x: hidden;
+			overflow-y: auto;
 			width: 250px;
 			padding: 2px;
 			border-radius: inherit;
+			transition: width 200ms ease-in-out,
+						opacity 200ms ease-in-out;
 		}
 
 		.xml-doc {
@@ -200,18 +294,6 @@ a {
 		box-shadow: inset 0 0 0 1px #0002;
 		height: 320px;
 		border-radius: 7px;
-	}
-
-	.output-tools {
-		position: relative;
-		z-index: 2;
-		height: 0;
-		text-align: center;
-
-		.tool.options {
-			position: absolute;
-			transform: translate(-50%, -37px);
-		}
 	}
 
 	.footer {

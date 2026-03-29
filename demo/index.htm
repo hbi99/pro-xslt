@@ -27,14 +27,16 @@
 			</span>
 		</div>
 		<div class="layout-middle">
-			<span class="tool options">
-				<span>Native</span>
-				<span>Pro-Xslt</span>
-				<span>Xslt Processor</span>
+			<span class="tool options" data-click="set-processor">
+				<label class="disabled">Processor</label>
+				<span data-arg="native">Native</span>
+				<span data-arg="pro-xslt" class="on">Pro-Xslt</span>
 			</span>
 		</div>
 		<div class="layout-right">
-			<span class="tool toggle">
+			<span class="tool toggle on" data-click="toggle-theme">
+				<i class="icon-sun"></i>
+				<span>Theme</span>
 				<i class="icon-brightness-contrast"></i>
 			</span>
 		</div>
@@ -113,15 +115,14 @@
 			<!-- XSLT code goes here -->
 		</div>
 	</div>
-	<div class="divider horisontal"></div>
+	<div class="divider horisontal">
+		<span class="tool options" data-click="set-output-mode" data-area="output">
+			<span data-arg="html" class="on">HTML</span>
+			<span data-arg="rendered">Rendered</span>
+		</span>
+	</div>
 	<div class="output" data-area="output">
 		<!-- transformed output goes here -->
-	</div>
-	<div class="output-tools">
-		<span class="tool options">
-			<span>HTML</span>
-			<span>Rendered</span>
-		</span>
 	</div>
 	<div class="footer">
 		<div class="layout-left">Created with <i class="icon-heart"></i> in Sweden</div>

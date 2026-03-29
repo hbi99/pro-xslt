@@ -7,10 +7,15 @@ const Toolbar = {
 	dispatch(event) {
 		let Self = Toolbar,
 			App = Self.app,
+			value,
 			el;
 		// console.log(event);
 		switch (event.type) {
 			case "toggle-sidebar":
+				value = App.els.layout.hasClass("hide-sidebar");
+				App.els.layout.toggleClass("hide-sidebar", value);
+				break;
+			case "set-processor":
 				console.log(event);
 				break;
 		}

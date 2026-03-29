@@ -8,6 +8,11 @@ const Sidebar = {
 		let Self = Sidebar,
 			App = Self.app,
 			el;
+		// console.log(event);
+		switch (event.type) {
+			case "some-event":
+				break;
+		}
 	}
 };
 

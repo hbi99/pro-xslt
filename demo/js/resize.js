@@ -28,7 +28,7 @@ const Resize = {
 				let org = $(event.target),
 					dir = org.prop("className").split(" ")[1];
 				// locked divider
-				if (org.prop("className").includes("locked")) return;
+				if (!org.prop("className").includes("divider") || org.prop("className").includes("locked")) return;
 				// collect info
 				let bEl = org.prevAll("div:first"),
 					aEl = org.nextAll("div:first"),
@@ -55,24 +55,29 @@ const Resize = {
 				Resize.els.doc.bind("mousemove mouseup", Resize.dispatch);
 				break;
 			case "mousemove":
-				switch (Drag.dir) {
-					case "vertical":
-						data.left = Math.min(Drag.max.x, Math.max(Drag.min.x, event.clientX + Drag.click.x));
-						break;
-					case "horisontal":
-						data.top = Math.min(Drag.max.y, Math.max(Drag.min.y, event.clientY + Drag.click.y));
-						break;
+				if (Drag.dir === "vertical") {
+					data.left = Math.min(Drag.max.x, Math.max(Drag.min.x, event.clientX + Drag.click.x));
+				} else { // horisontal
+					data.top = Math.min(Drag.max.y, Math.max(Drag.min.y, event.clientY + Drag.click.y));
 				}
 				Drag.el.css(data);
 				break;
 			case "mouseup":
-				let offset = Drag.el.offset(),
-					diff = offset.left - Drag.off.left,
-					bW = Drag.bEl.width() + diff - 7,
-					aW = Drag.aEl.width() - diff - 7;
-				Drag.bEl.css({ width: bW });
-				Drag.aEl.css({ width: aW });
-
+				if (Drag.dir === "vertical") {
+					let offset = Drag.el.offset(),
+						diff = offset.left - Drag.off.left,
+						bW = Drag.bEl.width() + diff - 7,
+						aW = Drag.aEl.width() - diff - 7;
+					Drag.bEl.css({ width: bW });
+					Drag.aEl.css({ width: aW });
+				} else { // horisontal
+					let offset = Drag.el.offset(),
+						diff = offset.top - Drag.off.top,
+						bH = Drag.bEl.height() + diff - 7,
+						aH = Drag.aEl.height() - diff - 7;
+					Drag.bEl.css({ height: bH });
+					Drag.aEl.css({ height: aH });
+				}
 				// delete clone from DOM
 				Drag.el.remove();
 				// reset body

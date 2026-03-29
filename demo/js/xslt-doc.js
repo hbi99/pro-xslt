@@ -8,6 +8,11 @@ const XsltDoc = {
 		let Self = XsltDoc,
 			App = Self.app,
 			el;
+		// console.log(event);
+		switch (event.type) {
+			case "some-event":
+				break;
+		}
 	}
 };
 
