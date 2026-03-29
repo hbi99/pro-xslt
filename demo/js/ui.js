@@ -1,5 +1,52 @@
 
-const Resize = {
+export const Sidebar = {
+	init(app) {
+		// save reference to app
+		this.app = app;
+	},
+	dispatch(event) {
+		let Self = Sidebar,
+			App = Self.app,
+			el;
+		// console.log(event);
+		switch (event.type) {
+			case "select-tree-item":
+				console.log(event);
+				break;
+		}
+	}
+};
+
+
+export const Toolbar = {
+	init(app) {
+		// save reference to app
+		this.app = app;
+	},
+	dispatch(event) {
+		let Self = Toolbar,
+			App = Self.app,
+			value,
+			el;
+		// console.log(event);
+		switch (event.type) {
+			case "toggle-sidebar":
+				value = App.els.layout.hasClass("hide-sidebar");
+				App.els.layout.toggleClass("hide-sidebar", value);
+				break;
+			case "toggle-theme":
+				value = event.el.hasClass("on") ? "dark" : "light";
+				App.els.body.data({ theme: value });
+				break;
+			case "set-processor":
+				App.output.dispatch(event);
+				break;
+		}
+	}
+};
+
+
+export const Resize = {
 	init(app) {
 		// save reference to app
 		this.app = app;
@@ -89,4 +136,3 @@ const Resize = {
 	}
 };
 
-export default Resize;

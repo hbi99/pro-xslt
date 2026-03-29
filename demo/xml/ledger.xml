@@ -111,8 +111,8 @@
 			<i icon="folder" name="included-common.xsl" />
 			<i icon="folder" name="imported-base.xsl" />
 		</i>
-		<i icon="book" name="XSLT v2.0" />
-		<i icon="book" name="XSLT v3.0" />
+		<i icon="book" name="XSLT v2.0" state="disabled"/>
+		<i icon="book" name="XSLT v3.0" state="disabled" />
 	</Tree>
 
 
@@ -130,11 +130,14 @@
 
 <xsl:template name="leaf">
 	<div class="leaf">
-		<xsl:if test="@state = 'open'">
-			<xsl:attribute name="class">leaf open</xsl:attribute>
+		<xsl:if test="@state">
+			<xsl:attribute name="class">leaf <xsl:value-of select="@state" /></xsl:attribute>
 		</xsl:if>
 		<span>
-			<i class="icon-chevron-right"></i>
+			<i><xsl:attribute name="class"><xsl:choose>
+				<xsl:when test="count(./*) &gt; 0">icon-chevron-right</xsl:when>
+				<xsl:otherwise>tree-blank</xsl:otherwise>
+			</xsl:choose></xsl:attribute></i>
 			<i><xsl:attribute name="class">icon-<xsl:value-of select="@icon" /></xsl:attribute></i>
 			<b><xsl:value-of select="@name" /></b>
 		</span>

@@ -8,6 +8,13 @@
 	cursor: default;
 	color: #666;
 
+	&.disabled {
+		filter: grayscale(1);
+		opacity: .75;
+		
+		> * { cursor: default; }
+	}
+
 	&.open {
 		height: auto;
 

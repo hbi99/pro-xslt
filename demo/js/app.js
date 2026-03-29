@@ -1,10 +1,6 @@
 
-import Resize from "./resize.js"
-import Toolbar from "./toolbar.js"
-import Sidebar from "./sidebar.js"
-import XmlDoc from "./xml-doc.js"
-import XsltDoc from "./xslt-doc.js"
-import Output from "./output.js"
+import { Sidebar, Toolbar, Resize } from "./ui.js"
+import { XmlDoc, XsltDoc, Output } from "./workarea.js"
 
 (() => {
 
@@ -18,7 +14,6 @@ const App = {
 		// init modules
 		Object.keys(this).map(mod => this[mod].init ? this[mod].init(this) : void(0));
 		// init app
-		this.dispatch({ type: "set-processor" });
 		this.dispatch({ type: "load-ledger" });
 		// bind event handlers
 		$(document).on("click", "[data-click]", this.dispatch);
@@ -26,13 +21,14 @@ const App = {
 	dispatch(event) {
 		let Self = App,
 			type,
+			arg,
 			pEl,
 			el;
 		switch (event.type) {
 			// native events
 			case "click":
 				el = $(event.target);
-				type = el.data("click");
+				type = el.parents("?[data-click]").data("click");
 				if (el.hasClass("disabled")) return;
 				// prevent default behaviour
 				event.stopPropagation();
@@ -43,29 +39,32 @@ const App = {
 					el.toggleClass("on", isOn);
 				}
 				if (el.parent().hasClass("options")) {
-					console.log(el);
+					if (el.hasClass("on")) return;
+					el.parent().find(".on").removeClass("on");
+					el.addClass("on");
+				}
+
+				if (el.data("arg")) {
+					arg = el.data("arg");
 				}
 
 				pEl = el.parents("?[data-area]");
 				if (pEl.length) {
 					// proxy event
-					Self[pEl.data("area")].dispatch({ el, type, orgEvent: event });
+					Self[pEl.data("area")].dispatch({ el, type, arg, orgEvent: event });
 				} else {
 					// falls through
-					Self.dispatch({ el, type, orgEvent: event });
+					Self.dispatch({ el, type, arg, orgEvent: event });
 				}
 				break;
 			// custom events
-			case "set-processor":
-				Self.useProxslt = (event.engine || "ProXslt") === "ProXslt";
-				Self.processor = Self.useProxslt ? new ProXslt : new XSLTProcessor;
-				break;
 			case "load-ledger":
 				$.fetch("./xml/ledger.xml").then(xDoc => {
 					let templates = xDoc.selectSingleNode("//xsl:stylesheet");
 					Self.templates = $.xmlFromString(templates.xml);
 					templates.parentNode.removeChild(templates);
 					// import templates
+					Self.processor = new ProXslt;
 					Self.processor.importStylesheet(Self.templates.documentElement);
 					// save reference to ledger
 					Self.ledger = xDoc.documentElement;
