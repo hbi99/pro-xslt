@@ -3191,7 +3191,7 @@ let $ = (function(window, document) {
 				};
 			}
 		},
-		fetch_: async function(path, options) {
+		fetch: async function(path, options) {
 			let request = await fetch(path, options),
 				contentType = request.headers.get("Content-Type"),
 				kind = path.slice(path.lastIndexOf(".")+1),

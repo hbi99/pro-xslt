@@ -15,6 +15,10 @@ const Toolbar = {
 				value = App.els.layout.hasClass("hide-sidebar");
 				App.els.layout.toggleClass("hide-sidebar", value);
 				break;
+			case "toggle-theme":
+				value = event.el.hasClass("on") ? "dark" : "light";
+				App.els.body.data({ theme: value });
+				break;
 			case "set-processor":
 				console.log(event);
 				break;

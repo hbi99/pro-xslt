@@ -1,0 +1,73 @@
+
+body[data-theme="dark"] {
+	background: #666;
+	color: #eee;
+
+	a {
+		color: #f70;
+	}
+
+	.layout {
+		.tool {
+			color: #eee;
+
+			&.button {
+				background: #fff1;
+			}
+
+			&.toggle {
+				background: #fff1;
+			}
+
+			&.options {
+				> label,
+				> span {
+					box-shadow: inset 0 0 0 2px #fff1;
+				}
+
+				> span {
+					&:hover {
+						color: #fff;
+					}
+				}
+			}
+
+			i {
+				color: #ddd;
+			}
+		}
+
+		.leaf {
+			color: #ddd;
+
+			> span {
+				&:hover {
+					> b {
+						background: #fff1;
+						color: #fff;
+					}
+				}
+
+				> i {
+					text-shadow: 0 1px 0 #0002;
+
+					&.icon-book {
+						color: #9e9;
+					}
+
+					&.icon-file-code-o {
+						color: #aaa;
+					}
+				}
+			}
+		}
+
+		.output {
+			background: #555;
+		}
+
+		.footer {
+			color: #aaa;
+		}
+	}
+}
