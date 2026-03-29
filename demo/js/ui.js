@@ -7,11 +7,17 @@ export const Sidebar = {
 	dispatch(event) {
 		let Self = Sidebar,
 			App = Self.app,
+			value, xDoc, 
 			el;
 		// console.log(event);
 		switch (event.type) {
 			case "select-tree-item":
-				console.log(event);
+				// UI update
+				App.els.sidebar.find(".active").removeClass("active");
+				event.el.parents("?.leaf").get(0).addClass("active");
+
+				value = `../tests/fixture/xsl-attribute/attribute-via-body.xml`;
+				$.fetch(value).then(res => App.xmlDoc.dispatch({ type: "parse-xml-fixture", res }));
 				break;
 		}
 	}

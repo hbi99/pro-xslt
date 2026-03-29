@@ -10,6 +10,7 @@ const App = {
 		this.els = {
 			body: $("body"),
 			layout: $(".layout"),
+			sidebar: $(".sidebar"),
 		};
 		// init modules
 		Object.keys(this).map(mod => this[mod].init ? this[mod].init(this) : void(0));
@@ -77,6 +78,9 @@ const App = {
 						match: `//Tree`,
 						target: Self.els.layout.find(".sidebar"),
 					});
+
+					// temp test
+					setTimeout(() => Self.els.layout.find(".leaf").get(5).trigger("click"), 200);
 				});
 				break;
 			case "render-template":

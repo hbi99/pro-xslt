@@ -8,6 +8,14 @@
 	cursor: default;
 	color: #666;
 
+	&.active {
+		> span > b,
+		> span:hover > b {
+			background: #f70;
+			color: #fff;
+		}
+	}
+
 	&.disabled {
 		filter: grayscale(1);
 		opacity: .75;
