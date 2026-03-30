@@ -73,13 +73,8 @@ const App = {
 					Self.ledger = xDoc.documentElement;
 					// console.log(Self.ledger);
 
-					// auto render tree
-					Self.dispatch({
-						type: "render-template",
-						template: "tree",
-						match: `//Tree`,
-						target: Self.els.layout.find(".sidebar"),
-					});
+					// render tree
+					Self.sidebar.dispatch({ type: "init-tree" });
 
 					// temp test
 					setTimeout(() => Self.els.layout.find(".leaf").get(5).trigger("click"), 200);

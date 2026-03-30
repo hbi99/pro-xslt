@@ -2,7 +2,6 @@
 // tree
 .leaf {
 	font-size: 0;
-	height: 21px;
 	line-height: 1;
 	margin-bottom: 1px;
 	cursor: default;
@@ -24,7 +23,6 @@
 	}
 
 	&.open {
-		height: auto;
 
 		> span {
 			> i {
@@ -46,7 +44,7 @@
 		}
 
 		> .children {
-			height: auto;
+			max-height: 999px;
 		}
 	}
 
@@ -116,9 +114,10 @@
 
 	> .children {
 		// background: #0001;
-		height: 0;
+		max-height: 0;
 		overflow: hidden;
 		padding-left: 13px;
 		margin-bottom: -1px;
+		transition: max-height 120ms ease-in-out;
 	}
 }

@@ -1,6 +1,6 @@
 
 body[data-theme="dark"] {
-	background: #666;
+	background: #345;
 	color: #eee;
 
 	a {
@@ -12,21 +12,35 @@ body[data-theme="dark"] {
 			color: #eee;
 
 			&.button {
-				background: #fff1;
+				background: #0003;
 			}
 
 			&.toggle {
-				background: #fff1;
+				background: #0003;
+
+				> span {
+					background: #446;
+				}
 			}
 
 			&.options {
 				> label,
 				> span {
-					box-shadow: inset 0 0 0 2px #fff1;
+					box-shadow: inset 0 0 0 2px #0003;
 				}
 
 				> span {
+					background: #446;
+					color: #cce;
+
 					&:hover {
+						color: #fff;
+					}
+
+					&:focus,
+					&:active,
+					&.on {
+						background: #0003;
 						color: #fff;
 					}
 				}
@@ -38,7 +52,21 @@ body[data-theme="dark"] {
 		}
 
 		.leaf {
-			color: #ddd;
+			color: #97c;
+
+			&.active {
+				> span > b,
+				> span:hover > b {
+					background: #353;
+					color: #bfb;
+				}
+
+				> i {
+					&.icon-file {
+						color: #bfb;
+					}
+				}
+			}
 
 			> span {
 				&:hover {
@@ -50,20 +78,76 @@ body[data-theme="dark"] {
 
 				> i {
 					text-shadow: 0 1px 0 #0002;
+					color: #558;
 
 					&.icon-book {
 						color: #9e9;
 					}
 
-					&.icon-file-code-o {
-						color: #aaa;
+					&.icon-file {
+						color: #97c;
 					}
 				}
 			}
 		}
 
-		.output {
-			background: #555;
+		.middle {
+			.sidebar {
+				background: #2c3441;
+				box-shadow: inset 0 0 0 1px #7993c545;
+			}
+
+			.workarea {
+				.xml-doc {
+					box-shadow: inset 0 0 0 1px #7993c545;
+				}
+
+				.xslt-doc {
+					box-shadow: inset 0 0 0 1px #7993c545;
+				}
+			}
+
+			.output {
+				background: #3a4a5a;
+				box-shadow: inset 0 0 0 1px #7993c545;
+			}
+
+			.editors {
+				.CodeMirror {
+					background: #282a36;
+					color: #f8f8f2;
+
+					.CodeMirror-gutters {
+						border-right: 1px dashed #5587;
+					}
+
+					.CodeMirror-gutters { color: #282a36; }
+					.CodeMirror-cursor { border-left: solid thin #f8f8f0; }
+					.CodeMirror-linenumber { color: #6D8A88; }
+					.CodeMirror-selected { background: rgba(255, 255, 255, 0.10); }
+					.CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: rgba(255, 255, 255, 0.10); }
+					.CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: rgba(255, 255, 255, 0.10); }
+					span.cm-comment { color: #6272a4; }
+					span.cm-string, span.cm-string-2 { color: #f1fa8c; }
+					span.cm-number { color: #bd93f9; }
+					span.cm-variable { color: #50fa7b; }
+					span.cm-variable-2 { color: white; }
+					span.cm-def { color: #50fa7b; }
+					span.cm-operator { color: #ff79c6; }
+					span.cm-keyword { color: #ff79c6; }
+					span.cm-atom { color: #bd93f9; }
+					span.cm-meta { color: #f8f8f2; }
+					span.cm-tag { color: #ff79c6; }
+					span.cm-attribute { color: #50fa7b; }
+					span.cm-qualifier { color: #50fa7b; }
+					span.cm-property { color: #66d9ef; }
+					span.cm-builtin { color: #50fa7b; }
+					span.cm-variable-3, span.cm-type { color: #ffb86c; }
+
+					.CodeMirror-activeline-background { background: rgba(255,255,255,0.1); }
+					.CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }
+				}
+			}
 		}
 
 		.footer {

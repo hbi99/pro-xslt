@@ -130,6 +130,7 @@
 
 <xsl:template name="leaf">
 	<div class="leaf">
+		<xsl:attribute name="data-id"><xsl:value-of select="@_id" /></xsl:attribute>
 		<xsl:if test="@state">
 			<xsl:attribute name="class">leaf <xsl:value-of select="@state" /></xsl:attribute>
 		</xsl:if>

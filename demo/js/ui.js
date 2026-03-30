@@ -11,7 +11,24 @@ export const Sidebar = {
 			el;
 		// console.log(event);
 		switch (event.type) {
+			case "init-tree":
+				// set leaf id
+				App.ledger.selectNodes(`//Tree//*`).map((xLeaf, i) => xLeaf.setAttribute("_id", i+1));
+				// auto render tree
+				App.dispatch({
+					type: "render-template",
+					template: "tree",
+					match: `//Tree`,
+					target: App.els.layout.find(".sidebar"),
+				});
+				break;
 			case "select-tree-item":
+				el = $(event.orgEvent.target);
+				if (el.hasClass("icon-chevron-right")) {
+					let leaf = el.parents(".leaf").get(0);
+					leaf.toggleClass("open", leaf.hasClass("open"));
+					return;
+				}
 				// UI update
 				App.els.sidebar.find(".active").removeClass("active");
 				el = event.el.parents("?.leaf").get(0);
