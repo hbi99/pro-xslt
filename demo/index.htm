@@ -43,29 +43,33 @@
 		</div>
 	</div>
 	<div class="divider locked"></div>
-	<div class="workarea">
+	<div class="middle">
 		<div class="sidebar" data-area="sidebar" data-click="select-tree-item">
 			<!-- tree goes here -->
 		</div>
 		<div class="divider vertical"></div>
-		<div class="xml-doc" data-area="editor">
-			<!-- XML code goes here -->
+		<div class="editors">
+			<div class="workarea">
+				<div class="xml-doc" data-area="editor">
+					<!-- XML code goes here -->
+				</div>
+				<div class="divider vertical"></div>
+				<div class="xslt-doc" data-area="editor">
+					<!-- XSLT code goes here -->
+				</div>
+			</div>
+			<div class="divider horisontal">
+				<span class="tool options" data-click="set-output-mode" data-area="output">
+					<span data-arg="html" class="on">HTML</span>
+					<span data-arg="rendered">Rendered</span>
+				</span>
+			</div>
+			<div class="output" data-area="output" data-view="html">
+				<!-- transformed output goes here -->
+				<div class="html"></div>
+				<div class="rendered"></div>
+			</div>
 		</div>
-		<div class="divider vertical"></div>
-		<div class="xslt-doc" data-area="editor">
-			<!-- XSLT code goes here -->
-		</div>
-	</div>
-	<div class="divider horisontal">
-		<span class="tool options" data-click="set-output-mode" data-area="output">
-			<span data-arg="html" class="on">HTML</span>
-			<span data-arg="rendered">Rendered</span>
-		</span>
-	</div>
-	<div class="output" data-area="output" data-view="html">
-		<!-- transformed output goes here -->
-		<div class="html"></div>
-		<div class="rendered"></div>
 	</div>
 	<div class="footer">
 		<div class="layout-left">Created with <i class="icon-heart"></i> in Sweden</div>

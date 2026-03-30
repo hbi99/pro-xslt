@@ -255,7 +255,7 @@ a {
 		display: flex;
 	}
 
-	.workarea {
+	.middle {
 		border-radius: 7px;
 		flex: 1;
 		display: flex;
@@ -272,26 +272,39 @@ a {
 						opacity 200ms ease-in-out;
 		}
 
-		.xml-doc {
-			background: #9991;
-			box-shadow: inset 0 0 0 1px #0001;
-			position: relative;
-			width: calc( 50% - 140px );
-			padding: 1px;
-			border-radius: inherit;
-			border-top-right-radius: 0;
-			border-bottom-right-radius: 0;
-		}
-
-		.xslt-doc {
-			background: #9991;
-			box-shadow: inset 0 0 0 1px #0001;
-			position: relative;
+		.editors {
 			flex: 1;
-			padding: 1px;
+			display: flex;
+			flex-direction: column;
 			border-radius: inherit;
-			border-top-left-radius: 0;
-			border-bottom-left-radius: 0;
+
+			.workarea {
+				flex: 1;
+				display: flex;
+				border-radius: inherit;
+
+				.xml-doc {
+					background: #9991;
+					box-shadow: inset 0 0 0 1px #0001;
+					position: relative;
+					width: calc( 50% - 140px );
+					padding: 1px;
+					border-radius: inherit;
+					border-top-right-radius: 0;
+					border-bottom-right-radius: 0;
+				}
+
+				.xslt-doc {
+					background: #9991;
+					box-shadow: inset 0 0 0 1px #0001;
+					position: relative;
+					flex: 1;
+					padding: 1px;
+					border-radius: inherit;
+					border-top-left-radius: 0;
+					border-bottom-left-radius: 0;
+				}
+			}
 		}
 	}
 
