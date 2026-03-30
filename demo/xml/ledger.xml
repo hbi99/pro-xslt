@@ -60,7 +60,7 @@
 				<i icon="file" type="xml" name="named-format-numbers" />
 				<i icon="file" type="xml" name="custom-decimal-separators" />
 			</i>
-			<i icon="folder" name="xsl-for-each" state="open">
+			<i icon="folder" name="xsl-for-each" state1="open">
 				<i icon="file" type="xml" name="switch-named-templates" />
 				<i icon="file" type="xml" name="sort-with-commas" />
 				<i icon="file" type="xml" name="sort-with-hyphens" />

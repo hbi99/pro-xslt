@@ -13,10 +13,15 @@
 			background: #f70;
 			color: #fff;
 		}
+				
+		> span > i {
+			&.icon-file {
+				color: #f70;
+			}
+		}
 	}
 
 	&.disabled {
-		filter: grayscale(1);
 		opacity: .75;
 		
 		> * { cursor: default; }
@@ -45,6 +50,7 @@
 
 		> .children {
 			max-height: 999px;
+			transition: max-height 350ms ease-in;
 		}
 	}
 
@@ -118,6 +124,6 @@
 		overflow: hidden;
 		padding-left: 13px;
 		margin-bottom: -1px;
-		transition: max-height 120ms ease-in-out;
+		transition: max-height 200ms ease-in-out;
 	}
 }

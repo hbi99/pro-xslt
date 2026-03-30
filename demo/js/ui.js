@@ -26,7 +26,17 @@ export const Sidebar = {
 				el = $(event.orgEvent.target);
 				if (el.hasClass("icon-chevron-right")) {
 					let leaf = el.parents(".leaf").get(0);
-					leaf.toggleClass("open", leaf.hasClass("open"));
+					let target = leaf.find(".children:first");
+					if (!target[0].childNodes.length) {
+						// render childnodes
+						App.dispatch({
+							type: "render-template",
+							template: "tree",
+							match: `//Tree//*[@_id="${leaf.data("id")}"]`,
+							target,
+						});
+					}
+					setTimeout(() => leaf.toggleClass("open", leaf.hasClass("open")), 20);
 					return;
 				}
 				// UI update
