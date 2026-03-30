@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Pro-XSLT | Hakan Bilgin</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Design Liquido Branding Meta Tags -->
 <meta name="description" content="Interactive XSLT transformation testing tool by Hakan Bilgin">
 <meta property="og:title" content="Pro-XSLT - Interactive Test">
 <meta property="og:description" content="Interactive XSLT transformation testing tool by Hakan Bilgin">
@@ -18,9 +17,9 @@
 <script src="js/codemirror/mode/xml.js"></script>
 <script src="js/junior.js"></script>
 <script src="../dist/pro-xslt.umd.js"></script>
-<script src="js/app.js" type="module"></script>
+<script src="js/app.min.js"></script>
 </head>
-<body data-theme="dark1">
+<body data-theme="dark">
 
 <div class="layout">
 	<div class="toolbar" data-area="toolbar">
@@ -37,7 +36,7 @@
 			</span>
 		</div>
 		<div class="layout-right">
-			<span class="tool toggle" data-click="toggle-theme">
+			<span class="tool toggle on" data-click="toggle-theme">
 				<i class="icon-sun"></i>
 				<span>Theme</span>
 				<i class="icon-brightness-contrast"></i>
@@ -71,7 +70,7 @@
 					<textarea><!-- transformed HTML output goes here --></textarea>
 				</div>
 				<div class="rendered">
-					<textarea><!-- rendered output goes here --></textarea>
+					<!-- rendered output goes here -->
 				</div>
 			</div>
 		</div>

@@ -30,4 +30,12 @@ export default [
             banner,
         },
     },
+    {
+        input: 'demo/js/app.js',
+        // plugins: [terser({ maxWorkers: 1 })],
+        output: {
+            file: 'demo/js/app.min.js',
+            format: 'umd',
+        },
+    },
 ];

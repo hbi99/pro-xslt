@@ -41,39 +41,6 @@ export const Editor = {
 				Self.xsltEditor = CodeMirror.fromTextArea(Self.els.xsltDoc[0], { mode: "text/html", lineNumbers: true });
 				Output.htmlView = CodeMirror.fromTextArea(Output.els.html[0], { mode: "text/html", lineNumbers: true, readOnly: true });
 				break;
-			case "init-editor-monaco":
-				// Initialize Monaco Editor
-		        require.config({ paths: { vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs" } });
-
-		        require(["vs/editor/editor.main"], function () {
-		        	// Define editor theme
-		            monaco.editor.defineTheme("xslt-theme", {
-		                base: "vs",
-		                inherit: true,
-		                rules: [],
-		                colors: {
-		                	"editor.background": "#ffffff00",
-		                }
-		            });
-
-		            let commonOptions = {
-		                theme: "xslt-theme",
-		                minimap: { enabled: false },
-		                fontSize: 12,
-		                lineNumbers: "on",
-		                scrollBeyondLastLine: false,
-		                automaticLayout: true,
-		                tabSize: 3,
-		                insertSpaces: true,
-		                wordWrap: "on",
-		                padding: { top: 10 }
-		            };
-
-		            Self.xmlEditor = monaco.editor.create(Self.els.xmlDoc[0], { ...commonOptions, language: "xml" });
-		            Self.xsltEditor = monaco.editor.create(Self.els.xsltDoc[0], { ...commonOptions, language: "xml" });
-		            Output.htmlView = monaco.editor.create(Output.els.html[0], { ...commonOptions, language: "html", readOnly: true });
-       			});
-				break;
 		}
 	}
 };
@@ -87,7 +54,7 @@ export const Output = {
 		this.els = {
 			output: $(".output"),
 			html: $(".output .html textarea"),
-			rendered: $(".output .rendered textarea"),
+			rendered: $(".output .rendered"),
 		};
 		// set processor
 		this.dispatch({ type: "set-processor" });
@@ -117,7 +84,7 @@ export const Output = {
 				
 				if (fragment) span.appendChild(fragment);
 				Output.htmlView.setValue(span.innerHTML);
-				console.log(span.innerHTML);
+				Output.els.rendered.html(span.innerHTML);
 				break;
 		}
 	}
