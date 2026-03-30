@@ -1,6 +1,6 @@
 
 import { Sidebar, Toolbar, Resize } from "./ui.js"
-import { XmlDoc, XsltDoc, Output } from "./workarea.js"
+import { Editor, Output } from "./workarea.js"
 
 (() => {
 
@@ -86,9 +86,9 @@ const App = {
 			case "render-template":
 				let span = document.createElement("span");
 			    let template = Self.templates.selectSingleNode(`//xsl:template[@name='${event.template}']`);
-			    template.setAttribute('match', event.match);
+			    template.setAttribute("match", event.match);
 			    let fragment = Self.processor.transformToFragment(Self.ledger, document);
-			    template.removeAttribute('match');
+			    template.removeAttribute("match");
 				
 				if (fragment) span.appendChild(fragment);
 				event.target.html(span.innerHTML);
@@ -98,8 +98,7 @@ const App = {
 	resize: Resize,
 	toolbar: Toolbar,
 	sidebar: Sidebar,
-	xmlDoc: XmlDoc,
-	xsltDoc: XsltDoc,
+	editor: Editor,
 	output: Output,
 };
 

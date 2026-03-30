@@ -4,7 +4,7 @@ import { loadXml } from './utils/common.js';
 
 describe('xsl:for-each', () => {
     it('iterates selected nodes in document order', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-foreach/iterate-document-order.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-for-each/iterate-document-order.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -13,7 +13,7 @@ describe('xsl:for-each', () => {
     });
 
     it('supports xsl:sort text ascending', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-foreach/sort-text-ascending.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-for-each/sort-text-ascending.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -22,7 +22,7 @@ describe('xsl:for-each', () => {
     });
 
     it('supports xsl:sort number descending', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-foreach/sort-numbers-descending.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-for-each/sort-numbers-descending.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -31,7 +31,7 @@ describe('xsl:for-each', () => {
     });
 
     it('supports xsl:sort number descending with separator comma', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-foreach/sort-with-commas.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-for-each/sort-with-commas.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -40,7 +40,7 @@ describe('xsl:for-each', () => {
     });
 
     it('supports xsl:sort number descending with separator hyphen', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-foreach/sort-with-hyphens.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-for-each/sort-with-hyphens.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -49,7 +49,7 @@ describe('xsl:for-each', () => {
     });
 
     it('should test support for current() function', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-foreach/current-in-sort-test.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-for-each/current-in-sort-test.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -58,7 +58,7 @@ describe('xsl:for-each', () => {
     });
 
     it('should render advanced cross reference with current() function', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-foreach/dock-name-resolution.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-for-each/dock-name-resolution.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -70,7 +70,7 @@ describe('xsl:for-each', () => {
     });
 
     it('should honor deep nested attribute', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-foreach/dock-div-attributes.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-for-each/dock-div-attributes.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
         let fragment = proXslt.transformToFragment(xmlDoc, document);
@@ -82,7 +82,7 @@ describe('xsl:for-each', () => {
     });
 
     it('should switch template and render different content', async () => {
-        let { xmlDoc, xslDoc } = loadXml(`xsl-foreach/switch-named-templates.xml`);
+        let { xmlDoc, xslDoc } = loadXml(`xsl-for-each/switch-named-templates.xml`);
         let proXslt = new ProXslt();
         proXslt.importStylesheet(xslDoc);
 

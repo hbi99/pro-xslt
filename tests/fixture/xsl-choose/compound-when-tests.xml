@@ -1,4 +1,4 @@
-<Scheme>
+<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<Description><![CDATA[supports =, or, > in xsl:when tests with variables]]></Description>
 	<Monkey>
 		<User id="demo" account-type="1"/>

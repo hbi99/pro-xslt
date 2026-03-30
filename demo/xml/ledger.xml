@@ -2,114 +2,114 @@
 	<Tree>
 		<i icon="book" name="XSLT v1.0" state="open">
 			<i icon="folder" name="functions">
-				<i icon="file" name="recursive-sidebar-paths" />
-				<i icon="file" name="pack-cross-reference" />
-				<i icon="file" name="load-resources" />
-				<i icon="file" name="generate-id" />
-				<i icon="file" name="key-registry-lookup" />
-				<i icon="file" name="format-numbers" />
+				<i icon="file" type="xml" name="recursive-sidebar-paths" />
+				<i icon="file" type="xml" name="pack-cross-reference" />
+				<i icon="file" type="xml" name="load-resources" />
+				<i icon="file" type="xml" name="generate-id" />
+				<i icon="file" type="xml" name="key-registry-lookup" />
+				<i icon="file" type="xml" name="format-numbers" />
 			</i>
 			<i icon="folder" name="html" state="open">
-				<i icon="file" name="raw-html-output" />
-				<i icon="file" name="match-text-template" />
-				<i icon="file" name="escaped-html-output" />
-				<i icon="file" name="html-text-nodes" />
+				<i icon="file" type="xml" name="raw-html-output" />
+				<i icon="file" type="xml" name="match-text-template" />
+				<i icon="file" type="xml" name="escaped-html-output" />
+				<i icon="file" type="xml" name="html-text-nodes" />
 			</i>
 			<i icon="folder" name="importStylesheet-reset">
-				<i icon="file" name="reset-pass-one" />
-				<i icon="file" name="reset-pass-two" />
-				<i icon="file" name="reset-pass-three" />
+				<i icon="file" type="xml" name="reset-pass-one" />
+				<i icon="file" type="xml" name="reset-pass-two" />
+				<i icon="file" type="xml" name="reset-pass-three" />
 			</i>
 			<i icon="folder" name="simple">
-				<i icon="file" name="value-of-arithmetic" />
-				<i icon="file" name="output-node-text" />
-				<i icon="file" name="output-attribute-value" />
-				<i icon="file" name="cdata-html-content" />
+				<i icon="file" type="xml" name="value-of-arithmetic" />
+				<i icon="file" type="xml" name="output-node-text" />
+				<i icon="file" type="xml" name="output-attribute-value" />
+				<i icon="file" type="xml" name="cdata-html-content" />
 			</i>
 			<i icon="folder" name="xsl-attribute">
-				<i icon="file" name="attribute-via-select" />
-				<i icon="file" name="attribute-via-body" />
-				<i icon="file" name="attribute-body-text" />
+				<i icon="file" type="xml" name="attribute-via-select" />
+				<i icon="file" type="xml" name="attribute-via-body" />
+				<i icon="file" type="xml" name="attribute-body-text" />
 			</i>
 			<i icon="folder" name="xsl-attribute-set">
-				<i icon="file" name="literal-element-sets" />
-				<i icon="file" name="chained-attribute-sets" />
+				<i icon="file" type="xml" name="literal-element-sets" />
+				<i icon="file" type="xml" name="chained-attribute-sets" />
 			</i>
 			<i icon="folder" name="xsl-call-apply-templates">
-				<i icon="file" name="slice-padding-strings" />
-				<i icon="file" name="recursive-directory-paths" />
-				<i icon="file" name="named-template-context" />
-				<i icon="file" name="call-template-params" />
-				<i icon="file" name="apply-selected-nodes" />
+				<i icon="file" type="xml" name="slice-padding-strings" />
+				<i icon="file" type="xml" name="recursive-directory-paths" />
+				<i icon="file" type="xml" name="named-template-context" />
+				<i icon="file" type="xml" name="call-template-params" />
+				<i icon="file" type="xml" name="apply-selected-nodes" />
 			</i>
 			<i icon="folder" name="xsl-choose">
-				<i icon="file" name="when-with-variables" />
-				<i icon="file" name="compound-when-tests" />
-				<i icon="file" name="otherwise-branch" />
-				<i icon="file" name="first-when-branch" />
+				<i icon="file" type="xml" name="when-with-variables" />
+				<i icon="file" type="xml" name="compound-when-tests" />
+				<i icon="file" type="xml" name="otherwise-branch" />
+				<i icon="file" type="xml" name="first-when-branch" />
 			</i>
 			<i icon="folder" name="xsl-comment">
-				<i icon="file" name="comment-from-select" />
-				<i icon="file" name="comment-from-body" />
+				<i icon="file" type="xml" name="comment-from-select" />
+				<i icon="file" type="xml" name="comment-from-body" />
 			</i>
 			<i icon="folder" name="xsl-copy">
-				<i icon="file" name="shallow-copy-element" />
-				<i icon="file" name="copy-of-selection" />
+				<i icon="file" type="xml" name="shallow-copy-element" />
+				<i icon="file" type="xml" name="copy-of-selection" />
 			</i>
 			<i icon="folder" name="xsl-decimal-format">
-				<i icon="file" name="named-format-numbers" />
-				<i icon="file" name="custom-decimal-separators" />
+				<i icon="file" type="xml" name="named-format-numbers" />
+				<i icon="file" type="xml" name="custom-decimal-separators" />
 			</i>
-			<i icon="folder" name="xsl-foreach">
-				<i icon="file" name="switch-named-templates" />
-				<i icon="file" name="sort-with-commas" />
-				<i icon="file" name="sort-with-hyphens" />
-				<i icon="file" name="sort-numbers-descending" />
-				<i icon="file" name="sort-text-ascending" />
-				<i icon="file" name="dock-name-resolution" />
-				<i icon="file" name="iterate-document-order" />
-				<i icon="file" name="dock-div-attributes" />
-				<i icon="file" name="current-in-sort-test" />
-				<i icon="file" name="dock-apps-data" />
+			<i icon="folder" name="xsl-for-each" state="open">
+				<i icon="file" type="xml" name="switch-named-templates" />
+				<i icon="file" type="xml" name="sort-with-commas" />
+				<i icon="file" type="xml" name="sort-with-hyphens" />
+				<i icon="file" type="xml" name="sort-numbers-descending" />
+				<i icon="file" type="xml" name="sort-text-ascending" />
+				<i icon="file" type="xml" name="dock-name-resolution" />
+				<i icon="file" type="xml" name="iterate-document-order" />
+				<i icon="file" type="xml" name="dock-div-attributes" />
+				<i icon="file" type="xml" name="current-in-sort-test" />
+				<i icon="file" type="xml" name="dock-apps-data" />
 			</i>
 			<i icon="folder" name="xsl-if">
-				<i icon="file" name="variables-in-condition" />
-				<i icon="file" name="name-function-test" />
-				<i icon="file" name="function-in-condition" />
-				<i icon="file" name="condition-true-output" />
-				<i icon="file" name="condition-false-empty" />
+				<i icon="file" type="xml" name="variables-in-condition" />
+				<i icon="file" type="xml" name="name-function-test" />
+				<i icon="file" type="xml" name="function-in-condition" />
+				<i icon="file" type="xml" name="condition-true-output" />
+				<i icon="file" type="xml" name="condition-false-empty" />
 			</i>
 			<i icon="folder" name="xsl-import">
-				<i icon="file" name="import-local-precedence" />
+				<i icon="file" type="xml" name="import-local-precedence" />
 			</i>
 			<i icon="folder" name="xsl-include">
-				<i icon="file" name="include-common-templates" />
+				<i icon="file" type="xml" name="include-common-templates" />
 			</i>
 			<i icon="folder" name="xsl-key">
-				<i icon="file" name="large-facet-catalog" />
-				<i icon="file" name="keyed-facet-lookup" />
+				<i icon="file" type="xml" name="large-facet-catalog" />
+				<i icon="file" type="xml" name="keyed-facet-lookup" />
 			</i>
 			<i icon="folder" name="xsl-number">
-				<i icon="file" name="numbered-item-list" />
+				<i icon="file" type="xml" name="numbered-item-list" />
 			</i>
 			<i icon="folder" name="xsl-output-strip-space">
-				<i icon="file" name="strip-space-elements" />
-				<i icon="file" name="output-settings" />
+				<i icon="file" type="xml" name="strip-space-elements" />
+				<i icon="file" type="xml" name="output-settings" />
 			</i>
 			<i icon="folder" name="xsl-text">
-				<i icon="file" name="text-inside-if" />
-				<i icon="file" name="literal-text-output" />
+				<i icon="file" type="xml" name="text-inside-if" />
+				<i icon="file" type="xml" name="literal-text-output" />
 			</i>
 			<i icon="folder" name="xsl-validation">
-				<i icon="file" name="malformed-template.xsl" />
+				<i icon="file" type="xsl" name="malformed-template" />
 			</i>
 			<i icon="folder" name="xsl-variable">
-				<i icon="file" name="variable-with-select" />
-				<i icon="file" name="global-variable" />
-				<i icon="file" name="variable-expression" />
+				<i icon="file" type="xml" name="variable-with-select" />
+				<i icon="file" type="xml" name="global-variable" />
+				<i icon="file" type="xml" name="variable-expression" />
 			</i>
-			<i icon="folder" name="included-common.xsl" />
-			<i icon="folder" name="imported-base.xsl" />
+			<i icon="folder" type="xsl" name="included-common" />
+			<i icon="folder" type="xsl" name="imported-base" />
 		</i>
 		<i icon="book" name="XSLT v2.0" state="disabled"/>
 		<i icon="book" name="XSLT v3.0" state="disabled" />
@@ -134,6 +134,9 @@
 			<xsl:attribute name="class">leaf <xsl:value-of select="@state" /></xsl:attribute>
 		</xsl:if>
 		<span>
+			<xsl:if test="@type">
+				<xsl:attribute name="data-type"><xsl:value-of select="@type" /></xsl:attribute>
+			</xsl:if>
 			<i><xsl:attribute name="class"><xsl:choose>
 				<xsl:when test="count(./*) &gt; 0">icon-chevron-right</xsl:when>
 				<xsl:otherwise>tree-blank</xsl:otherwise>

@@ -1,13 +1,13 @@
-<Scheme>
-	<Description><![CDATA[supports xsl:sort number descending with separator comma]]></Description>
-	<page><n>10</n><n>2</n><n>30</n></page>
+<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<Description><![CDATA[should test support for current() function]]></Description>
+	<page><n>10</n><n id="2">2</n><n>30</n></page>
 	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 		<xsl:template match="/page">
 			<xsl:for-each select="n">
 				<xsl:sort select="." data-type="number" order="descending" />
 				<xsl:value-of select="." />
-				<xsl:if test="position() != last()">
-					<xsl:text>,</xsl:text>
+				<xsl:if test="current()/@id = 2">
+					<xsl:text> - </xsl:text>
 				</xsl:if>
 			</xsl:for-each>
 		</xsl:template>

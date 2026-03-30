@@ -1,4 +1,4 @@
-<Scheme>
+<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<Description><![CDATA[reads xsl:output settings from stylesheet]]></Description>
 	<root><item>ok</item></root>
 	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">

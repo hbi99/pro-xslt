@@ -1,4 +1,4 @@
-<Scheme>
+<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<Description><![CDATA[resolves keyed lookups against large facet fixture]]></Description>
 	<ExternalSource href="large-facet-catalog.xml"/>
 	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">

@@ -1,4 +1,4 @@
-<Scheme>
+<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<Description><![CDATA[should make cross reference to a node with `key` and use it as variable]]></Description>
 
 	<Monkey>

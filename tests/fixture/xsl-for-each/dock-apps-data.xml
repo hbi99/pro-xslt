@@ -1,4 +1,4 @@
-<data>
+<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<Settings>
 		<Apps>
 			<i ns="ant" id="othello" name="Othello"/>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <catalog generated="true" version="1">
   <product id="P-0001" category="electronics" region="na" status="inactive" tier="pro"><name>Item 0001 electronics na</name><price currency="USD">4.99</price><owner>owner-01</owner><tag>electronics-pro</tag></product>
   <product id="P-0002" category="garden" region="apac" status="archived" tier="enterprise"><name>Item 0002 garden apac</name><price currency="USD">5.99</price><owner>owner-02</owner><tag>garden-enterprise</tag></product>

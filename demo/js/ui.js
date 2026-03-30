@@ -14,10 +14,16 @@ export const Sidebar = {
 			case "select-tree-item":
 				// UI update
 				App.els.sidebar.find(".active").removeClass("active");
-				event.el.parents("?.leaf").get(0).addClass("active");
+				el = event.el.parents("?.leaf").get(0);
+				el.addClass("active");
 
-				value = `../tests/fixture/xsl-attribute/attribute-via-body.xml`;
-				$.fetch(value).then(res => App.xmlDoc.dispatch({ type: "parse-xml-fixture", res }));
+				let folder = el.parents(".leaf").get(0).find("> span > b").text(),
+					name = el.find("> span > b").text(),
+					type = el.find("> span").data("type");
+				if (type) {
+					$.fetch(`../tests/fixture/${folder}/${name}.${type}`)
+						.then(res => App.editor.dispatch({ type: "parse-xml-fixture", res }));
+				}
 				break;
 		}
 	}
@@ -63,9 +69,9 @@ export const Resize = {
 		};
 		// resize constraints for areas
 		this.constrains = {
-			tree: { min: { x: 100 }, max: { x: 300 } },
-			xmlDoc: { min: { x: 200 }, max: { x: 600 } },
-			workarea: { min: { x: 600 }, max: { x: 1050 } },
+			"sidebar": { min: { x: 100 }, max: { x: 300 } },
+			"xml-doc": { min: { x: 500 }, max: { x: 1050 } },
+			"workarea": { min: { y: 600 }, max: { y: 1050 } },
 		};
 		// bind event handlers
 		$(".divider").on("mousedown", this.dispatch);
@@ -91,14 +97,7 @@ export const Resize = {
 						x : event.clientX - off.left - event.offsetX - 14,
 						y : event.clientY - off.top - event.offsetY - 14,
 					},
-					min = {
-						x: 440,
-						y: 500
-					},
-					max = {
-						x: 950,
-						y: 1050
-					};
+					{ min, max } = Resize.constrains[bEl.prop("className").split(" ")[0]];
 				// insert clone in to DOM and cover body
 				Resize.els.body.addClass("covered").append(el);
 				el = Resize.els.body.find(".clone");

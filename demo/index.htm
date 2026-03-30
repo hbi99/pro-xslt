@@ -30,8 +30,8 @@
 		<div class="layout-middle">
 			<span class="tool options" data-click="set-processor">
 				<label class="disabled">Processor</label>
-				<span data-arg="native">Native</span>
 				<span data-arg="pro-xslt" class="on">Pro-Xslt</span>
+				<span data-arg="native">Native</span>
 			</span>
 		</div>
 		<div class="layout-right">
@@ -48,11 +48,11 @@
 			<!-- tree goes here -->
 		</div>
 		<div class="divider vertical"></div>
-		<div class="xml-doc" data-area="xml-doc">
+		<div class="xml-doc" data-area="editor">
 			<!-- XML code goes here -->
 		</div>
 		<div class="divider vertical"></div>
-		<div class="xslt-doc" data-area="xslt-doc">
+		<div class="xslt-doc" data-area="editor">
 			<!-- XSLT code goes here -->
 		</div>
 	</div>
@@ -62,19 +62,24 @@
 			<span data-arg="rendered">Rendered</span>
 		</span>
 	</div>
-	<div class="output" data-area="output">
+	<div class="output" data-area="output" data-view="html">
 		<!-- transformed output goes here -->
+		<div class="html"></div>
+		<div class="rendered"></div>
 	</div>
 	<div class="footer">
 		<div class="layout-left">Created with <i class="icon-heart"></i> in Sweden</div>
-		<div class="layout-middle">
-			<i class="icon-hb" title="Hakan Bilgin"></i>
+		<div class="layout-middle" title="Hakan Bilgin">
+			<i class="icon-hb"></i>
 		</div>
 		<div class="layout-right">
 			Powered by <a href="//github.com/hbi99/pro-xslt" target="_new">Pro-XSLT</a>
 		</div>
 	</div>
 </div>
+
+<!-- Monaco Editor -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
 
 </body>
 </html>

@@ -1,4 +1,4 @@
-<Scheme>
+<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<Description><![CDATA[calls a named template with the current context node]]></Description>
 	<page><item>Hi</item><item>Bye</item></page>
 	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
