@@ -5,11 +5,11 @@ export const Editor = {
 		this.app = app;
 		// fast references
 		this.els = {
-			xmlDoc: $(".xml-doc"),
-			xsltDoc: $(".xslt-doc"),
+			xmlDoc: $(".xml-doc textarea"),
+			xsltDoc: $(".xslt-doc textarea"),
 		};
-		// init editors
-		this.dispatch({ type: "init-editor" });
+		// empty textarea content
+		$("textarea").val("");
 	},
 	dispatch(event) {
 		let Self = Editor,
@@ -36,7 +36,12 @@ export const Editor = {
 				// render xslt
 				Output.dispatch({ type: "render-xslt" });
 				break;
-			case "init-editor":
+			case "init-editors":
+				Self.xmlEditor = CodeMirror.fromTextArea(Self.els.xmlDoc[0], { mode: "text/html", lineNumbers: true });
+				Self.xsltEditor = CodeMirror.fromTextArea(Self.els.xsltDoc[0], { mode: "text/html", lineNumbers: true });
+				Output.htmlView = CodeMirror.fromTextArea(Output.els.html[0], { mode: "text/html", lineNumbers: true, readOnly: true });
+				break;
+			case "init-editor-monaco":
 				// Initialize Monaco Editor
 		        require.config({ paths: { vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs" } });
 
@@ -81,8 +86,8 @@ export const Output = {
 		// fast references
 		this.els = {
 			output: $(".output"),
-			html: $(".output .html"),
-			rendered: $(".output .rendered"),
+			html: $(".output .html textarea"),
+			rendered: $(".output .rendered textarea"),
 		};
 		// set processor
 		this.dispatch({ type: "set-processor" });

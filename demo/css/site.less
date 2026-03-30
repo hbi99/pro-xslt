@@ -2,6 +2,7 @@
 @import "./icon-font.less";
 @import "./tree.less";
 @import "./theme.less";
+@import "./codemirror.less";
 
 
 * {
@@ -41,6 +42,10 @@ body {
 a {
 	text-decoration: none;
 	color: #007bff;
+}
+
+textarea {
+	display: none;
 }
 
 
@@ -278,6 +283,11 @@ a {
 			flex-direction: column;
 			border-radius: inherit;
 
+			.CodeMirror {
+				height: 100%;
+				border-radius: inherit;
+			}
+
 			.workarea {
 				flex: 1;
 				display: flex;
@@ -326,6 +336,7 @@ a {
 			left: 1px;
 			right: 1px;
 			bottom: 1px;
+			border-radius: inherit;
 		}
 
 		.rendered {
@@ -336,6 +347,7 @@ a {
 			left: 1px;
 			right: 1px;
 			bottom: 1px;
+			border-radius: inherit;
 		}
 	}
 

@@ -14,6 +14,8 @@ const App = {
 		};
 		// init modules
 		Object.keys(this).map(mod => this[mod].init ? this[mod].init(this) : void(0));
+		// init editors
+		this.editor.dispatch({ type: "init-editors" });
 		// init app
 		this.dispatch({ type: "load-ledger" });
 		// bind event handlers

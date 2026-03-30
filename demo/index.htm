@@ -14,6 +14,8 @@
 <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
 <link rel="icon" href="img/favicon.ico" type="image/x-icon">
 <link href="css/site.css" rel="stylesheet">
+<script src="js/codemirror/codemirror.js"></script>
+<script src="js/codemirror/mode/xml.js"></script>
 <script src="js/junior.js"></script>
 <script src="../dist/pro-xslt.umd.js"></script>
 <script src="js/app.js" type="module"></script>
@@ -51,11 +53,11 @@
 		<div class="editors">
 			<div class="workarea">
 				<div class="xml-doc" data-area="editor">
-					<!-- XML code goes here -->
+					<textarea><!-- XML code goes here --></textarea>
 				</div>
 				<div class="divider vertical"></div>
 				<div class="xslt-doc" data-area="editor">
-					<!-- XSLT code goes here -->
+					<textarea><!-- XSLT code goes here --></textarea>
 				</div>
 			</div>
 			<div class="divider horisontal">
@@ -65,9 +67,12 @@
 				</span>
 			</div>
 			<div class="output" data-area="output" data-view="html">
-				<!-- transformed output goes here -->
-				<div class="html"></div>
-				<div class="rendered"></div>
+				<div class="html">
+					<textarea><!-- transformed HTML output goes here --></textarea>
+				</div>
+				<div class="rendered">
+					<textarea><!-- rendered output goes here --></textarea>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -81,9 +86,6 @@
 		</div>
 	</div>
 </div>
-
-<!-- Monaco Editor -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
 
 </body>
 </html>
