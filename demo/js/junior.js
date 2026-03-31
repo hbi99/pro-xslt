@@ -3433,7 +3433,7 @@ let $ = (function(window, document) {
 			var parser = new DOMParser(),
 				xdoc = parser.parseFromString(str, "application/xml");
 			if (xdoc.querySelector("parsererror")) {
-				console.error(`Parsererror: ${str}`);
+				throw `Parsererror: ${str}`;
 			}
 			return xdoc;
 		},
