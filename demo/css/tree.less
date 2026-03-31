@@ -28,7 +28,6 @@
 	}
 
 	&.open {
-
 		> span {
 			> i {
 				&.icon-chevron-right {
@@ -54,18 +53,20 @@
 		}
 	}
 
-	> span {
-		display: inline-block;
-		white-space: nowrap;
-		margin-bottom: 1px;
-		cursor: pointer;
-
+	&:not(.disabled) > span {
 		&:hover {
 			> b {
 				background: #0001;
 				color: #222;
 			}
 		}
+	}
+
+	> span {
+		display: inline-block;
+		white-space: nowrap;
+		margin-bottom: 1px;
+		cursor: pointer;
 
 		> i {
 			// background: #0001;
@@ -93,6 +94,10 @@
 				font-size: 16px;
 				padding-top: 3px;
 				color: #f70;
+
+				& + b {
+					color: #f70;
+				}
 			}
 
 			&.icon-folder {

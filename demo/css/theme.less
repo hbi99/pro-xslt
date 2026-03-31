@@ -123,6 +123,23 @@ body[data-theme="dark"] {
 				.xslt-doc {
 					box-shadow: inset 0 0 0 1px #7993c545;
 				}
+
+				.doc-state {
+					&.invalid {
+						background: #f005;
+						color: #ff7a7ab3;
+					}
+
+					&.valid {
+						background: #07980782;
+						color: #11b811b3;
+					}
+
+					span {
+						color: #fffb;
+						text-shadow: 0 0 3px #fff6;
+					}
+				}
 			}
 
 			.output {

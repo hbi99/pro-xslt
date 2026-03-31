@@ -39,9 +39,14 @@ export const Sidebar = {
 					setTimeout(() => leaf.toggleClass("open", leaf.hasClass("open")), 20);
 					return;
 				}
+				// get leaf item
+				el = event.el.parents("?.leaf").get(0);
+				// toggle folder icon
+				if (el.find("> span").data("type") != "xml") {
+					return el.find(".icon-chevron-right").trigger("click");
+				}
 				// UI update
 				App.els.sidebar.find(".active").removeClass("active");
-				el = event.el.parents("?.leaf").get(0);
 				el.addClass("active");
 
 				let folder = el.parents(".leaf").get(0).find("> span > b").text(),
