@@ -19,12 +19,12 @@
 <script src="../dist/pro-xslt.umd.js"></script>
 <script src="js/app.min.js"></script>
 </head>
-<body data-theme="dark">
+<body data-theme="dark1">
 
 <div class="layout">
 	<div class="toolbar" data-area="toolbar">
 		<div class="layout-left">
-			<span class="tool button" data-click="toggle-sidebar">
+			<span class="tool boolean on" data-click="toggle-sidebar">
 				<i class="icon-tree"></i>
 			</span>
 		</div>
@@ -33,6 +33,9 @@
 				<label class="disabled">Processor</label>
 				<span data-arg="pro-xslt" class="on">Pro-Xslt</span>
 				<span data-arg="native">Native</span>
+			</span>
+			<span class="tool boolean" data-click="toggle-info">
+				Info
 			</span>
 		</div>
 		<div class="layout-right">
@@ -50,9 +53,13 @@
 		</div>
 		<div class="divider vertical"></div>
 		<div class="editors">
+			<div class="description">
+				<i class="icon-info-circle"></i>
+				<span><!-- description goes here --></span>
+			</div>
 			<div class="workarea">
 				<div class="xml-doc" data-area="editor">
-					<textarea><!-- XML code goes here --></textarea>
+					<textarea id="xmlDoc"><!-- XML code goes here --></textarea>
 				</div>
 				<div class="divider vertical"></div>
 				<div class="xslt-doc" data-area="editor">

@@ -73,6 +73,10 @@ export const Toolbar = {
 				value = App.els.layout.hasClass("hide-sidebar");
 				App.els.layout.toggleClass("hide-sidebar", value);
 				break;
+			case "toggle-info":
+				value = App.els.layout.hasClass("show-info");
+				App.els.layout.toggleClass("show-info", value);
+				break;
 			case "toggle-theme":
 				value = event.el.hasClass("on") ? "dark" : "light";
 				App.els.body.data({ theme: value });

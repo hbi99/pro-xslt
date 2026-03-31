@@ -1,7 +1,7 @@
 
 body[data-theme="dark"] {
 	background: #345;
-	color: #eee;
+	color: #aae;
 
 	a {
 		color: #8ccfff;
@@ -9,17 +9,30 @@ body[data-theme="dark"] {
 
 	.layout {
 		.tool {
-			color: #eee;
+			color: #aae;
 
 			&.button {
 				background: #0003;
+			}
+
+			&.boolean {
+				background: none;
+				box-shadow: inset 0 0 0 2px #0003;
+
+				&:focus,
+				&:active,
+				&.on {
+					box-shadow: none;
+					background: #0003;
+					color: #aae;
+				}
 			}
 
 			&.toggle {
 				background: #0003;
 
 				> span {
-					background: #446;
+					background: #345;
 				}
 			}
 
@@ -30,24 +43,28 @@ body[data-theme="dark"] {
 				}
 
 				> span {
-					background: #446;
-					color: #cce;
+					background: #345;
+					color: #aae;
 
 					&:hover {
-						color: #fff;
+						color: #9e9;
 					}
 
 					&:focus,
 					&:active,
 					&.on {
 						background: #0003;
-						color: #fff;
+						color: #9e9;
+					}
+
+					&.on {
+						box-shadow: none;
 					}
 				}
 			}
 
 			i {
-				color: #ddd;
+				color: #aae;
 			}
 		}
 
@@ -71,14 +88,14 @@ body[data-theme="dark"] {
 			> span {
 				&:hover {
 					> b {
-						background: #fff1;
-						color: #fff;
+						background: #aea1;
+						color: #7b7;
 					}
 				}
 
 				> i {
 					text-shadow: 0 1px 0 #0002;
-					color: #558;
+					color: #548;
 
 					&.icon-book + b,
 					&.icon-book {
@@ -114,6 +131,16 @@ body[data-theme="dark"] {
 			}
 
 			.editors {
+				.description {
+					background: #6ed17055;
+					color: #35d14e;
+					box-shadow: inset 0 0 0 1px #00aa058c;
+
+					i.icon-info-circle {
+						color: #37cc4f8c;
+					}
+				}
+
 				.CodeMirror {
 					background: #282a36;
 					color: #f8f8f2;
@@ -152,7 +179,11 @@ body[data-theme="dark"] {
 		}
 
 		.footer {
-			color: #aaa;
+			color: #aae;
+
+			.icon-hb {
+				color: #234;
+			}
 		}
 	}
 }

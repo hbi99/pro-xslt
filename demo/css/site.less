@@ -45,7 +45,7 @@ a {
 }
 
 textarea {
-	display: none;
+	opacity: 0;
 }
 
 
@@ -112,6 +112,20 @@ textarea {
 		}
 	}
 
+	&.show-info {
+		.middle {
+			.editors {
+				.description {
+					padding-top: 9px;
+					padding-bottom: 7px;
+					margin-bottom: 5px;
+					height: 41px;
+					opacity: 1;
+				}
+			}
+		}
+	}
+
 	.layout-left {
 		width: 25%;
 		text-align: left;
@@ -151,17 +165,24 @@ textarea {
 					color: #fff;
 					text-shadow: 0 1px 0 #0001;
 				}
+			}
+		}
 
-				// &:before {
-				// 	content: "";
-				// 	background: #0001;
-				// 	position: absolute;
-				// 	top: 2px;
-				// 	left: 2px;
-				// 	right: 2px;
-				// 	bottom: 2px;
-				// 	border-radius: inherit;
-				// }
+		&.boolean {
+			background: #0001;
+			padding: 3px 11px;
+
+			&:focus,
+			&:active,
+			&.on {
+				background: #bbb;
+				color: #fff;
+
+				i[class^="icon-"],
+				i[class*=" icon-"] {
+					color: #fff;
+					text-shadow: 0 1px 0 #0001;
+				}
 			}
 		}
 
@@ -220,10 +241,11 @@ textarea {
 			> label {
 				box-shadow: inset 0 0 0 2px #0001;
 				cursor: default;
+				color: #aaa;
 			}
 
 			> span {
-				background: #5551;
+				// background: #5551;
 				box-shadow: inset 0 0 0 2px #0001;
 				cursor: pointer;
 
@@ -288,6 +310,27 @@ textarea {
 				border-radius: inherit;
 			}
 
+			.description {
+				background: #ffed0055;
+				height: 0;
+				opacity: 0;
+				padding: 0 11px;
+				margin-bottom: 0;
+				box-shadow: inset 0 0 0 1px #a006;
+				border-radius: inherit;
+				color: #a72b12;
+				transition: padding 200ms ease-in-out,
+							height 200ms ease-in-out,
+							opacity 200ms ease-in-out;
+
+				i.icon-info-circle {
+					position: relative;
+					top: 2px;
+					font-size: 16px;
+					color: #ffb888;
+				}
+			}
+
 			.workarea {
 				flex: 1;
 				display: flex;
@@ -297,7 +340,7 @@ textarea {
 					background: #9991;
 					box-shadow: inset 0 0 0 1px #0001;
 					position: relative;
-					width: calc( 50% - 10px );
+					width: calc( 45% - 10px );
 					padding: 1px;
 					border-radius: inherit;
 					border-top-right-radius: 0;
@@ -310,6 +353,7 @@ textarea {
 					box-shadow: inset 0 0 0 1px #0001;
 					position: relative;
 					flex: 1;
+					min-width: 0;
 					padding: 1px;
 					border-radius: inherit;
 					border-top-left-radius: 0;
@@ -322,7 +366,7 @@ textarea {
 
 	.output {
 		background: #f2f2f2;
-		box-shadow: inset 0 0 0 1px #0002;
+		box-shadow: inset 0 0 0 1px #0001;
 		position: relative;
 		height: 320px;
 		border-radius: 7px;

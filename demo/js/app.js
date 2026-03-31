@@ -27,6 +27,7 @@ const App = {
 			arg,
 			pEl,
 			el;
+		// console.log(event);
 		switch (event.type) {
 			// native events
 			case "click":
@@ -37,7 +38,7 @@ const App = {
 				event.stopPropagation();
 				event.preventDefault();
 
-				if (el.hasClass("tool") && el.hasClass("toggle")) {
+				if ((el.hasClass("tool") && el.hasClass("toggle")) || el.hasClass("boolean")) {
 					let isOn = el.hasClass("on");
 					el.toggleClass("on", isOn);
 				}
@@ -77,7 +78,7 @@ const App = {
 					Self.sidebar.dispatch({ type: "init-tree" });
 
 					// temp test
-					setTimeout(() => Self.els.layout.find(".leaf").get(5).trigger("click"), 200);
+					setTimeout(() => Self.els.layout.find(".leaf").get(6).trigger("click"), 200);
 				});
 				break;
 			case "render-template":

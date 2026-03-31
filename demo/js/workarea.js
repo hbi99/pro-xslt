@@ -5,6 +5,7 @@ export const Editor = {
 		this.app = app;
 		// fast references
 		this.els = {
+			info: $(".description span"),
 			xmlDoc: $(".xml-doc textarea"),
 			xsltDoc: $(".xslt-doc textarea"),
 		};
@@ -14,16 +15,45 @@ export const Editor = {
 	dispatch(event) {
 		let Self = Editor,
 			App = Self.app,
+			pEl,
 			el;
 		// console.log(event);
 		switch (event.type) {
+			// native events
+			case "keyup":
+				// try to import xml data
+				try {
+					Self.xDoc = $.xmlFromString(Self.xmlEditor.getValue());
+				} catch (err) {
+					return console.log("show xml error icon");
+				}
+				// try to import template
+				try {
+					let tmp = `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:template match="//page">
+        <b><xsl:value-of select="word[1]"/></b>
+        <xsl:text> </xsl:text>
+        <u><xsl:value-of select="word[2]"/></u>
+    </xsl:template>
+</xsl:stylesheet>`;
+					// Self.templates = $.xmlFromString(tmp);
+					Self.templates = $.xmlFromString(Self.xsltEditor.getValue());
+					Output.processor.importStylesheet(Self.templates.documentElement);
+				} catch (err) {
+					return console.log("show xslt error icon");
+				}
+				// render xslt
+				Output.dispatch({ type: "render-xslt" });
+				break;
+			// custom events
 			case "parse-xml-fixture":
 				let templates = event.res.selectSingleNode("//xsl:stylesheet");
+				console.log(templates.xml);
 				Self.templates = $.xmlFromString(templates.xml);
 				templates.parentNode.removeChild(templates);
 				// extract description
 				let description = event.res.selectSingleNode("//Description");
-				Self.description = description.textContent;
+				Self.els.info.html(description.textContent);
 				description.parentNode.removeChild(description);
 				// import templates
 				Output.processor.importStylesheet(Self.templates.documentElement);
@@ -40,6 +70,9 @@ export const Editor = {
 				Self.xmlEditor = CodeMirror.fromTextArea(Self.els.xmlDoc[0], { mode: "text/html", lineNumbers: true });
 				Self.xsltEditor = CodeMirror.fromTextArea(Self.els.xsltDoc[0], { mode: "text/html", lineNumbers: true });
 				Output.htmlView = CodeMirror.fromTextArea(Output.els.html[0], { mode: "text/html", lineNumbers: true, readOnly: true });
+				// attache event handlers
+				Self.xmlEditor.on("keyup", e => Self.dispatch({ type: "keyup", event: e }));
+				Self.xsltEditor.on("keyup", e => Self.dispatch({ type: "keyup", event: e }));
 				break;
 		}
 	}
