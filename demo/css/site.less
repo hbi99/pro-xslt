@@ -351,6 +351,83 @@ textarea {
 					border-bottom-left-radius: 0;
 					border-bottom-right-radius: 0;
 				}
+
+				.doc-state {
+					position: absolute;
+					bottom: 13px;
+					right: 13px;
+					min-width: 30px;
+					height: 30px;
+					border-radius: 21px;
+					font-size: 0;
+					white-space: nowrap;
+					text-align: right;
+
+					&:hover {
+						span {
+							width: auto;
+							padding: 0 5px 0 43px;
+						}
+					}
+
+					&.invalid {
+						background: #f005;
+						color: #f007;
+
+						i.icon-thumb-up,
+						span.text-true {
+							display: none;
+						}
+					}
+
+					&.valid {
+						background: #2724;
+						color: #2727;
+
+						i.icon-thumb-down,
+						span.text-false {
+							display: none;
+						}
+					}
+
+					i {
+						position: absolute;
+						top: 4px;
+						right: 4px;
+						width: 22px;
+						height: 22px;
+						font-size: 19px;
+						vertical-align: text-top;
+						border-radius: 50%;
+
+						&.icon-thumb-up {
+							top: 4px;
+							right: 6px;
+						}
+
+						&.icon-thumb-down {
+							top: 6px;
+							right: 5px;
+						}
+
+					}
+
+					span {
+						// background: #00f7;
+						position: relative;
+						top: 3px;
+						right: 29px;
+						width: 0;
+						display: inline-block;
+						height: inherit;
+						font-size: 14px;
+						padding: 0;
+						overflow: hidden;
+						white-space: nowrap;
+						transition: width 420ms ease-in-out,
+									padding 120ms ease-in-out;
+					}
+				}
 			}
 		}
 	}
@@ -405,11 +482,11 @@ textarea {
 		text-align: center;
 		color: #777;
 
-		.icon-hb {
+		.icon-karaqu {
 			color: #aaa;
-			font-size: 43px;
+			font-size: 31px;
 			position: relative;
-			top: -9px;
+			top: -4px;
 		}
 
 		.icon-heart {

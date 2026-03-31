@@ -60,10 +60,22 @@
 			<div class="workarea">
 				<div class="xml-doc" data-area="editor">
 					<textarea id="xmlDoc"><!-- XML code goes here --></textarea>
+					<div class="doc-state valid">
+						<span class="text-true">XML data is well formatted</span>
+						<span class="text-false">XML data is invalid</span>
+						<i class="icon-thumb-up"></i>
+						<i class="icon-thumb-down"></i>
+					</div>
 				</div>
 				<div class="divider vertical"></div>
 				<div class="xslt-doc" data-area="editor">
 					<textarea><!-- XSLT code goes here --></textarea>
+					<div class="doc-state invalid">
+						<span class="text-true">XSL template is well formatted</span>
+						<span class="text-false">XSL template is invalid</span>
+						<i class="icon-thumb-up"></i>
+						<i class="icon-thumb-down"></i>
+					</div>
 				</div>
 			</div>
 			<div class="divider horisontal"></div>
@@ -83,8 +95,8 @@
 	</div>
 	<div class="footer">
 		<div class="layout-left">Created with <i class="icon-heart"></i> in Sweden</div>
-		<div class="layout-middle" title="Hakan Bilgin">
-			<i class="icon-hb"></i>
+		<div class="layout-middle">
+			<a href="//karaqu.com" target="_new"><i class="icon-karaqu"></i></a>
 		</div>
 		<div class="layout-right">
 			Powered by <a href="//github.com/hbi99/pro-xslt" target="_new">Pro-XSLT</a>
