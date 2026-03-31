@@ -1,17 +1,21 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[resolves variables in xsl:when tests and branch body]]></Description>
-	<page><item/></page>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:template match="/page/item">
-			<xsl:variable name="flag" select="2"/>
-			<xsl:choose>
-				<xsl:when test="$flag = 1">
-					<xsl:value-of select="'wrong'"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="'right'"/>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:template>
-	</xsl:stylesheet>
+	<XmlData>
+		<page><item/></page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="/page/item">
+		<xsl:variable name="flag" select="2"/>
+		<xsl:choose>
+			<xsl:when test="$flag = 1">
+				<xsl:value-of select="'wrong'"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="'right'"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

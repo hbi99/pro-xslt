@@ -1,11 +1,15 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[should evaluate arithmetic expression on `value-of` element]]></Description>
-	<page>
-		<message>Hello World</message>
-	</page>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:template match="/page/message">
-			<xsl:value-of select="21 div 3" />
-		</xsl:template>
-	</xsl:stylesheet>
+	<XmlData>
+		<page>
+			<message>Hello World</message>
+		</page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="/page/message">
+		<xsl:value-of select="21 div 3" />
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

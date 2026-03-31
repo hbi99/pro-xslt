@@ -1,12 +1,15 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[should slice strings recursively]]></Description>
-	<page>
-		<i name="Banan"/>
-		<i name="Orange"/>
-		<i name="Apple"/>
-		<i name="Pineapple"/>
-	</page>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <XmlData>
+    	<page>
+    		<i name="Banan"/>
+    		<i name="Orange"/>
+    		<i name="Apple"/>
+    		<i name="Pineapple"/>
+    	</page>
+    </XmlData>
+    <Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:variable name="white-space" select="'                           '" />
 <xsl:variable name="col1">10</xsl:variable>
 
@@ -33,4 +36,5 @@
     <xsl:text> </xsl:text>
 </xsl:template>
 </xsl:stylesheet>
+]]></Template>
 </Scheme>

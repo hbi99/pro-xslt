@@ -24,48 +24,25 @@ export function loadXml(filename) {
 		throw new Error(`Fixture ${filename} root must be <Scheme>`);
 	}
 
-	let sourceRoot = null;
-	let externalHref = null;
-	let xslRoot = null;
-	let description = '';
-
-	for (let child = scheme.firstChild; child; child = child.nextSibling) {
-		if (child.nodeType !== 1) continue;
-		if (child.localName === 'Description') {
-			description = child.textContent || '';
-			continue;
-		}
-		if (child.localName === 'ExternalSource' && child.getAttribute('href')) {
-			externalHref = child.getAttribute('href');
-			continue;
-		}
-		if (child.namespaceURI === XSL_NS && child.localName === 'stylesheet') {
-			xslRoot = child.cloneNode(true);
-			continue;
-		}
-		if (sourceRoot === null && externalHref === null) {
-			sourceRoot = child.cloneNode(true);
-		}
-	}
-
-	if ((!sourceRoot && !externalHref) || !xslRoot) {
-		throw new Error(
-			`Fixture ${filename} must include <Description>, <ExternalSource href="…"/> or one source XML element, and <xsl:stylesheet>`
-		);
-	}
+	let xDescription = scheme.selectSingleNode(`//description`);
+	let xData = scheme.selectSingleNode(`//XmlData/*`);
+	let xTemplate = scheme.selectSingleNode(`//Template`);
+	let xExternalSource = scheme.selectSingleNode(`//ExternalSource`);
 
 	let xmlDoc;
-	if (externalHref) {
+	if (xExternalSource) {
+		let externalHref = xExternalSource.getAttribute('href');
 		let extPath = resolve(dirname(fixturePath), externalHref);
-		xmlDoc = ProXslt.xmlFromString(readFileSync(extPath, `utf8`));
-	} else {
-		// Standalone document so paths like `/page/...` resolve against the source root, not <Scheme>.
-		xmlDoc = ProXslt.xmlFromString(new XMLSerializer().serializeToString(sourceRoot));
+		let scheme = ProXslt.xmlFromString(readFileSync(extPath, `utf8`));
+		xData = scheme.selectSingleNode(`//XmlData/*`);
 	}
+
+	// Standalone document so paths like `/page/...` resolve against the source root, not <Scheme>.
+	xmlDoc = ProXslt.xmlFromString(new XMLSerializer().serializeToString(xData));
 
 	// Standalone stylesheet document (same as ProXslt.xmlFromString on inline XSL) so importStylesheet
 	// and XPath on the stylesheet match non-fixture tests.
-	let xslDoc = ProXslt.xmlFromString(new XMLSerializer().serializeToString(xslRoot));
+	let xslDoc = xTemplate ? ProXslt.xmlFromString(xTemplate.textContent) : null;
 
-	return { xmlDoc, xslDoc, description };
+	return { xmlDoc, xslDoc, description: xDescription.textContent };
 }

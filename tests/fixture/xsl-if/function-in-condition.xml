@@ -1,12 +1,16 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[should make comparison with called xslt function]]></Description>
-	<page><n/></page>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:template match="/page/n">
-			<xsl:template name="test">
-				<xsl:variable name="bytes" select="248"/>
-				<xsl:if test="format-number($bytes div 1024, '0') = 0">1</xsl:if>
-			</xsl:template>
+	<XmlData>
+		<page><n/></page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="/page/n">
+		<xsl:template name="test">
+			<xsl:variable name="bytes" select="248"/>
+			<xsl:if test="format-number($bytes div 1024, '0') = 0">1</xsl:if>
 		</xsl:template>
-	</xsl:stylesheet>
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

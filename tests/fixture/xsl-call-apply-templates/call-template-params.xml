@@ -1,15 +1,21 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[passes parameters via xsl:with-param]]></Description>
-	<page><item>ignored</item></page>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:template match="/page/item">
-			<xsl:call-template name="wrap">
-				<xsl:with-param name="t" select="'X'" />
-			</xsl:call-template>
-		</xsl:template>
-		<xsl:template name="wrap">
-			<xsl:param name="t" />
-			<b><xsl:value-of select="$t" /></b>
-		</xsl:template>
-	</xsl:stylesheet>
+	<XmlData>
+		<page>
+			<item>ignored</item>
+		</page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="/page/item">
+		<xsl:call-template name="wrap">
+			<xsl:with-param name="t" select="'X'" />
+		</xsl:call-template>
+	</xsl:template>
+	<xsl:template name="wrap">
+		<xsl:param name="t" />
+		<b><xsl:value-of select="$t" /></b>
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

@@ -1,11 +1,15 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[should output escaped HTML content]]></Description>
-	<page>
-		<message><![CDATA[Hello <b>World</b>]]></message>
-	</page>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:template match="//page">
-			<xsl:value-of select="./message" disable-output-escaping="yes"/>
-		</xsl:template>
-	</xsl:stylesheet>
+	<XmlData>
+		<page>
+			<message><![CDATA[Hello <b>World</b>]]></message>
+		</page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="//page">
+		<xsl:value-of select="./message" disable-output-escaping="yes"/>
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

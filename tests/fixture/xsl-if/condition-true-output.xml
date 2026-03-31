@@ -1,11 +1,15 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[outputs children when test is true]]></Description>
-	<page><item id="1"/></page>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:template match="/page/item">
-			<xsl:if test="@id = '1'">
-				<xsl:value-of select="'yes'" />
-			</xsl:if>
-		</xsl:template>
-	</xsl:stylesheet>
+	<XmlData>
+		<page><item id="1"/></page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="/page/item">
+		<xsl:if test="@id = '1'">
+			<xsl:value-of select="'yes'" />
+		</xsl:if>
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

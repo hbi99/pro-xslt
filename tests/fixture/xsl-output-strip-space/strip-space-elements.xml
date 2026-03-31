@@ -1,14 +1,18 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[applies xsl:strip-space to matched elements]]></Description>
-	<root>
-		<item>
-			<name>A</name>
-		</item>
-	</root>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:strip-space elements="item" />
-		<xsl:template match="/root/item">
-			<xsl:value-of select="count(text())" />
-		</xsl:template>
-	</xsl:stylesheet>
+	<XmlData>
+		<root>
+			<item>
+				<name>A</name>
+			</item>
+		</root>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:strip-space elements="item" />
+	<xsl:template match="/root/item">
+		<xsl:value-of select="count(text())" />
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

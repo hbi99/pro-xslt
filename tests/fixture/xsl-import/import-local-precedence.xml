@@ -1,18 +1,22 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[loads imported stylesheet and keeps local template precedence]]></Description>
-	<root><item>A</item></root>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:import href="imported-base.xsl" />
+	<XmlData>
+		<root><item>A</item></root>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:import href="imported-base.xsl" />
 
-		<xsl:template match="/root">
-			<xsl:apply-templates select="item" />
-			<xsl:text>|</xsl:text>
-			<xsl:call-template name="imported-wrap" />
-		</xsl:template>
+	<xsl:template match="/root">
+		<xsl:apply-templates select="item" />
+		<xsl:text>|</xsl:text>
+		<xsl:call-template name="imported-wrap" />
+	</xsl:template>
 
-		<xsl:template match="/root/item">
-			<xsl:text>LOCAL:</xsl:text>
-			<xsl:value-of select="." />
-		</xsl:template>
-	</xsl:stylesheet>
+	<xsl:template match="/root/item">
+		<xsl:text>LOCAL:</xsl:text>
+		<xsl:value-of select="." />
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

@@ -1,11 +1,15 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[creates a comment from select expression]]></Description>
-	<page><message>Hello</message></page>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:template match="/page">
-			<out>
-				<xsl:comment select="'hello-comment'" />
-			</out>
-		</xsl:template>
-	</xsl:stylesheet>
+	<XmlData>
+		<page><message>Hello</message></page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="/page">
+		<out>
+			<xsl:comment select="'hello-comment'" />
+		</out>
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

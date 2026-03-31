@@ -1,17 +1,19 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[resolves keyed lookups against large facet fixture]]></Description>
 	<ExternalSource href="large-facet-catalog.xml"/>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:key name="by-id" match="/catalog/product" use="@id" />
-		<xsl:key name="by-category" match="/catalog/product" use="@category" />
-		<xsl:key name="by-region" match="/catalog/product" use="@region" />
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:key name="by-id" match="/catalog/product" use="@id" />
+	<xsl:key name="by-category" match="/catalog/product" use="@category" />
+	<xsl:key name="by-region" match="/catalog/product" use="@region" />
 
-		<xsl:template match="/catalog">
-			<xsl:value-of select="key('by-id', 'P-0007')" />
-			<xsl:text>|</xsl:text>
-			<xsl:value-of select="key('by-category', 'books')" />
-			<xsl:text>|</xsl:text>
-			<xsl:value-of select="key('by-region', 'eu')" />
-		</xsl:template>
-	</xsl:stylesheet>
+	<xsl:template match="/catalog">
+		<xsl:value-of select="key('by-id', 'P-0007')" />
+		<xsl:text>|</xsl:text>
+		<xsl:value-of select="key('by-category', 'books')" />
+		<xsl:text>|</xsl:text>
+		<xsl:value-of select="key('by-region', 'eu')" />
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

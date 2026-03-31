@@ -1,11 +1,15 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[works inside xsl:if]]></Description>
-	<page><n/></page>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:template match="/page/n">
-			<xsl:if test="true()">
-				<xsl:text>ok</xsl:text>
-			</xsl:if>
-		</xsl:template>
-	</xsl:stylesheet>
+	<XmlData>
+		<page><n/></page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="/page/n">
+		<xsl:if test="true()">
+			<xsl:text>ok</xsl:text>
+		</xsl:if>
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

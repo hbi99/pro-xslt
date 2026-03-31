@@ -1,12 +1,16 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[respects variables in test and body]]></Description>
-	<page><n/></page>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:template match="/page/n">
-			<xsl:variable name="flag" select="1" />
-			<xsl:if test="$flag = 1">
-				<xsl:value-of select="$flag + 2" />
-			</xsl:if>
-		</xsl:template>
-	</xsl:stylesheet>
+	<XmlData>
+		<page><n/></page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="/page/n">
+		<xsl:variable name="flag" select="1" />
+		<xsl:if test="$flag = 1">
+			<xsl:value-of select="$flag + 2" />
+		</xsl:if>
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

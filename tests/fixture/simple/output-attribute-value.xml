@@ -1,11 +1,15 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[should output XML node attribute value]]></Description>
-	<page>
-		<message attr="Hello 123"/>
-	</page>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:template match="/page/message">
-			<xsl:value-of select="@attr" />
-		</xsl:template>
-	</xsl:stylesheet>
+	<XmlData>
+		<page>
+			<message attr="Hello 123"/>
+		</page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="/page/message">
+		<xsl:value-of select="@attr" />
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

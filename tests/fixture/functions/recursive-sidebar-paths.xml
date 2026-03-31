@@ -1,38 +1,40 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[should make correctly handle string with recursive backtracking]]></Description>
+	<XmlData>
+		<Data>
+			<i id="fs-sidebar-favorites" type="raw-xml">
+				<item icon="desktop" path="/fs/Desktop"/>
+				<item icon="documents" path="/fs/Documents"/>
+				<item icon="applications" path="/fs/Applications"/>
+				<item icon="network" path="/fs/Network"/>
+				<item icon="folder" path="/fs/Desktop/mp3"/>
+			</i>
+		</Data>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template name="hbi-test" match="//i[@id='fs-sidebar-favorites']/item">
+		<span>
+			<xsl:call-template name="substring-after-last">
+				<xsl:with-param name="string" select="@path" />
+				<xsl:with-param name="delimiter" select="'/'" />
+			</xsl:call-template>
+		</span>
+	</xsl:template>
 
-	<Data>
-		<i id="fs-sidebar-favorites" type="raw-xml">
-			<item icon="desktop" path="/fs/Desktop"/>
-			<item icon="documents" path="/fs/Documents"/>
-			<item icon="applications" path="/fs/Applications"/>
-			<item icon="network" path="/fs/Network"/>
-			<item icon="folder" path="/fs/Desktop/mp3"/>
-		</i>
-	</Data>
-
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:template name="hbi-test" match="//i[@id='fs-sidebar-favorites']/item">
-			<span>
+	<xsl:template name="substring-after-last">
+		<xsl:param name="string" />
+		<xsl:param name="delimiter" />
+		<xsl:choose>
+			<xsl:when test="contains($string, $delimiter)">
 				<xsl:call-template name="substring-after-last">
-					<xsl:with-param name="string" select="@path" />
-					<xsl:with-param name="delimiter" select="'/'" />
+					<xsl:with-param name="string" select="substring-after($string, $delimiter)" />
+					<xsl:with-param name="delimiter" select="$delimiter" />
 				</xsl:call-template>
-			</span>
-		</xsl:template>
-
-		<xsl:template name="substring-after-last">
-			<xsl:param name="string" />
-			<xsl:param name="delimiter" />
-			<xsl:choose>
-				<xsl:when test="contains($string, $delimiter)">
-					<xsl:call-template name="substring-after-last">
-						<xsl:with-param name="string" select="substring-after($string, $delimiter)" />
-						<xsl:with-param name="delimiter" select="$delimiter" />
-					</xsl:call-template>
-				</xsl:when>
-				<xsl:otherwise><xsl:value-of select="$string" /></xsl:otherwise>
-			</xsl:choose>
-		</xsl:template>
-	</xsl:stylesheet>
+			</xsl:when>
+			<xsl:otherwise><xsl:value-of select="$string" /></xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

@@ -1,7 +1,11 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[importStylesheet reset — xsl1]]></Description>
-	<page><a/></page>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:template match="/page/a">one</xsl:template>
-	</xsl:stylesheet>
+	<XmlData>
+		<page><a/></page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="/page/a">one</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

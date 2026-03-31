@@ -1,10 +1,14 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[importStylesheet reset — xsl3]]></Description>
-	<page><a/></page>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:template match="/">
-			<xsl:apply-templates select="/page"/>
-		</xsl:template>
-		<xsl:template match="/page">two</xsl:template>
-	</xsl:stylesheet>
+	<XmlData>
+		<page><a/></page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="/">
+		<xsl:apply-templates select="/page"/>
+	</xsl:template>
+	<xsl:template match="/page">two</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

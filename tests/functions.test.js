@@ -41,7 +41,6 @@ describe('parseXsltFunctionCall', () => {
 describe('Function Tests', () => {
     it('should load resources', async () => {
         let { xmlDoc, xslDoc, description } = loadXml(`functions/load-resources.xml`);
-        console.log(description);
     });
 
     it('should format numbers with `format-number`', async () => {

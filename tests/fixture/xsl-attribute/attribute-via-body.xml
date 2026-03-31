@@ -1,14 +1,20 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[sets an attribute via body content]]></Description>
-	<page><message>Hello</message></page>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:template match="/page">
-			<span>
-				<xsl:attribute name="title">
-					<xsl:text>Title: </xsl:text>
-					<xsl:value-of select="message" />
-				</xsl:attribute>
-			</span>
-		</xsl:template>
-	</xsl:stylesheet>
+	<XmlData>
+		<page>
+			<message>Hello</message>
+		</page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="/page">
+		<span>
+			<xsl:attribute name="title">
+				<xsl:text>Title: </xsl:text>
+				<xsl:value-of select="message" />
+			</xsl:attribute>
+		</span>
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>

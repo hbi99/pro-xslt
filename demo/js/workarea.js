@@ -47,21 +47,19 @@ export const Editor = {
 				break;
 			// custom events
 			case "parse-xml-fixture":
-				let templates = event.res.selectSingleNode("//xsl:stylesheet");
-				console.log(templates.xml);
-				Self.templates = $.xmlFromString(templates.xml);
-				templates.parentNode.removeChild(templates);
+				let template = event.res.selectSingleNode("//Template");
+				let xsltStr = template.textContent.trim();
+				Self.templates = $.xmlFromString(xsltStr);
 				// extract description
 				let description = event.res.selectSingleNode("//Description");
 				Self.els.info.html(description.textContent);
-				description.parentNode.removeChild(description);
 				// import templates
 				Output.processor.importStylesheet(Self.templates.documentElement);
 				// save reference xml doc
-				Self.xDoc = $.xmlFromString(event.res.selectSingleNode("/*/*").xml);
+				Self.xDoc = $.xmlFromString(event.res.selectSingleNode("//XmlData/*").xml);
 
 				Self.xmlEditor.setValue(Self.xDoc.xml);
-				Self.xsltEditor.setValue(Self.templates.xml);
+				Self.xsltEditor.setValue(xsltStr);
 
 				// render xslt
 				Output.dispatch({ type: "render-xslt" });

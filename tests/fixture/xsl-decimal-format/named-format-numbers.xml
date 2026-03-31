@@ -1,10 +1,14 @@
-<Scheme xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<Scheme>
 	<Description><![CDATA[applies named decimal-format via third format-number argument]]></Description>
-	<page><n>1</n></page>
-	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-		<xsl:decimal-format name="eu" decimal-separator="," grouping-separator="." />
-		<xsl:template match="/page/n">
-			<xsl:value-of select="format-number(7753.1, '#,##0.00', 'eu')" />
-		</xsl:template>
-	</xsl:stylesheet>
+	<XmlData>
+		<page><n>1</n></page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:decimal-format name="eu" decimal-separator="," grouping-separator="." />
+	<xsl:template match="/page/n">
+		<xsl:value-of select="format-number(7753.1, '#,##0.00', 'eu')" />
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
 </Scheme>
