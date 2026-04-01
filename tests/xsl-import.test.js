@@ -8,7 +8,7 @@ describe('xsl:import', () => {
     it('loads imported stylesheet and keeps local template precedence', async () => {
         let { xmlDoc, xslDoc } = loadXml(`xsl-import/import-local-precedence.xml`);
 
-        let importedPath = resolve(process.cwd(), 'tests/fixture/imported-base.xsl');
+        let importedPath = resolve(process.cwd(), 'demo/fixture/imported-base.xsl');
         let importedXslString = readFileSync(importedPath, 'utf8');
 
         let proXslt = new ProXslt({

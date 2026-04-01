@@ -4,7 +4,7 @@ import ProXslt from '../../src/index.js';
 
 const XSL_NS = 'http://www.w3.org/1999/XSL/Transform';
 
-const FIXTURE_DIR = resolve(process.cwd(), 'tests/fixture');
+const FIXTURE_DIR = resolve(process.cwd(), 'demo/fixture');
 
 /**
  * Load a fixture: root <Scheme> with <Description>, one source XML child, and <xsl:stylesheet>.

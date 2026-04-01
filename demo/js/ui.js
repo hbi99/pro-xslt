@@ -79,7 +79,7 @@ export const Sidebar = {
 					name = el.find("> span > b").text(),
 					type = el.find("> span").data("type");
 				if (type) {
-					$.fetch(`../tests/fixture/${folder}/${name}.${type}`)
+					$.fetch(`../demo/fixture/${folder}/${name}.${type}`)
 						.then(res => App.editor.dispatch({ type: "parse-xml-fixture", res }));
 				}
 				break;
