@@ -1,10 +1,12 @@
 node_modules/
 testing/
+dist/
 
 demo/css/tree.css
 demo/css/codemirror.css
 demo/css/icon-font.css
 demo/css/theme.css
 
+.env
 .DS_Store
 *.log

@@ -135,7 +135,6 @@ export const Output = {
 			case "render-xslt":
 				let span = document.createElement("span");
 			    let template = Editor.templates.selectSingleNode(`//xsl:template`);
-			    console.log(Editor.xDoc.documentElement);
 			    let fragment = Self.processor.transformToFragment(Editor.xDoc, document);
 				
 				if (fragment) span.appendChild(fragment);
