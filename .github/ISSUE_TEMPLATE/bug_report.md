@@ -12,13 +12,13 @@ A clear and concise description of what the bug is.
 Simply fill in the areas below; XML data, XSLT template and expected output.
 
 ```xml
-// xml data here
+<!-- xml data here -->
 ```
 
 ```xml
-// xslt template here
+<!-- xslt template here -->
 ```
 
-```xml
-// expected output here
+```html
+<!-- expected output here -->
 ```
