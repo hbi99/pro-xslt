@@ -1,7 +1,7 @@
 <Ledger xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<Tree>
 		<i icon="book" name="XSLT v1.0" state="open">
-			<i icon="folder" name="functions">
+			<i icon="folder" name="functions" state="open">
 				<i icon="file" type="xml" name="recursive-sidebar-paths" />
 				<i icon="file" type="xml" name="pack-cross-reference" />
 				<i icon="file" type="xml" name="load-resources" />
@@ -9,7 +9,7 @@
 				<i icon="file" type="xml" name="key-registry-lookup" />
 				<i icon="file" type="xml" name="format-numbers" />
 			</i>
-			<i icon="folder" name="html" state="open">
+			<i icon="folder" name="html">
 				<i icon="file" type="xml" name="raw-html-output" />
 				<i icon="file" type="xml" name="match-text-template" />
 				<i icon="file" type="xml" name="escaped-html-output" />
