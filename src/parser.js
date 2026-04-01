@@ -87,6 +87,9 @@ export function bindXslVariableNode(context, el, vars, xmlNodes) {
                 vars[name] = { kind: "nodeset", nodes };
                 return;
             }
+            // Location path with no matches: XPath 1.0 empty node-set (not a number).
+            vars[name] = { kind: "nodeset", nodes: [] };
+            return;
         } catch (_) {
             // Not a node-set expression; fall through to number/string handling.
         }
@@ -129,6 +132,8 @@ function processXslChildNodes(context, childNodes, fragment, vars) {
                             vars[name] = { kind: "nodeset", nodes };
                             continue;
                         }
+                        vars[name] = { kind: "nodeset", nodes: [] };
+                        continue;
                     } catch (_) {
                         // Not a node-set expression; fall through to number/string handling.
                     }
@@ -504,6 +509,8 @@ function invokeNamedTemplate(contextNode, callTemplateNode, fragment, vars) {
                 scope[paramName] = { kind: "nodeset", nodes };
                 continue;
             }
+            scope[paramName] = { kind: "nodeset", nodes: [] };
+            continue;
         } catch (_) {
             // Not a node-set expression; fall through.
         }

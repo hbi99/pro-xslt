@@ -21,6 +21,8 @@ export function bindXslVariable(context, el, vars) {
                 vars[name] = { kind: "nodeset", nodes };
                 return;
             }
+            vars[name] = { kind: "nodeset", nodes: [] };
+            return;
         } catch (_) {
             // Not a node-set expression; fall through to number/string handling.
         }
