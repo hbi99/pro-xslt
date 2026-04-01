@@ -7,13 +7,23 @@ export const Sidebar = {
 	dispatch(event) {
 		let Self = Sidebar,
 			App = Self.app,
-			value, xDoc, 
+			value,
 			el;
 		// console.log(event);
 		switch (event.type) {
 			case "init-tree":
 				// set leaf id
 				App.ledger.selectNodes(`//Tree//*`).map((xLeaf, i) => xLeaf.setAttribute("_id", i+1));
+				// default selected tree leaf
+				value = 4;
+				// check for previously saved state
+				if (localStorage.getItem("scheme")) {
+					let xFloppy = App.ledger.selectSingleNode(`//Tree//*[@icon="floppy-disk"]`);
+					if (xFloppy) {
+						xFloppy.removeAttribute("state");
+						value = 0;
+					}
+				}
 				// auto render tree
 				App.dispatch({
 					type: "render-template",
@@ -21,6 +31,9 @@ export const Sidebar = {
 					match: `//Tree`,
 					target: App.els.layout.find(".sidebar"),
 				});
+
+				// auto open "leaf"
+				setTimeout(() => App.els.layout.find(".leaf").get(value).trigger("click"), 200);
 				break;
 			case "select-tree-item":
 				el = $(event.orgEvent.target);
@@ -42,14 +55,15 @@ export const Sidebar = {
 				// get leaf item
 				el = event.el.parents("?.leaf").get(0);
 				if (!el.length) return;
+
 				// local stored state
-				if (el.find("> span").data("type") != "xml") {
+				if (el.find("> span").data("type") === "saved") {
 					// UI update
 					App.els.sidebar.find(".active").removeClass("active");
 					el.addClass("active");
 
-					console.log(1);
-
+					let res = $.xmlFromString(localStorage.getItem("scheme"));
+					App.editor.dispatch({ type: "parse-xml-fixture", res });
 					return;
 				}
 
@@ -68,6 +82,15 @@ export const Sidebar = {
 					$.fetch(`../tests/fixture/${folder}/${name}.${type}`)
 						.then(res => App.editor.dispatch({ type: "parse-xml-fixture", res }));
 				}
+				break;
+			case "show-focus-local-stored":
+				el = App.els.layout.find(".leaf").get(0);
+				let fn = el => {
+						App.els.sidebar.find(".active").removeClass("active");
+						el.addClass("active").removeClass("hidden");
+					};
+				if (el.hasClass("hidden")) el.cssSequence("show", "transitionend", fn);
+				else fn(el);
 				break;
 		}
 	}

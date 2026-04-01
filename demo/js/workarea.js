@@ -46,8 +46,10 @@ export const Editor = {
 				
 				Self.xDoc = xmlDoc;
 				Self.templates = xslDoc;
-				Output.processor.importStylesheet(Self.templates.documentElement);
+				// update local storage, if needed
+				Self.dispatch({ type: "save-to-local-storage" });
 				// render xslt
+				Output.processor.importStylesheet(Self.templates.documentElement);
 				Output.dispatch({ type: "render-xslt" });
 				break;
 			// custom events
@@ -68,6 +70,23 @@ export const Editor = {
 
 				// render xslt
 				Output.dispatch({ type: "render-xslt" });
+				break;
+			case "save-to-local-storage":
+				let xmlDigest = Self.xDoc.xml.sha1();
+				let templateDigest = Self.templates.xml.sha1();
+				if (Self.xmlDigest === xmlDigest && Self.templateDigest === templateDigest) return;
+				// save changed state to local storage
+				Self.xmlDigest = xmlDigest;
+				Self.templateDigest = templateDigest;
+				let scheme = `<Scheme>
+								<Description><![CDATA[This is a stored state]]></Description>
+								<XmlData>${Self.xmlEditor.getValue()}</XmlData>
+								<Template><![CDATA[${Self.xsltEditor.getValue()}]]></Template>
+							</Scheme>`;
+				localStorage.setItem("scheme", scheme);
+
+				// tree focus local storage leaf
+				App.sidebar.dispatch({ type: "show-focus-local-stored" });
 				break;
 			case "init-editors":
 				Self.xmlEditor = CodeMirror.fromTextArea(Self.els.xmlDoc[0], { mode: "text/html", lineNumbers: true });
@@ -115,7 +134,8 @@ export const Output = {
 				break;
 			case "render-xslt":
 				let span = document.createElement("span");
-			    let template = Editor.templates.selectSingleNode(`//xsl:template`); // [@name='${event.template}']
+			    let template = Editor.templates.selectSingleNode(`//xsl:template`);
+			    console.log(Editor.xDoc.documentElement);
 			    let fragment = Self.processor.transformToFragment(Editor.xDoc, document);
 				
 				if (fragment) span.appendChild(fragment);

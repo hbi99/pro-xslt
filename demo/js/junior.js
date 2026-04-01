@@ -2480,6 +2480,11 @@ if ( typeof define === "function" && define.amd ) {
 let $ = (function(window, document) {
 	"use strict";
 
+	// private event stack
+	const observerStack = {};
+	// prevents multiple calls for cssSequence
+	observerStack.cssRecord = [];
+	
 	// a slim jQuery like object
 	var Junior = function() {
 		var coll = Object.create(Array.prototype);

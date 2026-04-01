@@ -34,8 +34,13 @@
 	}
 
 	&.hidden {
-		height: 0;
+		max-height: 0;
 		overflow: hidden;
+		transition: max-height 120ms ease-in-out;
+
+		&.show {
+			max-height: 25px;
+		}
 	}
 
 	&.disabled {

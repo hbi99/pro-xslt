@@ -1,6 +1,5 @@
 node_modules/
 testing/
-dist/
 
 demo/css/tree.css
 demo/css/codemirror.css
