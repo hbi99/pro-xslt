@@ -111,8 +111,12 @@
 			<i icon="folder" type="xsl" name="included-common" />
 			<i icon="folder" type="xsl" name="imported-base" />
 		</i>
-		<i icon="book" name="XSLT v2.0" state="disabled"/>
-		<i icon="book" name="XSLT v3.0" state="disabled" />
+		<i icon="book" name="XSLT v2.0">
+			<i icon="file-archive-o" name="Coming soon" state="disabled" />
+		</i>
+		<i icon="book" name="XSLT v3.0">
+			<i icon="file-archive-o" name="Coming soon" state="disabled" />
+		</i>
 	</Tree>
 
 
