@@ -20,8 +20,6 @@
   "scripts": {
     "build": "rollup -c rollup.config.js",
     "build:watch": "rollup -c rollup.config.js --watch",
-    "bench": "node testing/bench-transform.mjs",
-    "bench:compare": "node testing/bench-compare.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepublishOnly": "npm run build"
