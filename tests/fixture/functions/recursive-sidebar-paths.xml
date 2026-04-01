@@ -13,7 +13,7 @@
 	</XmlData>
 	<Template><![CDATA[
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-	<xsl:template name="hbi-test" match="//i[@id='fs-sidebar-favorites']/item">
+	<xsl:template match="//i[@id='fs-sidebar-favorites']/item">
 		<span>
 			<xsl:call-template name="substring-after-last">
 				<xsl:with-param name="string" select="@path" />

@@ -42,6 +42,17 @@ export const Sidebar = {
 				// get leaf item
 				el = event.el.parents("?.leaf").get(0);
 				if (!el.length) return;
+				// local stored state
+				if (el.find("> span").data("type") != "xml") {
+					// UI update
+					App.els.sidebar.find(".active").removeClass("active");
+					el.addClass("active");
+
+					console.log(1);
+
+					return;
+				}
+
 				// toggle folder icon
 				if (el.find("> span").data("type") != "xml") {
 					return el.find("> span > i.icon-chevron-right").trigger("click");

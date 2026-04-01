@@ -8,6 +8,18 @@
 	color: #666;
 
 	&.active {
+		> span[data-type="saved"] {
+			> b,
+			&:hover > b {
+				background: #4ea2f5;
+				color: #fff;
+			}
+					
+			> i.icon-floppy-disk {
+				color: #4ea2f5;
+			}
+		}
+
 		> span > b,
 		> span:hover > b {
 			background: #f70;
@@ -19,6 +31,11 @@
 				color: #f70;
 			}
 		}
+	}
+
+	&.hidden {
+		height: 0;
+		overflow: hidden;
 	}
 
 	&.disabled {
@@ -68,6 +85,18 @@
 		margin-bottom: 1px;
 		cursor: pointer;
 
+		&[data-type="saved"] {
+			> i {
+				&.icon-floppy-disk {
+					color: #4ea2f5;
+				}
+			}
+
+			> b {
+				color: #4ea2f5;
+			}
+		}
+
 		> i {
 			// background: #0001;
 			color: #999;
@@ -88,6 +117,12 @@
 				color: #aaa;
 				transform: rotate(0deg);
 				transition: transform 100ms ease-in-out;
+			}
+
+			&.icon-floppy-disk {
+				font-size: 14px;
+				padding-top: 3px;
+				color: #4ea2f5;
 			}
 
 			&.icon-book {

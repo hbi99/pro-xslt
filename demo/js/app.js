@@ -78,7 +78,7 @@ const App = {
 					Self.sidebar.dispatch({ type: "init-tree" });
 
 					// temp test
-					setTimeout(() => Self.els.layout.find(".leaf").get(6).trigger("click"), 200);
+					setTimeout(() => Self.els.layout.find(".leaf").get(0).trigger("click"), 200);
 				});
 				break;
 			case "render-template":

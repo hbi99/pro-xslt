@@ -77,6 +77,18 @@ body[data-theme="dark"] {
 			color: #97c;
 
 			&.active {
+				> span[data-type="saved"] {
+					> b,
+					&:hover > b {
+						background: #d98400;
+						color: #fff;
+					}
+							
+					> i.icon-floppy-disk {
+						color: #d98400;
+					}
+				}
+
 				> span > b,
 				> span:hover > b {
 					background: #353;
@@ -91,6 +103,18 @@ body[data-theme="dark"] {
 			}
 
 			> span {
+				&[data-type="saved"] {
+					> i {
+						&.icon-floppy-disk {
+							color: #d98400;
+						}
+					}
+
+					> b {
+						color: #d98400;
+					}
+				}
+				
 				&:hover {
 					> b {
 						background: #aea1;

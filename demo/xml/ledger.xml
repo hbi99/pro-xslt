@@ -1,5 +1,6 @@
 <Ledger xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<Tree>
+		<i icon="floppy-disk" type="saved" name="Local Stored State" state="hidden" />
 		<i icon="book" name="XSLT v1.0" state="open">
 			<i icon="folder" name="functions" state="open">
 				<i icon="file" type="xml" name="recursive-sidebar-paths" />
