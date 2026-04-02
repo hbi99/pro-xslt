@@ -101,11 +101,6 @@ export function xsltFunctions(context, value, vars) {
             result = generateId(context);
             break;
         default: {
-            let num = evaluate(context, expanded);
-            if (num !== undefined && !Number.isNaN(num)) {
-                result = String(num);
-                break;
-            }
             try {
                 let sn = context.selectSingleNode(expanded);
                 if (sn != null) {
@@ -118,6 +113,13 @@ export function xsltFunctions(context, value, vars) {
                 }
             } catch (_) {
                 /* not a location path (e.g. string literal `'yes'`) */
+            }
+            // Prefer numeric evaluation only after location-path resolution, because some
+            // browser XPath engines can throw on NUMBER_TYPE evaluation of node-set results.
+            let num = evaluate(context, expanded);
+            if (num !== undefined && !Number.isNaN(num)) {
+                result = String(num);
+                break;
             }
             result = evaluateString(context, expanded);
             break;
