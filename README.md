@@ -12,7 +12,7 @@
 
 ### Background
 
-Support for XSLT will be dropped as of October 2026. After trying polyfills that provide similar support using JavaScript libraries, I found them either too **slow** and/or too **large** in code size. I therefore decided to write my own version. The result is a “lightning-fast XSLT processor with no dependencies — only 28 KB.”
+Support for XSLT will be dropped as of October 2026. After trying polyfills that provide similar support using JavaScript libraries, I found them either too **slow** and/or too **large** in code size. I therefore decided to write my own version. The result is a “_lightning-fast XSLT processor with no dependencies — only 28 KB_”.
 
 
 ### Why use it
