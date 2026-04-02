@@ -30,7 +30,7 @@ https://hbi99.github.io/pro-xslt/
 
 ## Requirements
 
-- Node.js 18+ (development and tooling)
+- Node.js 22+ (development and tooling)
 
 ## Install
 
