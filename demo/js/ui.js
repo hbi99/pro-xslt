@@ -15,7 +15,7 @@ export const Sidebar = {
 				// set leaf id
 				App.ledger.selectNodes(`//Tree//*`).map((xLeaf, i) => xLeaf.setAttribute("_id", i+1));
 				// default selected tree leaf
-				value = 4;
+				value = 6;
 				// check for previously saved state
 				if (localStorage.getItem("scheme")) {
 					let xFloppy = App.ledger.selectSingleNode(`//Tree//*[@icon="floppy-disk"]`);
