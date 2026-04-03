@@ -1,5 +1,5 @@
 /*!
-  * pro-xslt v0.7.3
+  * pro-xslt v0.7.5
   * https://github.com/hbi99/pro-xslt
   */
 
@@ -37,29 +37,89 @@
     function evaluateWithType(xnode, xpath, resultType) {
         let doc =
             xnode.nodeType === Node.DOCUMENT_NODE ? xnode : xnode.ownerDocument;
-        return doc.evaluate(xpath, xnode, resolverFor(xnode), resultType, null);
+        try {
+            return doc.evaluate(xpath, xnode, resolverFor(xnode), resultType, null);
+        } catch (_) {
+            return null;
+        }
     }
 
     function evaluate(xnode, xpath) {
         let r = evaluateWithType(xnode, xpath, XPathResult.NUMBER_TYPE);
+        if (!r) return undefined;
         let n = r.numberValue;
         return Number.isNaN(n) ? undefined : n;
     }
 
     function evaluateString(xnode, xpath) {
         let r = evaluateWithType(xnode, xpath, XPathResult.STRING_TYPE);
-        return r.stringValue;
+        return r ? r.stringValue : "";
     }
 
     function evaluateNumber(xnode, xpath) {
         let r = evaluateWithType(xnode, xpath, XPathResult.NUMBER_TYPE);
+        if (!r) return undefined;
         let n = r.numberValue;
         return Number.isNaN(n) ? undefined : n;
     }
 
     function evaluateBoolean(xnode, xpath) {
         let r = evaluateWithType(xnode, xpath, XPathResult.BOOLEAN_TYPE);
-        return r.booleanValue;
+        return r ? r.booleanValue : false;
+    }
+
+    /**
+     * Resolve xsl:variable / xsl:param / xsl:with-param select="..." after expansion helpers.
+     * Some engines return [] from selectNodes for non-location expressions (e.g. arithmetic);
+     * those must fall through to numeric evaluation instead of binding an empty node-set.
+     */
+    function evaluateXslSelectBinding(context, expanded) {
+        let fnHead = /^\s*([A-Za-z_][\w.\-:]*)\s*\(/.exec(expanded);
+        if (fnHead) {
+            let n = fnHead[1].toLowerCase();
+            if (
+                n === "sum" ||
+                n === "count" ||
+                n === "number" ||
+                n === "floor" ||
+                n === "ceiling" ||
+                n === "round" ||
+                n === "string-length" ||
+                n === "position" ||
+                n === "last"
+            ) {
+                let num = evaluateNumber(context, expanded);
+                if (num !== undefined && !Number.isNaN(num)) {
+                    return { kind: "number", n: num };
+                }
+            }
+        }
+        let firstNodes = null;
+        let firstSelectThrew = false;
+        try {
+            firstNodes = context.selectNodes(expanded);
+            if (firstNodes && firstNodes.length > 0) {
+                return { kind: "nodeset", nodes: firstNodes };
+            }
+        } catch (_) {
+            firstSelectThrew = true;
+        }
+        let num = evaluateNumber(context, expanded);
+        if (num !== undefined && !Number.isNaN(num)) {
+            return { kind: "number", n: num };
+        }
+        if (!firstSelectThrew && firstNodes && firstNodes.length === 0) {
+            return { kind: "nodeset", nodes: [] };
+        }
+        try {
+            let nodes = context.selectNodes(expanded);
+            if (nodes && nodes.length === 0) {
+                return { kind: "nodeset", nodes: [] };
+            }
+        } catch (_) {
+            /* ignore */
+        }
+        return { kind: "string", s: evaluateString(context, expanded) };
     }
 
     function generateId(context) {
@@ -239,8 +299,45 @@
      * evaluating against the first node in the variable's node-set and replacing
      * them with XPath string literals. Keeps quoted text untouched.
      */
+    /**
+     * Scan a relative location path starting at `/` (e.g. `/*[@a != 'x']`) until the
+     * expression ends or a top-level separator is hit. Predicate brackets and
+     * string literals must not be truncated at `=`, `!`, spaces, etc.
+     */
+    function scanRelativePathEnd(expr, startAtSlash) {
+        let j = startAtSlash;
+        let bracket = 0;
+        let inQuote = null;
+        while (j < expr.length) {
+            let ch = expr[j];
+            if (inQuote) {
+                if (inQuote === "'" && ch === "'" && expr[j + 1] === "'") {
+                    j += 2;
+                    continue;
+                }
+                if (ch === inQuote) inQuote = null;
+                j++;
+                continue;
+            }
+            if (ch === "'" || ch === '"') {
+                inQuote = ch;
+                j++;
+                continue;
+            }
+            if (ch === "[") bracket++;
+            else if (ch === "]") bracket = Math.max(0, bracket - 1);
+            else if (bracket === 0 && /[\s(),|]/.test(ch)) break;
+            j++;
+        }
+        return j;
+    }
+
     function expandXPathNodeSetVariables(expr, vars) {
         if (!expr || !vars) return expr;
+        // Node-set steps with predicates or descendant axis must not be collapsed to string literals;
+        // leave that to expandXPathVariables (nodesetToXPathLocationExpr + full XPath evaluation).
+        if (/\$[A-Za-z_][\w.\-:]*\/[^'"]*\[/.test(expr)) return expr;
+        if (/\$[A-Za-z_][\w.\-:]*\/\//.test(expr)) return expr;
         let keys = [];
         for (let k in vars) keys.push(k);
         keys.sort((a, b) => b.length - a.length);
@@ -275,12 +372,7 @@
                         let path = "";
                         if (expr[j] === "/") {
                             let start = j;
-                            j++;
-                            while (j < expr.length) {
-                                let ch = expr[j];
-                                if (/[\s(),|+*=<>!]/.test(ch)) break;
-                                j++;
-                            }
+                            j = scanRelativePathEnd(expr, start);
                             path = expr.slice(start, j);
                         }
                         let value = "";
@@ -512,6 +604,18 @@
         return { numberExpr, pattern, decimalFormatName };
     }
 
+    /**
+     * XSLT 1.0: a trailing % in the picture multiplies the value by 100 and appends "%".
+     */
+    function stripPercentPictureSuffix(subPattern) {
+        let t = subPattern.trim();
+        let m = /%\s*$/.exec(t);
+        if (m) {
+            return { picture: t.slice(0, m.index).trim(), percent: true };
+        }
+        return { picture: t, percent: false };
+    }
+
     function formatWithSubpattern(num, subPattern, symbols) {
         let pat = subPattern.trim();
         let dotIdx = pat.indexOf(".");
@@ -578,11 +682,13 @@
         }
         let symbols = resolveDecimalFormatSymbols(vars, decimalFormatName);
 
+        numberExpr = expandXPathVariables(String(numberExpr || "").trim(), vars || {});
         let r = evaluateWithType(
             context,
             numberExpr,
             XPathResult.NUMBER_TYPE
         );
+        if (!r) return symbols.NaN;
         let n = r.numberValue;
         if (Number.isNaN(n)) return symbols.NaN;
         if (!Number.isFinite(n)) return n < 0 ? `${symbols.minusSign}${symbols.infinity}` : symbols.infinity;
@@ -595,13 +701,20 @@
         let neg = n < 0;
         let abs = Math.abs(n);
 
+        function formatOne(n, subPattern) {
+            let { picture, percent } = stripPercentPictureSuffix(subPattern);
+            let v = percent ? n * 100 : n;
+            let body = formatWithSubpattern(v, picture, symbols);
+            return percent ? `${body}%` : body;
+        }
+
         if (abs === 0 && zeroPat) {
-            return formatWithSubpattern(0, zeroPat, symbols);
+            return formatOne(0, zeroPat);
         }
         if (neg && negPat) {
-            return formatWithSubpattern(abs, negPat, symbols);
+            return formatOne(abs, negPat);
         }
-        let body = formatWithSubpattern(abs, posPat, symbols);
+        let body = formatOne(abs, posPat);
         return neg ? `${symbols.minusSign}${body}` : body;
     }
 
@@ -933,6 +1046,13 @@
                 } catch (_) {
                     /* not a location path (e.g. string literal `'yes'`) */
                 }
+                // Entire expression is a string literal (e.g. expanded $myVar). Evaluate as
+                // string before number(): jsdom coerces '10.0 GB' to number 10, which breaks
+                // xsl:value-of of RTF text that looks numeric with a suffix.
+                if (stripXPathStringLiteral(expanded) !== null) {
+                    result = evaluateString(context, expanded);
+                    break;
+                }
                 // Prefer numeric evaluation only after location-path resolution, because some
                 // browser XPath engines can throw on NUMBER_TYPE evaluation of node-set results.
                 let num = evaluate(context, expanded);
@@ -982,6 +1102,8 @@
         let tmpFragment = document.createDocumentFragment();
         processXslChildNodes(context, attrNode.childNodes, tmpFragment, vars);
         let normalized = (tmpFragment.textContent || "").replace(/\s+/g, " ").trim();
+        // Collapse "; width" from indented stylesheet text to ";width" (matches XSLT output style).
+        normalized = normalized.replace(/;\s+/g, ";");
         target.setAttribute(attrName, normalized);
     }
 
@@ -1018,24 +1140,7 @@
             let expanded = expandXPathNodeSetVariables(String(select).trim(), vars);
             expanded = expandXPathVariables(expanded, vars);
             expanded = expandXPathForEachContextFunctions(expanded, vars || {});
-            try {
-                let nodes = context.selectNodes(expanded);
-                if (nodes && nodes.length > 0) {
-                    vars[name] = { kind: "nodeset", nodes };
-                    return;
-                }
-                // Location path with no matches: XPath 1.0 empty node-set (not a number).
-                vars[name] = { kind: "nodeset", nodes: [] };
-                return;
-            } catch (_) {
-                // Not a node-set expression; fall through to number/string handling.
-            }
-            let num = evaluateNumber(context, expanded);
-            if (num !== undefined && !Number.isNaN(num)) {
-                vars[name] = { kind: "number", n: num };
-            } else {
-                vars[name] = { kind: "string", s: evaluateString(context, expanded) };
-            }
+            vars[name] = evaluateXslSelectBinding(context, expanded);
             return;
         }
 
@@ -1437,24 +1542,12 @@
             let select = child.getAttribute("select");
             if (select == null || String(select).trim() === "") continue;
 
+            // Match variable select expansion (evaluateXslSelectBinding) but omit
+            // expandXPathNodeSetVariables here: it can rewrite $param/.. paths used by
+            // recursive templates in ways that break termination.
             let expanded = expandXPathVariables(String(select).trim(), vars || {});
             expanded = expandXPathForEachContextFunctions(expanded, vars || {});
-
-            try {
-                let nodes = contextNode.selectNodes(expanded);
-                if (nodes && nodes.length > 0) {
-                    scope[paramName] = { kind: "nodeset", nodes };
-                    continue;
-                }
-                scope[paramName] = { kind: "nodeset", nodes: [] };
-                continue;
-            } catch (_) {
-                // Not a node-set expression; fall through.
-            }
-
-            let num = evaluateNumber(contextNode, expanded);
-            if (num !== undefined && !Number.isNaN(num)) scope[paramName] = { kind: "number", n: num };
-            else scope[paramName] = { kind: "string", s: evaluateString(contextNode, expanded) };
+            scope[paramName] = evaluateXslSelectBinding(contextNode, expanded);
         }
 
         renderTemplateBody(contextNode, templateNode, fragment, scope);

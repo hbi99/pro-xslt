@@ -8,6 +8,7 @@ import {
     formatNumber,
     generateId,
     parseXsltFunctionCall,
+    stripXPathStringLiteral,
 } from "../utils.js";
 
 import { expandXPathForEachContextFunctions } from "./foreachContext.js";
@@ -113,6 +114,13 @@ export function xsltFunctions(context, value, vars) {
                 }
             } catch (_) {
                 /* not a location path (e.g. string literal `'yes'`) */
+            }
+            // Entire expression is a string literal (e.g. expanded $myVar). Evaluate as
+            // string before number(): jsdom coerces '10.0 GB' to number 10, which breaks
+            // xsl:value-of of RTF text that looks numeric with a suffix.
+            if (stripXPathStringLiteral(expanded) !== null) {
+                result = evaluateString(context, expanded);
+                break;
             }
             // Prefer numeric evaluation only after location-path resolution, because some
             // browser XPath engines can throw on NUMBER_TYPE evaluation of node-set results.

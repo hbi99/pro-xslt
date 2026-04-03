@@ -1,6 +1,7 @@
 node_modules/
 dist/
 
+demo/fixture/complex/
 demo/css/tree.css
 demo/css/codemirror.css
 demo/css/icon-font.css

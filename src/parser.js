@@ -2,6 +2,7 @@ import {
     evaluateBoolean,
     evaluateNumber,
     evaluateString,
+    evaluateXslSelectBinding,
     expandXPathNodeSetVariables,
     expandXPathVariables,
 } from "./utils.js";
@@ -45,6 +46,8 @@ function applyXslAttributeNodeToElement(context, outEl, attrNode, vars) {
     let tmpFragment = document.createDocumentFragment();
     processXslChildNodes(context, attrNode.childNodes, tmpFragment, vars);
     let normalized = (tmpFragment.textContent || "").replace(/\s+/g, " ").trim();
+    // Collapse "; width" from indented stylesheet text to ";width" (matches XSLT output style).
+    normalized = normalized.replace(/;\s+/g, ";");
     target.setAttribute(attrName, normalized);
 }
 
@@ -81,24 +84,7 @@ export function bindXslVariableNode(context, el, vars, xmlNodes) {
         let expanded = expandXPathNodeSetVariables(String(select).trim(), vars);
         expanded = expandXPathVariables(expanded, vars);
         expanded = expandXPathForEachContextFunctions(expanded, vars || {});
-        try {
-            let nodes = context.selectNodes(expanded);
-            if (nodes && nodes.length > 0) {
-                vars[name] = { kind: "nodeset", nodes };
-                return;
-            }
-            // Location path with no matches: XPath 1.0 empty node-set (not a number).
-            vars[name] = { kind: "nodeset", nodes: [] };
-            return;
-        } catch (_) {
-            // Not a node-set expression; fall through to number/string handling.
-        }
-        let num = evaluateNumber(context, expanded);
-        if (num !== undefined && !Number.isNaN(num)) {
-            vars[name] = { kind: "number", n: num };
-        } else {
-            vars[name] = { kind: "string", s: evaluateString(context, expanded) };
-        }
+        vars[name] = evaluateXslSelectBinding(context, expanded);
         return;
     }
 
@@ -500,24 +486,12 @@ function invokeNamedTemplate(contextNode, callTemplateNode, fragment, vars) {
         let select = child.getAttribute("select");
         if (select == null || String(select).trim() === "") continue;
 
+        // Match variable select expansion (evaluateXslSelectBinding) but omit
+        // expandXPathNodeSetVariables here: it can rewrite $param/.. paths used by
+        // recursive templates in ways that break termination.
         let expanded = expandXPathVariables(String(select).trim(), vars || {});
         expanded = expandXPathForEachContextFunctions(expanded, vars || {});
-
-        try {
-            let nodes = contextNode.selectNodes(expanded);
-            if (nodes && nodes.length > 0) {
-                scope[paramName] = { kind: "nodeset", nodes };
-                continue;
-            }
-            scope[paramName] = { kind: "nodeset", nodes: [] };
-            continue;
-        } catch (_) {
-            // Not a node-set expression; fall through.
-        }
-
-        let num = evaluateNumber(contextNode, expanded);
-        if (num !== undefined && !Number.isNaN(num)) scope[paramName] = { kind: "number", n: num };
-        else scope[paramName] = { kind: "string", s: evaluateString(contextNode, expanded) };
+        scope[paramName] = evaluateXslSelectBinding(contextNode, expanded);
     }
 
     renderTemplateBody(contextNode, templateNode, fragment, scope);
