@@ -7,6 +7,8 @@ demo/css/codemirror.css
 demo/css/icon-font.css
 demo/css/theme.css
 
+tests/advanced.test.js
+
 .env
 .DS_Store
 *.log
