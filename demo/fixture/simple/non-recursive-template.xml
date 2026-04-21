@@ -1,0 +1,17 @@
+<Scheme>
+	<Description><![CDATA[should NOT descend into child nodes]]></Description>
+	<XmlData>
+		<page>
+            <message b="1">
+                <message b="2"/>
+            </message>
+        </page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="//message">
+		<xsl:value-of select="@b" />
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
+</Scheme>

@@ -801,8 +801,18 @@ export function transformSourceToFragment(context, xslDoc, vars) {
         // even if the caller passed an element node as `context`.
         let doc = context.nodeType === Node.DOCUMENT_NODE ? context : context.ownerDocument;
         let rootNodes = doc.selectNodes(rootMatch, doc);
+        // Only execute the root template on *top-most* matches. This prevents double-processing
+        // nested matches when the entry match is broad (e.g. //message with nested <message>).
+        let rootSet = new Set(rootNodes);
         rootNodes.forEach((rn) => {
-            renderTemplateBody(rn, rootTemplate, fragment, vars);
+            let skip = false;
+            for (let p = rn && rn.parentNode; p; p = p.parentNode) {
+                if (rootSet.has(p)) {
+                    skip = true;
+                    break;
+                }
+            }
+            if (!skip) renderTemplateBody(rn, rootTemplate, fragment, vars);
         });
     } else {
         // If there are no match-based templates, fall back to the first named template.
