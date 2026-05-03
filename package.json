@@ -25,9 +25,10 @@
     "prepublishOnly": "npm run build"
   },
   "keywords": [
-    "xslt",
-    "browser",
-    "xml"
+    "XSLT polyfill",
+    "XSLT",
+    "XML",
+    "XSLTProcessor"
   ],
   "license": "GPL-3.0-only",
   "devDependencies": {
