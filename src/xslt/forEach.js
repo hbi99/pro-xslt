@@ -53,13 +53,30 @@ function sortNodesForEach(nodes, sortNodes, vars) {
     return sorted;
 }
 
-function processForEachChildNodes(context, forEachNode, fragment, vars, xmlNodes, bindXslVariable) {
-    for (let child = forEachNode.firstChild; child; child = child.nextSibling) {
+function processForEachChildNodes(
+    context,
+    forEachNode,
+    fragment,
+    vars,
+    xmlNodes,
+    bindXslVariable,
+    consumeImplicitChooseIfAny
+) {
+    let cn = forEachNode.childNodes;
+    for (let i = 0; i < cn.length; i++) {
+        let child = cn[i];
         if (child.nodeType === Node.ELEMENT_NODE) {
             if (child.nodeName === "xsl:sort") continue;
             if (child.nodeName === "xsl:variable") {
                 bindXslVariable(context, child, vars);
                 continue;
+            }
+            if (consumeImplicitChooseIfAny) {
+                let consumed = consumeImplicitChooseIfAny(context, cn, i, fragment, vars);
+                if (consumed > 0) {
+                    i += consumed - 1;
+                    continue;
+                }
             }
         } else if (child.nodeType === Node.TEXT_NODE) {
             // Preserve literal result text inside xsl:for-each, but ignore formatting whitespace.
@@ -70,7 +87,15 @@ function processForEachChildNodes(context, forEachNode, fragment, vars, xmlNodes
     }
 }
 
-export function handleForEach(context, xslNode, fragment, vars, xmlNodes, bindXslVariable) {
+export function handleForEach(
+    context,
+    xslNode,
+    fragment,
+    vars,
+    xmlNodes,
+    bindXslVariable,
+    consumeImplicitChooseIfAny
+) {
     let select = xslNode.getAttribute("select");
     if (select == null || String(select).trim() === "") return;
 
@@ -84,7 +109,15 @@ export function handleForEach(context, xslNode, fragment, vars, xmlNodes, bindXs
         scope.__position = idx + 1;
         scope.__last = sortedNodes.length;
         scope.__current = node;
-        processForEachChildNodes(node, xslNode, fragment, scope, xmlNodes, bindXslVariable);
+        processForEachChildNodes(
+            node,
+            xslNode,
+            fragment,
+            scope,
+            xmlNodes,
+            bindXslVariable,
+            consumeImplicitChooseIfAny
+        );
     });
 }
 

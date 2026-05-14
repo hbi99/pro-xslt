@@ -38,4 +38,13 @@ describe('xsl:choose', () => {
 
         expect(fragment.textContent.replace(/\s+/g, ' ').trim()).toBe('top: 153px;');
     });
+
+    it('when tests against data values', async () => {
+        let { xmlDoc, xslDoc } = loadXml(`xsl-choose/when-test-data-comparison.xml`);
+        let proXslt = new ProXslt();
+        proXslt.importStylesheet(xslDoc);
+        let fragment = proXslt.transformToFragment(xmlDoc, document);
+
+        expect(fragment.textContent.replace(/\s+/g, ' ').trim()).toBe('select');
+    });
 });

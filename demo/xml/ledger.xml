@@ -48,6 +48,7 @@
 				<i icon="file" type="xml" name="compound-when-tests" />
 				<i icon="file" type="xml" name="otherwise-branch" />
 				<i icon="file" type="xml" name="first-when-branch" />
+				<i icon="file" type="xml" name="when-test-data-comparison" />
 			</i>
 			<i icon="folder" name="xsl-comment">
 				<i icon="file" type="xml" name="comment-from-select" />

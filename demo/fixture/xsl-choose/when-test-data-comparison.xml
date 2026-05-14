@@ -1,0 +1,32 @@
+<Scheme>
+	<Description><![CDATA[when tests against data values]]></Description>
+	<XmlData>
+		<Filter>
+			<i name="Halftone Pattern">
+				<i name="Size" min="1" max="15" value="1"/>
+				<i name="Contrast" min="0" max="50" value="5"/>
+				<i type="select" name="Pattern">
+					<o value="0" name="Circle"/>
+					<o value="1" name="Dot"/>
+					<o value="2" name="Line"/>
+				</i>
+			</i>
+		</Filter>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="//Filter/i">
+		<xsl:for-each select="./*">
+		<xsl:when test="@type = 'select'">select</xsl:when>
+		<xsl:when test="@type = 'checkbox'"></xsl:when>
+		<xsl:when test="@type = 'color'"></xsl:when>
+		<xsl:choose>
+			<xsl:otherwise>
+				fallback
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:for-each>
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
+</Scheme>

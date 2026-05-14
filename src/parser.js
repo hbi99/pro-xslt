@@ -136,6 +136,11 @@ function processXslChildNodes(context, childNodes, fragment, vars) {
                 applyXslAttributeNodeToElement(context, fragment, child, vars);
                 continue;
             }
+            let consumed = consumeImplicitChooseIfAny(context, childNodes, i, fragment, vars);
+            if (consumed > 0) {
+                i += consumed - 1;
+                continue;
+            }
         }
 
         // Literal result text/comments should flow into the output element,
@@ -146,6 +151,134 @@ function processXslChildNodes(context, childNodes, fragment, vars) {
         }
         fragment.appendChild(xmlNodes(context, child, vars));
     }
+}
+
+function isBareWhenOrOtherwise(node) {
+    return (
+        node &&
+        node.nodeType === Node.ELEMENT_NODE &&
+        (node.nodeName === "xsl:when" || node.nodeName === "xsl:otherwise")
+    );
+}
+
+function isIgnorableStylesheetTextBetweenXslNodes(node) {
+    return (
+        node &&
+        node.nodeType === Node.TEXT_NODE &&
+        /^\s*$/.test(node.textContent || "")
+    );
+}
+
+function implicitChooseRunSpan(childNodes, startIdx) {
+    if (!isBareWhenOrOtherwise(childNodes[startIdx])) return 0;
+    let j = startIdx;
+    while (j < childNodes.length) {
+        if (isBareWhenOrOtherwise(childNodes[j])) {
+            j++;
+            continue;
+        }
+        if (isIgnorableStylesheetTextBetweenXslNodes(childNodes[j])) {
+            j++;
+            continue;
+        }
+        break;
+    }
+    return j - startIdx;
+}
+
+/** First element or non–whitespace-only text after childNodes[idx] (exclusive start at idx). */
+function firstSignificantNodeFromIndex(childNodes, idx) {
+    for (let j = idx; j < childNodes.length; j++) {
+        let n = childNodes[j];
+        if (n.nodeType === Node.TEXT_NODE) {
+            if (/^\s*$/.test(n.textContent || "")) continue;
+            return { node: n, index: j };
+        }
+        if (n.nodeType === Node.ELEMENT_NODE) return { node: n, index: j };
+    }
+    return null;
+}
+
+function collectChooseBranchesFromNodeList(childNodes, startIdx, span) {
+    let branches = [];
+    for (let k = 0; k < span; k++) {
+        let n = childNodes[startIdx + k];
+        if (n.nodeType !== Node.ELEMENT_NODE) continue;
+        if (n.nodeName === "xsl:when") branches.push({ kind: "when", node: n });
+        else if (n.nodeName === "xsl:otherwise") branches.push({ kind: "otherwise", node: n });
+    }
+    return branches;
+}
+
+function collectChooseBranchesFromXslChoose(chooseEl) {
+    let branches = [];
+    for (let c = chooseEl.firstChild; c; c = c.nextSibling) {
+        if (c.nodeType !== Node.ELEMENT_NODE) continue;
+        if (c.nodeName === "xsl:when") branches.push({ kind: "when", node: c });
+        else if (c.nodeName === "xsl:otherwise") branches.push({ kind: "otherwise", node: c });
+    }
+    return branches;
+}
+
+function isOtherwiseOnlyChoose(chooseEl) {
+    if (!chooseEl || chooseEl.nodeType !== Node.ELEMENT_NODE || chooseEl.nodeName !== "xsl:choose") {
+        return false;
+    }
+    let whenCount = 0;
+    let otherwiseCount = 0;
+    for (let c = chooseEl.firstChild; c; c = c.nextSibling) {
+        if (c.nodeType !== Node.ELEMENT_NODE) continue;
+        if (c.nodeName === "xsl:when") whenCount++;
+        else if (c.nodeName === "xsl:otherwise") otherwiseCount++;
+        else return false;
+    }
+    return whenCount === 0 && otherwiseCount > 0;
+}
+
+function executeChooseBranches(context, fragment, v, branches) {
+    let matched = false;
+    let otherwiseNode = null;
+    for (let i = 0; i < branches.length; i++) {
+        if (matched) break;
+        let b = branches[i];
+        if (b.kind === "when") {
+            let test = b.node.getAttribute("test");
+            if (test == null) continue;
+            let expandedTest = expandXPathVariables(String(test).trim(), v);
+            expandedTest = expandXPathForEachContextFunctions(expandedTest, v || {});
+            expandedTest = expandXsltFunctionCallsInTest(expandedTest, context, v);
+            expandedTest = expandNameFunctions(expandedTest, context);
+            expandedTest = rewriteNotEqualsForJsdom(expandedTest);
+            if (evaluateBoolean(context, expandedTest)) {
+                let branchScope = childScope(v);
+                processXslChildNodes(context, b.node.childNodes, fragment, branchScope);
+                matched = true;
+            }
+        } else {
+            otherwiseNode = b.node;
+        }
+    }
+    if (!matched && otherwiseNode) {
+        let branchScope = childScope(v);
+        processXslChildNodes(context, otherwiseNode.childNodes, fragment, branchScope);
+    }
+    return matched;
+}
+
+function consumeImplicitChooseIfAny(context, childNodes, startIdx, fragment, vars) {
+    let span = implicitChooseRunSpan(childNodes, startIdx);
+    if (span === 0) return 0;
+    let branches = collectChooseBranchesFromNodeList(childNodes, startIdx, span);
+    let matched = executeChooseBranches(context, fragment, vars, branches);
+    let consumed = span;
+    let sig = firstSignificantNodeFromIndex(childNodes, startIdx + span);
+    if (sig && isOtherwiseOnlyChoose(sig.node)) {
+        if (!matched) {
+            executeChooseBranches(context, fragment, vars, collectChooseBranchesFromXslChoose(sig.node));
+        }
+        consumed = sig.index - startIdx + 1;
+    }
+    return consumed;
 }
 
 function getXsltTemplates(xslNode) {
@@ -643,45 +776,18 @@ export function xsltElements(context, xslNode, fragment, vars) {
             }
             break;
         }
-        case "xsl:choose": {
-            let matched = false;
-            let otherwiseNode = null;
-            for (let child = xslNode.firstChild; child; child = child.nextSibling) {
-                if (matched) break;
-                if (child.nodeType !== Node.ELEMENT_NODE) continue;
-
-                if (child.nodeName === "xsl:when") {
-                    let test = child.getAttribute("test");
-                    if (test == null) continue;
-                    let expandedTest = expandXPathVariables(String(test).trim(), v);
-                    expandedTest = expandXPathForEachContextFunctions(expandedTest, v);
-                    expandedTest = expandXsltFunctionCallsInTest(expandedTest, context, v);
-                    expandedTest = expandNameFunctions(expandedTest, context);
-                    expandedTest = rewriteNotEqualsForJsdom(expandedTest);
-                    if (evaluateBoolean(context, expandedTest)) {
-                        let branchScope = childScope(v);
-                        processXslChildNodes(context, child.childNodes, fragment, branchScope);
-                        matched = true;
-                    }
-                    continue;
-                }
-
-                if (child.nodeName === "xsl:otherwise") {
-                    otherwiseNode = child;
-                }
-            }
-
-            if (!matched && otherwiseNode) {
-                let branchScope = childScope(v);
-                processXslChildNodes(context, otherwiseNode.childNodes, fragment, branchScope);
-            }
-
+        case "xsl:choose":
+            executeChooseBranches(
+                context,
+                fragment,
+                v,
+                collectChooseBranchesFromXslChoose(xslNode)
+            );
             break;
-        }
         case "xsl:for-each":
             handleForEach(context, xslNode, fragment, v, xmlNodes, (ctx, varNode, scope) => {
                 bindXslVariableNode(ctx, varNode, scope, xmlNodes);
-            });
+            }, consumeImplicitChooseIfAny);
             break;
         case "xsl:if": {
             let test = xslNode.getAttribute("test");
