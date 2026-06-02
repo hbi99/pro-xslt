@@ -9,6 +9,7 @@ import {
 
 import { expandXPathForEachContextFunctions } from "./xslt/foreachContext.js";
 import { handleForEach } from "./xslt/forEach.js";
+import { appendDisableOutputEscaping } from "./xslt/markupSerialize.js";
 import { xsltFunctions } from "./xslt/xsltFunctions.js";
 
 const XSL_NS = "http://www.w3.org/1999/XSL/Transform";
@@ -199,25 +200,38 @@ function firstSignificantNodeFromIndex(childNodes, idx) {
     return null;
 }
 
-function collectChooseBranchesFromNodeList(childNodes, startIdx, span) {
+function collectChooseBranches(root, startIdx, span) {
     let branches = [];
-    for (let k = 0; k < span; k++) {
-        let n = childNodes[startIdx + k];
-        if (n.nodeType !== Node.ELEMENT_NODE) continue;
+    let end = span != null ? startIdx + span : root.childNodes.length;
+    for (let k = startIdx; k < end; k++) {
+        let n = span != null ? root[k] : root.childNodes[k];
+        if (!n || n.nodeType !== Node.ELEMENT_NODE) continue;
         if (n.nodeName === "xsl:when") branches.push({ kind: "when", node: n });
         else if (n.nodeName === "xsl:otherwise") branches.push({ kind: "otherwise", node: n });
     }
     return branches;
 }
 
-function collectChooseBranchesFromXslChoose(chooseEl) {
-    let branches = [];
-    for (let c = chooseEl.firstChild; c; c = c.nextSibling) {
-        if (c.nodeType !== Node.ELEMENT_NODE) continue;
-        if (c.nodeName === "xsl:when") branches.push({ kind: "when", node: c });
-        else if (c.nodeName === "xsl:otherwise") branches.push({ kind: "otherwise", node: c });
+/** Attribute names compared in bare xsl:when tests (e.g. @type = 'select'). */
+function attributesTestedByWhenBranches(branches) {
+    let attrs = new Set();
+    let re = /@([A-Za-z_][\w.\-:]*)\s*[=!\[]/g;
+    for (let i = 0; i < branches.length; i++) {
+        if (branches[i].kind !== "when") continue;
+        let test = branches[i].node.getAttribute("test") || "";
+        let m;
+        while ((m = re.exec(test))) attrs.add(m[1]);
     }
-    return branches;
+    return attrs;
+}
+
+function elementHasAllAttributes(el, attrs) {
+    if (attrs.size === 0) return true;
+    if (!el || el.nodeType !== Node.ELEMENT_NODE) return false;
+    for (let name of attrs) {
+        if (!el.hasAttribute(name)) return false;
+    }
+    return true;
 }
 
 function isOtherwiseOnlyChoose(chooseEl) {
@@ -268,13 +282,14 @@ function executeChooseBranches(context, fragment, v, branches) {
 function consumeImplicitChooseIfAny(context, childNodes, startIdx, fragment, vars) {
     let span = implicitChooseRunSpan(childNodes, startIdx);
     if (span === 0) return 0;
-    let branches = collectChooseBranchesFromNodeList(childNodes, startIdx, span);
+    let branches = collectChooseBranches(childNodes, startIdx, span);
     let matched = executeChooseBranches(context, fragment, vars, branches);
     let consumed = span;
     let sig = firstSignificantNodeFromIndex(childNodes, startIdx + span);
     if (sig && isOtherwiseOnlyChoose(sig.node)) {
-        if (!matched) {
-            executeChooseBranches(context, fragment, vars, collectChooseBranchesFromXslChoose(sig.node));
+        let testedAttrs = attributesTestedByWhenBranches(branches);
+        if (!matched && elementHasAllAttributes(context, testedAttrs)) {
+            executeChooseBranches(context, fragment, vars, collectChooseBranches(sig.node, 0, null));
         }
         consumed = sig.index - startIdx + 1;
     }
@@ -777,12 +792,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
             break;
         }
         case "xsl:choose":
-            executeChooseBranches(
-                context,
-                fragment,
-                v,
-                collectChooseBranchesFromXslChoose(xslNode)
-            );
+            executeChooseBranches(context, fragment, v, collectChooseBranches(xslNode, 0, null));
             break;
         case "xsl:for-each":
             handleForEach(context, xslNode, fragment, v, xmlNodes, (ctx, varNode, scope) => {
@@ -835,11 +845,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
             value = xslNode.getAttribute("select").trim();
             result = xsltFunctions(context, value, v);
             if ((xslNode.getAttribute("disable-output-escaping") || "").toLowerCase() === "yes") {
-                // Interpret the string result as markup and append nodes (HTML-like behavior).
-                // This matches the expected behavior in our tests when disable-output-escaping="yes".
-                let tpl = document.createElement("template");
-                tpl.innerHTML = String(result ?? "");
-                fragment.appendChild(tpl.content.cloneNode(true));
+                appendDisableOutputEscaping(fragment, result);
             } else {
                 fragment.appendChild(document.createTextNode(String(result ?? "")));
             }
