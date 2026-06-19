@@ -1,0 +1,15 @@
+<Scheme>
+	<Description><![CDATA[should fail silently and not throw error]]></Description>
+	<XmlData>
+		<page>
+			<message>Hello World</message>
+		</page>
+	</XmlData>
+	<Template><![CDATA[
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="/page/message[">
+		<xsl:value-of select="." />
+	</xsl:template>
+</xsl:stylesheet>
+]]></Template>
+</Scheme>

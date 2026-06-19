@@ -4,7 +4,7 @@ import pkg from './package.json' with { type: 'json' };
 
 dotenv.config();
 
-let minify = process.env.SCOPE !== "dev";
+let minify = process.env.SCOPE !== "1dev";
 let plugins = minify ? [terser({ maxWorkers: 1 })] : [];
 let githubUrl = 'https://github.com/hbi99/pro-xslt';
 let banner = `/*!

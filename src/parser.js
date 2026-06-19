@@ -5,6 +5,7 @@ import {
     evaluateXslSelectBinding,
     expandXPathNodeSetVariables,
     expandXPathVariables,
+    safeSelectNodes,
 } from "./utils.js";
 
 import { expandXPathForEachContextFunctions } from "./xslt/foreachContext.js";
@@ -654,7 +655,7 @@ function invokeMatchingTemplate(contextNode, xslNode, fragment, vars) {
         let lookupXpath = tm.lookupXpath;
         let matches = matchNodeSetCache && matchNodeSetCache[lookupXpath];
         if (!matches) {
-            matches = doc.selectNodes(lookupXpath);
+            matches = safeSelectNodes(doc, lookupXpath);
             if (matchNodeSetCache) matchNodeSetCache[lookupXpath] = matches;
         }
         for (let m of matches) {
@@ -912,7 +913,7 @@ export function transformSourceToFragment(context, xslDoc, vars) {
         // Always resolve the entry nodes by evaluating the match XPath from the document root,
         // even if the caller passed an element node as `context`.
         let doc = context.nodeType === Node.DOCUMENT_NODE ? context : context.ownerDocument;
-        let rootNodes = doc.selectNodes(rootMatch, doc);
+        let rootNodes = safeSelectNodes(doc, rootMatch, doc);
         // Only execute the root template on *top-most* matches. This prevents double-processing
         // nested matches when the entry match is broad (e.g. //message with nested <message>).
         let rootSet = new Set(rootNodes);

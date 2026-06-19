@@ -10,13 +10,22 @@ export function selectNodes(xpath, xnode) {
         len = qI.snapshotLength;
     while (len--) res[len] = qI.snapshotItem(len);
     return res;
-};
+}
 
 export function selectSingleNode(xpath, xnode) {
     if(!xnode) xnode = this;
     let xI = this.selectNodes(xpath, xnode);
     return (xI.length > 0)? xI[0] : null ;
 };
+
+/** Like selectNodes but returns [] when the XPath expression is invalid. */
+export function safeSelectNodes(doc, xpath, context) {
+    try {
+        return doc.selectNodes(xpath, context);
+    } catch (_) {
+        return [];
+    }
+}
 
 function resolverFor(contextNode) {
     let doc =

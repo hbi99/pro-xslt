@@ -44,6 +44,15 @@ describe('Simple Tests', () => {
         expect(fragment.textContent.trim()).toBe(`7`);
     });
 
+    it('should fail silently and not throw error', async () => {
+        let { xmlDoc, xslDoc } = loadXml(`simple/silent-fail.xml`);
+        let proXslt = new ProXslt();
+        proXslt.importStylesheet(xslDoc);
+        let fragment = proXslt.transformToFragment(xmlDoc, document);
+
+        expect(fragment.textContent.trim()).toBe(``);
+    });
+
     it('should NOT descend into child nodes', async () => {
         let { xmlDoc, xslDoc } = loadXml(`simple/non-recursive-template.xml`);
         let proXslt = new ProXslt();
