@@ -862,7 +862,7 @@ export function xsltElements(context, xslNode, fragment, vars) {
                     let attr = attrs[ai];
                     if (attr.name === "xmlns" || attr.name.startsWith("xmlns:")) continue;
                     if (attr.name === "use-attribute-sets") continue;
-                    outEl.setAttribute(attr.name, attr.value);
+                    outEl.setAttribute(attr.name, expandAttributeValueTemplate(context, attr.value, v));
                 }
             }
             applyUseAttributeSets(context, outEl, xslNode.getAttribute("use-attribute-sets"), v);
@@ -874,6 +874,40 @@ export function xsltElements(context, xslNode, fragment, vars) {
         }
     }
     return fragment;
+}
+
+/**
+ * Expand XSLT attribute value templates: `{expr}` is replaced by the evaluated
+ * XPath/value; `{{` and `}}` are literal braces. Plain text is left untouched.
+ */
+function expandAttributeValueTemplate(context, text, vars) {
+    let s = String(text == null ? "" : text);
+    if (s.indexOf("{") === -1 && s.indexOf("}") === -1) return s;
+    let out = "";
+    for (let i = 0; i < s.length; i++) {
+        let ch = s[i];
+        if (ch === "{") {
+            if (s[i + 1] === "{") {
+                out += "{";
+                i++;
+                continue;
+            }
+            let end = s.indexOf("}", i + 1);
+            if (end === -1) {
+                out += s.slice(i);
+                break;
+            }
+            let expr = s.slice(i + 1, end).trim();
+            out += String(xsltFunctions(context, expr, vars) ?? "");
+            i = end;
+        } else if (ch === "}" && s[i + 1] === "}") {
+            out += "}";
+            i++;
+        } else {
+            out += ch;
+        }
+    }
+    return out;
 }
 
 function normalizeTemplateMatch(m) {

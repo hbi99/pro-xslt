@@ -38,9 +38,20 @@ if (typeof DocumentFragment !== "undefined" && !("innerHTML" in DocumentFragment
 /**
  * @class
  */
+function paramKey(namespaceURI, localName) {
+    return `${namespaceURI || ""}|${localName}`;
+}
+
+function stripXPathLiteral(select) {
+    let s = String(select).trim();
+    let m = /^'([^']*)'$/.exec(s) || /^"([^"]*)"$/.exec(s);
+    return m ? m[1] : s;
+}
+
 class ProXslt {
     constructor(options) {
         this.options = options || {};
+        this.parameters = new Map();
     }
 
     static xmlFromString(str) {
@@ -76,9 +87,36 @@ class ProXslt {
         resolveStylesheetImports(doc, this.options.importResolver);
         this.xslDoc = doc;
         this.globalVariableNodes = this.xslDoc.selectNodes(`//xsl:stylesheet/xsl:variable`);
+        this.globalParamNodes = this.xslDoc.selectNodes(`//xsl:stylesheet/xsl:param`);
         this.outputSettings = parseOutputSettings(doc);
         this.decimalFormats = parseDecimalFormats(doc);
         this.attributeSets = parseAttributeSets(doc);
+    }
+
+    setParameter(namespaceURI, localName, value) {
+        this.parameters.set(paramKey(namespaceURI, localName), value);
+    }
+
+    getParameter(namespaceURI, localName) {
+        let key = paramKey(namespaceURI, localName);
+        if (this.parameters.has(key)) return this.parameters.get(key);
+
+        // Fall back to the stylesheet's declared default for this xsl:param.
+        let node = this.xslDoc
+            ? this.xslDoc.selectSingleNode(`//xsl:stylesheet/xsl:param[@name='${localName}']`)
+            : null;
+        if (!node) return null;
+        let select = node.getAttribute("select");
+        if (select != null && String(select).trim() !== "") return stripXPathLiteral(select);
+        return node.textContent;
+    }
+
+    removeParameter(namespaceURI, localName) {
+        this.parameters.delete(paramKey(namespaceURI, localName));
+    }
+
+    clearParameters() {
+        this.parameters.clear();
     }
 
     transformToFragment(context, doc) {
@@ -90,6 +128,20 @@ class ProXslt {
         let globalVariableNodes = this.globalVariableNodes || [];
         globalVariableNodes.forEach((vNode) => {
             bindXslVariableNode(context, vNode, globalVars);
+        });
+
+        // Top-level xsl:param: use a runtime override (setParameter) when present,
+        // otherwise bind the param's declared default like a variable.
+        let globalParamNodes = this.globalParamNodes || [];
+        globalParamNodes.forEach((pNode) => {
+            let name = pNode.getAttribute("name");
+            if (!name) return;
+            let key = paramKey(null, name);
+            if (this.parameters.has(key)) {
+                globalVars[name] = { kind: "string", s: String(this.parameters.get(key)) };
+            } else {
+                bindXslVariableNode(context, pNode, globalVars);
+            }
         });
         // xsl:key indexes are built lazily per key name on first key() call.
         globalVars.__sourceDoc = context;
