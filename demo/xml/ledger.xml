@@ -10,6 +10,11 @@
 				<i icon="file" type="xml" name="key-registry-lookup" />
 				<i icon="file" type="xml" name="format-numbers" />
 			</i>
+			<i icon="folder" name="interface">
+				<i icon="file" type="xml" name="setParameter" />
+				<i icon="file" type="xml" name="getParameter" />
+				<i icon="file" type="xml" name="clearParameters" />
+			</i>
 			<i icon="folder" name="html">
 				<i icon="file" type="xml" name="raw-html-output" />
 				<i icon="file" type="xml" name="match-text-template" />
